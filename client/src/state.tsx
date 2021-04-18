@@ -9,6 +9,7 @@ export interface RawState {
 export interface State {
   rs: RawState,
   setRS: (rs: RawState) => void,
+  setBook: (book: Book) => void,
   addFile: (file: File) => void,
 }
 
@@ -20,20 +21,30 @@ const emptyRawState: RawState = {
     files: [],
     fspath: ""
   }
-} 
+};
+
+const loadRS = () => {
+  const rs = window.localStorage.getItem('rawState');
+  return rs ? JSON.parse(rs) : emptyRawState;
+}
 
 export const StateContext = React.createContext<State>({
-  rs: emptyRawState,
+  rs: loadRS(),
   setRS: () => {},
+  setBook: () => {},
   addFile: () => {}
 });
 
 export const StateProvider: React.FC = ({ children }) => {
-  const [rs, setRS] = React.useState<RawState>(emptyRawState);
-  
-  
-  const addFile = (file: File) => setRS({ ...rs, book: { ...rs.book, files: [...rs.book.files, file] } })
-  const value = { rs, setRS, addFile };
+  const [rs, setRSRaw] = React.useState<RawState>(loadRS());
+  const setRS = (rs: RawState) => {
+    window.localStorage.setItem('rawState', JSON.stringify(rs));
+    return setRSRaw(rs);
+  }
+
+  const setBook = (book: Book) => setRS({ ...rs, book });
+  const addFile = (file: File) => setBook({ ...rs.book, files: [...rs.book.files, file] })
+  const value = { rs, setRS, setBook, addFile };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }
