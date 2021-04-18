@@ -1,19 +1,27 @@
 import { activateHttpServer } from './httpServer';
-//import { spawnPromise } from './utils';
+import { spawnPromise } from './utils';
 import { Params } from "../../common/params";
 import { File } from "../../common/book";
+//import * as sharp from "sharp";
+import { join } from "path";
+import * as md5 from "md5";
+import { writeFileSync } from 'fs';
 
 const x = async (json: Params, _url: any) => {
-  console.log("siema", json);
+  console.log(json);
   switch (json.kind) {
     case "scan":
-      //await spawnPromise("echo", ["scanning"]);
-      const file: File = {
-        pages: [],
-        path: "",
-        hash: Math.random().toString()
-      };
-      return file;
+      try {
+        const { stdout } = await spawnPromise("scanimage", ["--mode","Color","--resolution","50","--format","jpg"]);
+        const hash = md5(stdout);
+        const path = join(__dirname, "../../../../tmp", `${hash}.jpg`);
+        writeFileSync(path, stdout);
+        //sharp(stdout).toFile(path);
+        const file: File = { pages: [], path, hash };
+        return file;
+      } catch(error) {
+        return { error: JSON.parse(JSON.stringify(error)) };
+      }
   }
 };
 

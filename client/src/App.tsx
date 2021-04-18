@@ -1,14 +1,8 @@
 import React from 'react';
 import './App.css';
 import { renderFile } from './book';
-import { httpRequest } from './utils';
 import { State, StateContext, StateProvider } from './state';
-import { File } from "../../common/book";
-
-const scanOnePage: ((s: State) => React.MouseEventHandler<HTMLDivElement>) = (s: State) => async (_event) => {
-  const file = await httpRequest<File>({ kind: "scan" });
-  s.addFile(file);
-}
+import { scanningButtons } from './scanning';
 
 const changeTitle: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = (s: State) => (e) => {
   s.setBook({ ...s.rs.book, title: e.target.value });
@@ -27,10 +21,7 @@ const AppProvided = () => {
     <div id="App">
       <div id="topbar">
         <input type="text" value={s.rs.book.title} onChange={changeTitle(s)}/>
-        <div className="button" onClick={scanOnePage(s)}>scan one page</div>
-        <div className="button">
-          scan many pages with delay
-        </div>
+        {scanningButtons(s)}
         <input type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
       </div>
       <div id="wrapper">

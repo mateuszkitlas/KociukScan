@@ -1,7 +1,11 @@
 import rp from "request-promise"
 import { Params } from "../../common/params";
 
-export async function httpRequest<T>(body: Params): Promise<T> {
+export type Result<T> =
+  | { success: true, result: T }
+  | { success: false, result: Error }
+
+export async function httpRequest<T>(body: Params): Promise<Result<T>> {
   const x = await rp({
     method: "POST",
     body,
@@ -9,5 +13,5 @@ export async function httpRequest<T>(body: Params): Promise<T> {
     json: true,
     headers: {'Access-Control-Allow-Origin': '*'}
   });
-  return x;
+  return x.error ? { success: false, result: x.error } : { success: true, result: x };
 }
