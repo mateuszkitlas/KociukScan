@@ -74,5 +74,6 @@ input {
 }
 
 #wrapper > div > div#files > div.file:hover {
-  background-color: #445;
+  padding: 0;
+  border: 10px #556 solid;
 }
