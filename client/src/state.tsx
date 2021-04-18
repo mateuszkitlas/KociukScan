@@ -11,6 +11,7 @@ export interface State {
   setRS: (rs: RawState) => void,
   setBook: (book: Book) => void,
   addFile: (file: File) => void,
+  deleteFile: (hash: string) => void,
 }
 
 const emptyRawState: RawState = {
@@ -32,7 +33,8 @@ export const StateContext = React.createContext<State>({
   rs: loadRS(),
   setRS: () => {},
   setBook: () => {},
-  addFile: () => {}
+  addFile: () => {},
+  deleteFile: () => {}
 });
 
 export const StateProvider: React.FC = ({ children }) => {
@@ -43,8 +45,10 @@ export const StateProvider: React.FC = ({ children }) => {
   }
 
   const setBook = (book: Book) => setRS({ ...rs, book });
-  const addFile = (file: File) => setBook({ ...rs.book, files: [...rs.book.files, file] })
-  const value = { rs, setRS, setBook, addFile };
+  const setFiles = (files: File[]) => setBook({ ...rs.book, files });
+  const addFile = (file: File) => setFiles([...rs.book.files, file]);
+  const deleteFile = (hash: string) => setFiles(rs.book.files.filter(f => f.hash !== hash));
+  const value = { rs, setRS, setBook, addFile, deleteFile };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }
