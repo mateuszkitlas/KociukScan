@@ -8,7 +8,11 @@ const x = async (json: Params, _url: any) => {
   switch (json.kind) {
     case "scan":
       //await spawnPromise("echo", ["scanning"]);
-      const file: File = { pages: [], path: "", hash: Math.random().toString() };
+      const file: File = {
+        pages: [],
+        path: "",
+        hash: Math.random().toString()
+      };
       return file;
   }
 };
