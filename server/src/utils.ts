@@ -1,4 +1,4 @@
-import { spawn, SpawnOptionsWithoutStdio } from 'node:child_process';
+import { spawn, SpawnOptionsWithoutStdio } from 'child_process';
 
 export const spawnPromise = (command: string, args?: ReadonlyArray<string>, options?: SpawnOptionsWithoutStdio) => {
   return new Promise<{ stdout: string; stderr: string; trimmedStdout: string }>((resolve, reject) => {

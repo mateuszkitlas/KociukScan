@@ -2,10 +2,11 @@ import { activateHttpServer } from './httpServer';
 import { spawnPromise } from './utils';
 import { Params } from "../../common/params";
 
-const x = (json: Params, _url: any) => {
+const x = async (json: Params, _url: any) => {
+  console.log("siema", json);
   switch (json.kind) {
     case "scan":
-      spawnPromise("echo", ["scanning..."]);
+      await spawnPromise("echo", ["scanning..."]);
       return true;
   }
 };

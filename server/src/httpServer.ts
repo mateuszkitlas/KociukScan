@@ -11,6 +11,15 @@ export function activateHttpServer<P = any, R = any>(
 ): Promise<ServerHandle> {
   const server = http
     .createServer((req, res) => {
+      res.setHeader('Access-Control-Allow-Origin', '*');
+      res.setHeader('Access-Control-Request-Method', '*');
+      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST');
+      res.setHeader('Access-Control-Allow-Headers', '*');
+      if ( req.method === 'OPTIONS' ) {
+        res.writeHead(200);
+        res.end();
+        return;
+      }
       function end(data: any) {
         res.writeHead(200, { "Content-Type": "application/json" });
         res.end(JSON.stringify(data));
@@ -25,8 +34,8 @@ export function activateHttpServer<P = any, R = any>(
       });
       req.on("end", () => {
         const params = JSON.parse(json);
-          // tslint:disable-next-line: no-floating-promises
-          Promise.resolve(exec(params, req.url)).then(end);
+        // tslint:disable-next-line: no-floating-promises
+        Promise.resolve(exec(params, req.url)).then(end);
       });
     })
     .listen(port, host);

@@ -3,6 +3,6 @@ import { File } from '../../common/book';
 
 export const renderFile = (f: File) => (
   <div className="file">
-    <img src={f.path}/>
+    <img src={f.path} alt={""}/>
   </div>
 )
