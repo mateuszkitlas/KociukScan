@@ -1,13 +1,13 @@
 import rp from "request-promise"
 import { Params } from "../../common/params";
 
-export async function httpRequest<T>(data: Params): Promise<T> {
+export async function httpRequest<T>(body: Params): Promise<T> {
   const x = await rp({
     method: "POST",
-    body: data,
+    body,
     url: "http://localhost:5000",
-    json: true
+    json: true,
+    headers: {'Access-Control-Allow-Origin': '*'}
   });
-  console.log(x);
-  return x as unknown as T;
+  return x;
 }

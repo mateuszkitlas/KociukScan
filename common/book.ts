@@ -8,6 +8,7 @@ export interface Book {
 export interface File {
   path: string;
   pages: Page[];
+  hash: string;
 }
 
 export interface Page {

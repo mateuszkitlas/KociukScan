@@ -3,9 +3,11 @@ import './App.css';
 import { renderFile } from './book';
 import { httpRequest } from './utils';
 import { State, StateContext, StateProvider } from './state';
+import { File } from "../../common/book";
 
 const scanOnePage: ((s: State) => React.MouseEventHandler<HTMLDivElement>) = (s: State) => async (_event) => {
-  await httpRequest({ kind: "scan" });
+  const file = await httpRequest<File>({ kind: "scan" });
+  s.addFile(file);
 }
 
 const AppProvided = () => {

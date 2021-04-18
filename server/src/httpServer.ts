@@ -13,29 +13,30 @@ export function activateHttpServer<P = any, R = any>(
     .createServer((req, res) => {
       res.setHeader('Access-Control-Allow-Origin', '*');
       res.setHeader('Access-Control-Request-Method', '*');
-      res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST');
+      //res.setHeader('Access-Control-Allow-Methods', 'OPTIONS, GET, POST');
       res.setHeader('Access-Control-Allow-Headers', '*');
-      if ( req.method === 'OPTIONS' ) {
-        res.writeHead(200);
+      if (req.method === 'OPTIONS' ) {
+        res.writeHead(200, { "Content-Type": "application/json" });
         res.end();
         return;
       }
-      function end(data: any) {
+      
+      let body: any = [];
+      req.on('error', (err) => {
+        console.error(err);
+      }).on('data', (chunk) => {
+        body.push(chunk);
+      }).on('end', async () => {
+        body = Buffer.concat(body).toString();
+        // at this point, `body` has the entire request body stored in it as a string
+        res.on('error', (err) => {
+          console.error(err);
+        });
         res.writeHead(200, { "Content-Type": "application/json" });
+        const params = JSON.parse(body);
+        const data = await exec(params, req.url);
         res.end(JSON.stringify(data));
-      }
-      let json: any = null;
-      req.on("data", data => {
-        if (json === null) {
-          json = data;
-        } else {
-          json += data;
-        }
-      });
-      req.on("end", () => {
-        const params = JSON.parse(json);
-        // tslint:disable-next-line: no-floating-promises
-        Promise.resolve(exec(params, req.url)).then(end);
+        console.log("response", data);
       });
     })
     .listen(port, host);
