@@ -1,9 +1,6 @@
 import { activateHttpServer } from './httpServer';
 import { spawnPromise } from './utils';
-
-
-type Params = { kind: "scan" }
-
+import { Params } from "../../common/params";
 
 const x = (json: Params, _url: any) => {
   switch (json.kind) {
