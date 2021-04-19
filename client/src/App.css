@@ -1,13 +1,18 @@
 #App {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
   width: 100%;
-}
-html {
+  display: flex;
+  flex-flow: column;
   height: 100%;
 }
-#root {
+#topbar {
+  background-color: #334;
+  flex: 0 1 auto;
+}
+#wrapper {
+  flex: 1 1 auto;
+  overflow-y: auto;
+}
+body, html, #root {
   height: 100%;
 }
 
@@ -15,11 +20,7 @@ body {
   background-color: #223;
   color: #fff;
   font-size: 16px;
-  height: 100%;
-}
-
-#topbar {
-  background-color: #334;
+  margin: 0;
 }
 
 .button {
@@ -50,29 +51,17 @@ input {
   color: #fff;
 }
 
-#files {
-  flex: 0 0 150px;
-  background-color: #334
+div#files {
+  background-color: #334;
 }
-#file {
-  flex: 1 1;
-}
-#wrapper {
-  flex: 2;
-  display: flex;
-}
-#wrapper > div {
-  display: flex;
-  min-height: 100%;
-}
-/*-------*/
-#wrapper > div > div#files > div.file {
+
+div#files > div.file {
   width: calc(100%-20px);
   padding: 10px;
   background-color: transparent;
 }
 
-#wrapper > div > div#files > div.file:hover {
+div#files > div.file:hover {
   padding: 0;
   border: 10px #556 solid;
 }
