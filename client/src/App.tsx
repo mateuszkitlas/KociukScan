@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { renderFile } from './book';
 import { State, StateContext, StateProvider } from './state';
-import { scanningButtons } from './scanning';
+import { buttons } from './toolbar';
 import { page } from './page';
 
 const changeTitle: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = (s: State) => (e) => {
@@ -20,9 +20,9 @@ const AppProvided = () => {
   const s = React.useContext(StateContext);
   return (
     <div id="App">
-      <div id="topbar">
+      <div id="toolbar">
         <input type="text" value={s.rs.book.title} onChange={changeTitle(s)}/>
-        {scanningButtons(s)}
+        {buttons(s)}
         <input type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
       </div>
       <div id="wrapper">

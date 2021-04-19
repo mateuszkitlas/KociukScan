@@ -26,27 +26,20 @@ const CanvasFile = (f: File) => {
 
 const somePage = (s: State) => (f: File) => {
   const page = f.pages[0];
-  const rotate = (deg: number): React.MouseEventHandler<HTMLDivElement> => (_event) => {
-    s.setPage(f.hash, { ...page, rotate: page.rotate + deg });
-  }
   return (
-    <div>
-      <div className="button" onClick={rotate(1)}>rotate left 1'</div>
-      <div className="button" onClick={rotate(-1)}>rotate right 1'</div>
-      <img
-        src={imgPath(f)}
-        alt=""
-        style={{transform: `rotate(${page.rotate}deg)` }}
-      />
-    </div>
+    <img
+      src={imgPath(f)}
+      alt=""
+      style={{transform: `rotate(${page.rotate}deg)` }}
+    />
   );
 }
 
-const noPage = (s: State) => {
+const nonePage = (s: State) => {
   return <span>scan something</span>;
 }
 
 export const page = (s: State) => {
   const file = s.getFile(s.rs.fileHash);
-  return file ? somePage(s)(file) : noPage(s);
+  return file ? somePage(s)(file) : nonePage(s);
 }
