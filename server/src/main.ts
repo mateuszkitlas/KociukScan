@@ -17,10 +17,14 @@ const x = async (json: Params, _url: any) => {
         const path = join(__dirname, "../../../../client/public/tmp", `${hash}.png`);
         writeFileSync(path, stdout);
         //sharp(stdout).toFile(path);
-        const file: File = { pages: [], path, hash };
+        const file: File = {
+          pages: [{ nr: 0, crop: {start: {x: 0, y: 0}}, orientation: "left", rotate: 0 }],
+          path,
+          hash
+        };
         return file;
       } catch(error) {
-        return { error: JSON.parse(JSON.stringify(error)) };
+        return { error: error || "undefined error" };
       }
   }
 };

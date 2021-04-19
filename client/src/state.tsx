@@ -1,5 +1,5 @@
 import React from "react";
-import { Book, File } from '../../common/book';
+import { Book, Page, File } from '../../common/book';
 
 export interface RawState {
   kind: "scanning one" | "nothing",
@@ -14,6 +14,8 @@ export interface State {
   addFile: (file: File) => void,
   deleteFile: (hash: string) => void,
   getFile: (hash?: string) => File | undefined,
+  setPage: (hash: string, page: Page) => void,
+  setFile: (file: File) => void,
 }
 
 const emptyRawState: RawState = {
@@ -38,6 +40,8 @@ export const StateContext = React.createContext<State>({
   addFile: () => {},
   deleteFile: () => {},
   getFile: () => undefined,
+  setFile: () => {},
+  setPage: () => {}
 });
 
 export const StateProvider: React.FC = ({ children }) => {
@@ -52,7 +56,12 @@ export const StateProvider: React.FC = ({ children }) => {
   const addFile = (file: File) => setFiles([...rs.book.files, file]);
   const deleteFile = (hash: string) => setFiles(rs.book.files.filter(f => f.hash !== hash));
   const getFile = (hash?: string) => rs.book.files.find(f => f.hash === hash);
-  const value = { rs, setRS, setBook, addFile, deleteFile, getFile };
+  const setFile = (file: File) => setBook({ ...rs.book, files: rs.book.files.map(f => f.hash === file.hash ? file : f) });
+  const setPage = (hash: string, page: Page) => {
+    const file = getFile(hash)!;
+    setFile({ ...file, pages: file.pages.map(p => p.nr === page.nr ? page : p) });
+  }
+  const value = { rs, setRS, setBook, addFile, deleteFile, getFile, setFile, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }

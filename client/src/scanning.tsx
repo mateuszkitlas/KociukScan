@@ -10,6 +10,7 @@ const scanOnePage: ((s: State) => React.MouseEventHandler<HTMLDivElement>) = (s:
   if (res.success) {
     s.addFile(res.result);
   } else {
+    s.setRS({ ...s.rs, kind: "nothing" });
     alert(JSON.stringify(res.result));
   }
 }

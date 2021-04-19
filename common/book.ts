@@ -13,7 +13,7 @@ export interface File {
 
 export interface Page {
   nr: number;
-  crop: { start: Point; end: Point }
+  crop: { start: Point; end?: Point }
   rotate: number;
   orientation: "left" | "right";
 }
