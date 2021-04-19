@@ -25,7 +25,10 @@ const AppProvided = () => {
         <input type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
       </div>
       <div id="wrapper">
-        <div id="files">{s.rs.book.files.map(renderFile(s))}</div>
+        <div id="files">
+          {s.rs.book.files.map(renderFile(s))}
+        </div>
+        <div id="page">page</div>
       </div>
     </div>
   )
