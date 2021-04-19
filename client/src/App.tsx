@@ -3,6 +3,7 @@ import './App.css';
 import { renderFile } from './book';
 import { State, StateContext, StateProvider } from './state';
 import { scanningButtons } from './scanning';
+import { page } from './page';
 
 const changeTitle: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = (s: State) => (e) => {
   s.setBook({ ...s.rs.book, title: e.target.value });
@@ -28,7 +29,7 @@ const AppProvided = () => {
         <div id="files">
           {s.rs.book.files.map(renderFile(s))}
         </div>
-        <div id="page">page</div>
+        <div id="page">{page(s)}</div>
       </div>
     </div>
   )
