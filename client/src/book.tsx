@@ -8,7 +8,7 @@ export const renderFile = (s: State) => (f: File) => {
   }
   return (
     <div className="file" key={f.hash}>
-      <img src={f.path} alt={""}/>
+      <img src={`/tmp/${f.hash}.png`} alt={""}/>
       <div className="button" onClick={deleteFile}>delete</div>
     </div>
   )

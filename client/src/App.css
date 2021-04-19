@@ -51,7 +51,7 @@ input {
 }
 
 #files {
-  flex: 0 0 300px;
+  flex: 0 0 150px;
   background-color: #334
 }
 #file {
@@ -68,7 +68,6 @@ input {
 /*-------*/
 #wrapper > div > div#files > div.file {
   width: calc(100%-20px);
-  height: 100px;
   padding: 10px;
   background-color: transparent;
 }
@@ -76,4 +75,9 @@ input {
 #wrapper > div > div#files > div.file:hover {
   padding: 0;
   border: 10px #556 solid;
+}
+
+div.file > img {
+  height: 50px;
+  display: inline-block;
 }

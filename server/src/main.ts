@@ -12,9 +12,9 @@ const x = async (json: Params, _url: any) => {
   switch (json.kind) {
     case "scan":
       try {
-        const { stdout } = await spawnPromise("scanimage", ["--mode","Color","--resolution","50","--format","jpg"]);
+        const { stdout } = await spawnPromise("scanimage", ["--mode","Color","--resolution","50","--format","png"]);
         const hash = md5(stdout);
-        const path = join(__dirname, "../../../../tmp", `${hash}.jpg`);
+        const path = join(__dirname, "../../../../client/public/tmp", `${hash}.png`);
         writeFileSync(path, stdout);
         //sharp(stdout).toFile(path);
         const file: File = { pages: [], path, hash };
