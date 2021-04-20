@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { httpRequest } from './utils';
 import { State } from './state';
-import { File } from "../../common/book";
+import { Page } from "../../common/book";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B) => (<div className="button" onClick={f}>{label}</div>);
@@ -11,9 +11,9 @@ const b = (label: string, f: B) => (<div className="button" onClick={f}>{label}<
 const scanningButtons = (s: State) => {
   const scanOnePage: B = async (_event) => {
     s.setRS({ ...s.rs, kind: "scanning one" });
-    const res = await httpRequest<File>({ kind: "scan" });
+    const res = await httpRequest<Page>({ kind: "scan" });
     if (res.success) {
-      s.addFile(res.result);
+      s.addPage(res.result);
     } else {
       s.setRS({ ...s.rs, kind: "nothing" });
       alert(JSON.stringify(res.result));
@@ -33,17 +33,16 @@ const scanningButtons = (s: State) => {
 };
 
 const pageButtons = (s: State) => {
-  const f = s.getFile(s.rs.fileHash);
-  if (f) {
-    const page = f.pages[0];
+  const page = s.getPage(s.rs.pageHash);
+  if (page) {
     const rotate = (deg: number): B => (_event) => {
-      s.setPage(f.hash, { ...page, rotate: page.rotate + deg });
+      s.setPage(page.hash, { ...page, rotate: page.rotate + deg });
     }
     const moveX = (x: number): B => (_event) => {
-      s.setPage(f.hash, { ...page, x: page.x + x });
+      s.setPage(page.hash, { ...page, x: page.x + x });
     }
     const moveY = (y: number): B => (_event) => {
-      s.setPage(f.hash, { ...page, y: page.y + y });
+      s.setPage(page.hash, { ...page, y: page.y + y });
     }
     const width = (w: number): B => (_event) => {
       s.setBook({ ...s.rs.book, width: s.rs.book.width + w });

@@ -27,7 +27,7 @@ const AppProvided = () => {
       </div>
       <div id="wrapper">
         <div id="files">
-          {s.rs.book.files.map(renderFile(s))}
+          {s.rs.book.pages.map(renderFile(s))}
         </div>
         <div id="page">{page(s)}</div>
       </div>

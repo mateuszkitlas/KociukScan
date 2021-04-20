@@ -1,9 +1,9 @@
 import React from "react";
-import { Book, Page, File } from '../../common/book';
+import { Book, Page } from '../../common/book';
 
 export interface RawState {
   kind: "scanning one" | "nothing",
-  fileHash?: string;
+  pageHash?: string;
   book: Book
 }
 
@@ -11,11 +11,10 @@ export interface State {
   rs: RawState,
   setRS: (rs: RawState) => void,
   setBook: (book: Book) => void,
-  addFile: (file: File) => void,
-  deleteFile: (hash: string) => void,
-  getFile: (hash?: string) => File | undefined,
+  addPage: (page: Page) => void,
+  deletePage: (hash: string) => void,
+  getPage: (hash?: string) => Page | undefined,
   setPage: (hash: string, page: Page) => void,
-  setFile: (file: File) => void,
 }
 
 const emptyRawState: RawState = {
@@ -23,7 +22,7 @@ const emptyRawState: RawState = {
   book: {
     title: "New Book",
     delay: 5,
-    files: [],
+    pages: [],
     fspath: "",
     width: 100,
     height: 100,
@@ -39,10 +38,9 @@ export const StateContext = React.createContext<State>({
   rs: loadRS(),
   setRS: () => {},
   setBook: () => {},
-  addFile: () => {},
-  deleteFile: () => {},
-  getFile: () => undefined,
-  setFile: () => {},
+  addPage: () => {},
+  deletePage: () => {},
+  getPage: () => undefined,
   setPage: () => {}
 });
 
@@ -54,16 +52,14 @@ export const StateProvider: React.FC = ({ children }) => {
   }
 
   const setBook = (book: Book) => setRS({ ...rs, book });
-  const setFiles = (files: File[]) => setBook({ ...rs.book, files });
-  const addFile = (file: File) => setFiles([...rs.book.files, file]);
-  const deleteFile = (hash: string) => setFiles(rs.book.files.filter(f => f.hash !== hash));
-  const getFile = (hash?: string) => rs.book.files.find(f => f.hash === hash);
-  const setFile = (file: File) => setBook({ ...rs.book, files: rs.book.files.map(f => f.hash === file.hash ? file : f) });
+  const setPages = (pages: Page[]) => setBook({ ...rs.book, pages });
+  const addPage = (page: Page) => setPages([...rs.book.pages, page]);
+  const deletePage = (hash: string) => setPages(rs.book.pages.filter(p => p.hash !== hash));
+  const getPage = (hash?: string) => rs.book.pages.find(p => p.hash === hash);
   const setPage = (hash: string, page: Page) => {
-    const file = getFile(hash)!;
-    setFile({ ...file, pages: file.pages.map(p => p.nr === page.nr ? page : p) });
+    setPages(rs.book.pages.map(p => p.nr === page.nr ? page : p));
   }
-  const value = { rs, setRS, setBook, addFile, deleteFile, getFile, setFile, setPage };
+  const value = { rs, setRS, setBook, addPage, deletePage, getPage, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }

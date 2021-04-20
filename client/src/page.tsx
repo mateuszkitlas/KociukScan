@@ -1,7 +1,7 @@
 import React from 'react';
 import { State } from './state';
 import { imgPath } from "./image";
-import { File } from "../../common/book"
+import { Page } from "../../common/book"
 /*
 const CanvasFile = (f: File) => {
   const canvasRef = React.useRef<HTMLCanvasElement>(null);
@@ -27,8 +27,7 @@ const CanvasFile = (f: File) => {
 const sidebarWidth = 156;
 const toolbarHeight = 60;
 
-const somePage = (s: State) => (f: File) => {
-  const page = f.pages[0];
+const somePage = (s: State) => (page: Page) => {
   const crop = {
     position: "absolute" as const,
     left: page.x + sidebarWidth,
@@ -38,7 +37,7 @@ const somePage = (s: State) => (f: File) => {
   }
   return [
     <img
-      src={imgPath(f)}
+      src={imgPath(page)}
       alt=""
       style={{transform: `rotate(${page.rotate}deg)` }}
     />,
@@ -51,6 +50,6 @@ const nonePage = (s: State) => {
 }
 
 export const page = (s: State) => {
-  const file = s.getFile(s.rs.fileHash);
+  const file = s.getPage(s.rs.pageHash);
   return file ? somePage(s)(file) : nonePage(s);
 }

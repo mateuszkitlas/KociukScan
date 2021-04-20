@@ -1,20 +1,15 @@
 export interface Book {
   title: string;
-  files: File[];
+  pages: Page[];
   fspath: string;
   delay: number;
   width: number;
   height: number;
 }
 
-export interface File {
-  path: string;
-  pages: Page[];
-  hash: string;
-}
-
 export interface Page {
-  nr: number;
+  hash: string;
+  nr?: number;
   x: number;
   y: number;
   rotate: number;

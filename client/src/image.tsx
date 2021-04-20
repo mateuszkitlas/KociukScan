@@ -1,6 +1,6 @@
 import React from 'react';
-import { File } from '../../common/book';
+import { Page } from '../../common/book';
 
-export const imgPath = (f: File) => `/tmp/${f.hash}.png`;
+export const imgPath = (p: Page) => `/tmp/${p.hash}.png`;
 
-export const image = (f: File) => (<img src={imgPath(f)} alt={""}/>)
+export const image = (p: Page) => (<img src={imgPath(p)} alt={""}/>)
