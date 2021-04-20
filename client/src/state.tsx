@@ -14,7 +14,7 @@ export interface State {
   addPage: (page: Page) => void,
   deletePage: (hash: string) => void,
   getPage: (hash?: string) => Page | undefined,
-  setPage: (hash: string, page: Page) => void,
+  setPage: (page: Page) => void,
 }
 
 const emptyRawState: RawState = {
@@ -56,8 +56,8 @@ export const StateProvider: React.FC = ({ children }) => {
   const addPage = (page: Page) => setPages([...rs.book.pages, page]);
   const deletePage = (hash: string) => setPages(rs.book.pages.filter(p => p.hash !== hash));
   const getPage = (hash?: string) => rs.book.pages.find(p => p.hash === hash);
-  const setPage = (hash: string, page: Page) => {
-    setPages(rs.book.pages.map(p => p.nr === page.nr ? page : p));
+  const setPage = (page: Page) => {
+    setPages(rs.book.pages.map(p => p.hash === page.hash ? page : p));
   }
   const value = { rs, setRS, setBook, addPage, deletePage, getPage, setPage };
   

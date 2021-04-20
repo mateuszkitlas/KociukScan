@@ -36,13 +36,13 @@ const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.pageHash);
   if (page) {
     const rotate = (deg: number): B => (_event) => {
-      s.setPage(page.hash, { ...page, rotate: page.rotate + deg });
+      s.setPage({ ...page, rotate: page.rotate + deg });
     }
     const moveX = (x: number): B => (_event) => {
-      s.setPage(page.hash, { ...page, x: page.x + x });
+      s.setPage({ ...page, x: page.x + x });
     }
     const moveY = (y: number): B => (_event) => {
-      s.setPage(page.hash, { ...page, y: page.y + y });
+      s.setPage({ ...page, y: page.y + y });
     }
     const width = (w: number): B => (_event) => {
       s.setBook({ ...s.rs.book, width: s.rs.book.width + w });
