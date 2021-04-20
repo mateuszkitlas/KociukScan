@@ -24,7 +24,9 @@ const emptyRawState: RawState = {
     title: "New Book",
     delay: 5,
     files: [],
-    fspath: ""
+    fspath: "",
+    width: 100,
+    height: 100,
   }
 };
 

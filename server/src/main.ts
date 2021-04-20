@@ -18,7 +18,7 @@ const x = async (json: Params, _url: any) => {
         writeFileSync(path, stdout);
         //sharp(stdout).toFile(path);
         const file: File = {
-          pages: [{ nr: 0, crop: {start: {x: 0, y: 0}}, orientation: "left", rotate: 0 }],
+          pages: [{ nr: 0, x: 0, y: 0, orientation: "left", rotate: 0 }],
           path,
           hash
         };

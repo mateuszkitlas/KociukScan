@@ -24,15 +24,26 @@ const CanvasFile = (f: File) => {
   return <canvas ref={canvasRef}/>
 }*/
 
+const sidebarWidth = 156;
+const toolbarHeight = 60;
+
 const somePage = (s: State) => (f: File) => {
   const page = f.pages[0];
-  return (
+  const crop = {
+    position: "absolute" as const,
+    left: page.x + sidebarWidth,
+    top: page.y + toolbarHeight,
+    width: s.rs.book.width,
+    height: s.rs.book.height,
+  }
+  return [
     <img
       src={imgPath(f)}
       alt=""
       style={{transform: `rotate(${page.rotate}deg)` }}
-    />
-  );
+    />,
+    <div style={crop}></div>
+  ];
 }
 
 const nonePage = (s: State) => {

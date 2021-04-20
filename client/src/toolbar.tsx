@@ -5,7 +5,7 @@ import { State } from './state';
 import { File } from "../../common/book";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
-
+const b = (label: string, f: B) => (<div className="button" onClick={f}>{label}</div>);
 
 
 const scanningButtons = (s: State) => {
@@ -21,9 +21,9 @@ const scanningButtons = (s: State) => {
   }
   switch (s.rs.kind) {
     case "nothing": return [
-      <div key="one" className="button" onClick={scanOnePage}>scan one page</div>,
+      <div key="one" className="button" onClick={scanOnePage}>scan</div>,
       <div key="many" className="button">
-        scan many pages with delay
+        scan*
       </div>
     ]
     case "scanning one": return [
@@ -39,9 +39,33 @@ const pageButtons = (s: State) => {
     const rotate = (deg: number): B => (_event) => {
       s.setPage(f.hash, { ...page, rotate: page.rotate + deg });
     }
+    const moveX = (x: number): B => (_event) => {
+      s.setPage(f.hash, { ...page, x: page.x + x });
+    }
+    const moveY = (y: number): B => (_event) => {
+      s.setPage(f.hash, { ...page, y: page.y + y });
+    }
+    const width = (w: number): B => (_event) => {
+      s.setBook({ ...s.rs.book, width: s.rs.book.width + w });
+    }
+    const height = (h: number): B => (_event) => {
+      s.setBook({ ...s.rs.book, height: s.rs.book.height + h });
+    }
     return [
-      <div className="button" onClick={rotate(1)}>rotate left 1'</div>,
-      <div className="button" onClick={rotate(-1)}>rotate right 1'</div>
+      b("L1'", rotate(1)),
+      b("R1'", rotate(-1)),
+      b("L5", moveX(-5)),
+      b("L1", moveX(-1)),
+      b("R1", moveX(1)),
+      b("R5", moveX(5)),
+      b("U5", moveY(-5)),
+      b("U1", moveY(-1)),
+      b("D1", moveY(1)),
+      b("D5", moveY(5)),
+      b("W1", width(1)),
+      b("W5", width(5)),
+      b("H1", height(1)),
+      b("H5", height(5)),
     ];
   } else {
     return [];

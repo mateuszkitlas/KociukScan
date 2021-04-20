@@ -13,7 +13,7 @@ export const renderFile = (s: State) => (f: File) => {
     s.setRS({ ...s.rs, fileHash: f.hash });
   }
   return (
-    <div className="file" key={f.hash} onClick={show}>
+    <div className={`file ${f.hash === s.rs.fileHash ? "current" : ""}`} key={f.hash} onClick={show}>
       {image(f)}
       <div className="button" onClick={deleteFile}>delete</div>
     </div>

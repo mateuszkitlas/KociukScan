@@ -3,6 +3,8 @@ export interface Book {
   files: File[];
   fspath: string;
   delay: number;
+  width: number;
+  height: number;
 }
 
 export interface File {
@@ -13,9 +15,8 @@ export interface File {
 
 export interface Page {
   nr: number;
-  crop: { start: Point; end?: Point }
+  x: number;
+  y: number;
   rotate: number;
   orientation: "left" | "right";
 }
-
-export interface Point { x: number; y: number; }
