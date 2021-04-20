@@ -40,8 +40,9 @@ const somePage = (s: State) => (page: Page) => {
       src={imgPath(page)}
       alt=""
       style={{transform: `rotate(${page.rotate}deg)` }}
+      key={`page-${page.hash}`}
     />,
-    <div style={crop}></div>
+    <div style={crop} key="crop"></div>
   ];
 }
 

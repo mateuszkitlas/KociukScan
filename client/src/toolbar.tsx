@@ -5,7 +5,7 @@ import { State } from './state';
 import { Page } from "../../common/book";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
-const b = (label: string, f: B) => (<div className="button" onClick={f}>{label}</div>);
+const b = (label: string, f: B) => (<div className="button" onClick={f} key={label}>{label}</div>);
 
 
 const scanningButtons = (s: State) => {
@@ -71,4 +71,26 @@ const pageButtons = (s: State) => {
   }
 }
 
-export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s)];
+const downloadButtons = (s: State) => {
+  const download: B = async (_event) => {
+    _event.stopPropagation();
+    const r = await httpRequest<{ path: string }>({ kind: "pdf", book: s.rs.book });
+    //alert(JSON.stringify(r));
+    if (r.success) {
+      const link = document.createElement('a');
+      link.href = r.result.path;
+      document.body.appendChild(link);
+      link.setAttribute(
+        'download',
+        `${s.rs.book.title}.pdf`,
+      );
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      alert(JSON.stringify(r.result));
+    }
+  }
+  return b("pdf", download);
+}
+
+export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s), downloadButtons(s)];

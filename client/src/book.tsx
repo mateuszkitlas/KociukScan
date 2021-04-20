@@ -15,7 +15,7 @@ export const renderFile = (s: State) => (p: Page) => {
   return (
     <div className={`file ${p.hash === s.rs.pageHash ? "current" : ""}`} key={p.hash} onClick={show}>
       {image(p)}
-      <div className="button" onClick={deleteFile}>delete</div>
+      <div className="button" onClick={deleteFile} key="delete">delete</div>
     </div>
   )
 }

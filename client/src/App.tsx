@@ -20,16 +20,16 @@ const AppProvided = () => {
   const s = React.useContext(StateContext);
   return (
     <div id="App">
-      <div id="toolbar">
-        <input type="text" value={s.rs.book.title} onChange={changeTitle(s)}/>
+      <div id="toolbar" key="toolbar">
+        <input key="title" type="text" value={s.rs.book.title} onChange={changeTitle(s)}/>
         {buttons(s)}
-        <input type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
+        <input key="delay" type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
       </div>
-      <div id="wrapper">
-        <div id="files">
+      <div id="wrapper" key="wrapper">
+        <div id="files" key="files">
           {s.rs.book.pages.map(renderFile(s))}
         </div>
-        <div id="page">{page(s)}</div>
+        <div id="page" key="page">{page(s)}</div>
       </div>
     </div>
   )
