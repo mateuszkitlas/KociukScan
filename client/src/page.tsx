@@ -1,7 +1,7 @@
 import React from 'react';
 import { State } from './state';
 import { imgPath } from "./image";
-import { Page } from "../../common/book"
+import { Book, Page } from "../../common/book"
 
 const sidebarWidth = 156;
 const toolbarHeight = 60;
@@ -32,14 +32,37 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
   ];
 }
 
-const somePage = (s: State) => (page: Page) => {
-  const crop = {
+const crop = (book: Book, page: Page) => {
+  let offsetX = page.x + sidebarWidth;
+  let offsetY = page.y + toolbarHeight;
+  const style = {
     position: "absolute" as const,
-    left: page.x + sidebarWidth,
-    top: page.y + toolbarHeight,
-    width: s.rs.book.width,
-    height: s.rs.book.height,
+    left: offsetX,
+    top: offsetY,
+    width: book.width,
+    height: book.height,
   }
+  const move: React.MouseEventHandler<HTMLDivElement> = e => {
+    const el = e.target as HTMLDivElement;
+    el.style.left = `${e.pageX-offsetX}px`
+    el.style.top = `${e.pageY-offsetY}px`
+  }
+  const add: React.MouseEventHandler<HTMLDivElement> = e => {
+    const el = e.target as HTMLDivElement;
+    offsetX=e.clientX-el.getBoundingClientRect().left
+    offsetY=e.clientY-el.getBoundingClientRect().top
+    el.addEventListener('mousemove', move as any)
+  }
+  const remove: React.MouseEventHandler<HTMLDivElement> = e =>{
+    const el = e.target;
+    el.removeEventListener('mousemove', move as any);
+  }
+  return (
+    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove}></div>
+  )
+}
+
+const somePage = (s: State) => (page: Page) => {
   const newPoints = getPixelsByAngle(0, 0, 637, 877, page.rotate)
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
@@ -50,7 +73,7 @@ const somePage = (s: State) => (page: Page) => {
       style={{transform: `rotate(${page.rotate}deg)`, marginLeft: -minX, marginTop: -minY}}
       key={`page-${page.hash}`}
     />,
-    <div style={crop} key="crop"></div>
+    crop(s.rs.book, page)
   ];
 }
 
