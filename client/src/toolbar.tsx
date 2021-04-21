@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { createMiniature, httpRequest } from './utils';
+import { httpRequest } from './utils';
 import { State } from './state';
 import { Page } from "../../common/book";
 
@@ -44,23 +44,14 @@ const pageButtons = (s: State) => {
     const moveY = (y: number): B => (_event) => {
       s.setPage({ ...page, y: page.y + y });
     }
-    const width = (w: number): B => (_event) => {
-      s.setBook({ ...s.rs.book, width: s.rs.book.width + w });
-    }
-    const height = (h: number): B => (_event) => {
-      s.setBook({ ...s.rs.book, height: s.rs.book.height + h });
-    }
     return [
       b("rL", rotate(-0.5)),
       b("rR", rotate(0.5)),
+      b("180*", rotate(180)),
       b("L", moveX(-1)),
       b("R", moveX(1)),
       b("U", moveY(-1)),
       b("D", moveY(1)),
-      b("W1", width(1)),
-      b("W5", width(5)),
-      b("H1", height(1)),
-      b("H5", height(5)),
     ];
   } else {
     return [];

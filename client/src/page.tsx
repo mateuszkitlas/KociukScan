@@ -1,7 +1,7 @@
 import React from 'react';
 import { State } from './state';
 import { imgPath } from "./image";
-import { Book, Page } from "../../common/book"
+import { Page } from "../../common/book"
 
 const sidebarWidth = 156;
 const toolbarHeight = 60;
