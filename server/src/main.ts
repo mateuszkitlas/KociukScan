@@ -10,6 +10,15 @@ import * as pdfkit from "pdfkit";
 
 const tmpPath = (filename: string) => join(__dirname, "../../../../tmp", filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
+const buffer = (s: sharp.Sharp) => new Promise<Buffer>((resolve, reject) => s.toBuffer((err, buf, _info) => {
+  if (err) {
+    reject(err);
+  } else {
+    // console.log("sharp info", info);
+    resolve(buf);
+  }
+}));
+const bufferSharp = async (s: sharp.Sharp) => sharp(await buffer(s))
 
 const x = async (json: Params, _url: any) => {
   console.log(json);
@@ -33,13 +42,21 @@ const x = async (json: Params, _url: any) => {
       }
     case "pdf":
       try {
-        const pdf = new pdfkit();
+        const pdf = new pdfkit({ autoFirstPage: false });
         pdf.pipe(createWriteStream(tmpPath("pdf.pdf")));
         for (const page of json.book.pages) {
-          await new Promise<void>(resolve => sharp(imgPath(page.hash)).toBuffer((_err, buff, _info) => {
-            pdf.image(buff);
-            resolve();
-          }));
+          const img = await bufferSharp(sharp(imgPath(page.hash)).rotate(page.rotate));
+          const img2 = await bufferSharp(img.extend(500));
+          const img3 = img2
+            .extract({
+              top: page.y + 500,
+              left: page.x + 500,
+              width: json.book.width,
+              height: json.book.height,
+            });
+          const img4 = await buffer(img3);
+          pdf.addPage({ margins: { left: 0, right: 0, top: 0, bottom: 0 } });
+          pdf.image(img4);
         }
         pdf.end();
         return { path: "tmp/pdf.pdf" };
