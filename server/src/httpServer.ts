@@ -38,10 +38,17 @@ export function activateHttpServer<P = any, R = any>(
             console.log("end");
             res.on('error', (err) => console.error(err));
             const params = JSON.parse(Buffer.concat(body).toString());
-            const data = await exec(params, req.url);
-            res.writeHead(200, { ...headers, "Content-Length": JSON.stringify(data).length });
-            res.end(JSON.stringify(data));
-            console.log("response", data);
+            try {
+              const data = await exec(params, req.url);
+              res.writeHead(200, headers);
+              res.end(JSON.stringify(data));
+              console.log("response", data);
+            } catch(error) {
+              res.writeHead(200, headers);
+              res.end(JSON.stringify({ error }));
+              console.log("response error", error);
+            }
+            
           });
       } else {
         res.writeHead(405, headers);

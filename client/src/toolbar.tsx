@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { httpRequest } from './utils';
+import { createMiniature, httpRequest } from './utils';
 import { State } from './state';
 import { Page } from "../../common/book";
 
@@ -11,7 +11,7 @@ const b = (label: string, f: B) => (<div className="button" onClick={f} key={lab
 const scanningButtons = (s: State) => {
   const scanOnePage: B = async (_event) => {
     s.setRS({ ...s.rs, kind: "scanning one" });
-    const res = await httpRequest<Page>({ kind: "scan" });
+    const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
     if (res.success) {
       s.addPage(res.result);
     } else {

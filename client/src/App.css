@@ -79,14 +79,9 @@ div#files > div.file {
   padding: 10px;
   background-color: transparent;
 }
-div#files > div.current {
-  background-color: #556;
-}
-
-div#files > div.file:hover {
-  padding: 0;
-  border: 10px #556 solid;
-}
+div#files > div.current { background-color: #556; }
+div#files > div.file:hover { background-color: #556; }
+div#files > div.current:hover { background-color: #667; }
 
 div.file > img {
   height: 50px;

@@ -1,3 +1,4 @@
+import { Book, Page } from '../../common/book';
 import { Params } from "../../common/params";
 
 export type Result<T> =
@@ -15,4 +16,8 @@ export async function httpRequest<T>(body: Params): Promise<Result<T>> {
   } catch(error) {
     return { success: false, result: error };
   }
+}
+
+export const createMiniature = (book: Book, page: Page) => {
+  return httpRequest({ kind: "miniature", book, page });
 }

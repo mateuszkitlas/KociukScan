@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from '../../common/book';
-import { image } from './image';
+import { imgPath } from './image';
 import { State } from './state';
 
 export const renderFile = (s: State) => (p: Page) => {
@@ -13,8 +13,15 @@ export const renderFile = (s: State) => (p: Page) => {
     s.setRS({ ...s.rs, pageHash: p.hash });
   }
   return (
-    <div className={`file ${p.hash === s.rs.pageHash ? "current" : ""}`} key={p.hash} onClick={show}>
-      {image(p)}
+    <div
+      className={`file ${p.hash === s.rs.pageHash ? "current" : ""}`}
+      key={p.hash}
+      onClick={show}
+      style={{
+        backgroundImage: `url("${imgPath(p, true)}")`,
+        backgroundRepeat: "no-repeat",
+      }}
+    >
       <div className="button" onClick={deleteFile} key="delete">delete</div>
     </div>
   )
