@@ -32,33 +32,40 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
   ];
 }
 
-const crop = (book: Book, page: Page) => {
-  let offsetX = page.x + sidebarWidth;
-  let offsetY = page.y + toolbarHeight;
+const crop = (s: State, page: Page) => {
   const style = {
     position: "absolute" as const,
-    left: offsetX,
-    top: offsetY,
-    width: book.width,
-    height: book.height,
+    left: page.x + sidebarWidth,
+    top: page.y + toolbarHeight,
+    width: s.rs.book.width,
+    height: s.rs.book.height,
   }
+  let offsetX = 0;
+  let offsetY = 0;
   const move: React.MouseEventHandler<HTMLDivElement> = e => {
     const el = e.target as HTMLDivElement;
-    el.style.left = `${e.pageX-offsetX}px`
-    el.style.top = `${e.pageY-offsetY}px`
+    el.style.left = `${e.pageX - offsetX}px`
+    el.style.top = `${e.pageY - offsetY}px`
   }
   const add: React.MouseEventHandler<HTMLDivElement> = e => {
     const el = e.target as HTMLDivElement;
-    offsetX=e.clientX-el.getBoundingClientRect().left
-    offsetY=e.clientY-el.getBoundingClientRect().top
-    el.addEventListener('mousemove', move as any)
+    offsetX=e.clientX-el.getBoundingClientRect().left;
+    offsetY=e.clientY-el.getBoundingClientRect().top;
+    el.addEventListener('mousemove', move as any);
   }
   const remove: React.MouseEventHandler<HTMLDivElement> = e =>{
-    const el = e.target;
+    const el = e.target as HTMLDivElement;
     el.removeEventListener('mousemove', move as any);
+    s.setPage({
+      ...page,
+      x: parseInt(el.style.left) - sidebarWidth,
+      y: parseInt(el.style.top) - toolbarHeight,
+
+    });
   }
   return (
-    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove}></div>
+    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove} onMouseLeave={remove}>
+    </div>
   )
 }
 
@@ -73,7 +80,7 @@ const somePage = (s: State) => (page: Page) => {
       style={{transform: `rotate(${page.rotate}deg)`, marginLeft: -minX, marginTop: -minY}}
       key={`page-${page.hash}`}
     />,
-    crop(s.rs.book, page)
+    crop(s, page)
   ];
 }
 
