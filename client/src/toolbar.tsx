@@ -51,16 +51,12 @@ const pageButtons = (s: State) => {
       s.setBook({ ...s.rs.book, height: s.rs.book.height + h });
     }
     return [
-      b("L1'", rotate(1)),
-      b("R1'", rotate(-1)),
-      b("L5", moveX(-5)),
-      b("L1", moveX(-1)),
-      b("R1", moveX(1)),
-      b("R5", moveX(5)),
-      b("U5", moveY(-5)),
-      b("U1", moveY(-1)),
-      b("D1", moveY(1)),
-      b("D5", moveY(5)),
+      b("rL", rotate(-0.5)),
+      b("rR", rotate(0.5)),
+      b("L", moveX(-1)),
+      b("R", moveX(1)),
+      b("U", moveY(-1)),
+      b("D", moveY(1)),
       b("W1", width(1)),
       b("W5", width(5)),
       b("H1", height(1)),

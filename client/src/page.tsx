@@ -32,6 +32,8 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
   ];
 }
 
+const cropSize = 40;
+
 const crop = (s: State, page: Page) => {
   const style = {
     position: "absolute" as const,
@@ -43,17 +45,20 @@ const crop = (s: State, page: Page) => {
   let offsetX = 0;
   let offsetY = 0;
   const move: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.style.left = `${e.pageX - offsetX}px`
     el.style.top = `${e.pageY - offsetY}px`
   }
   const add: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation();
     const el = e.target as HTMLDivElement;
     offsetX=e.clientX-el.getBoundingClientRect().left;
     offsetY=e.clientY-el.getBoundingClientRect().top;
     el.addEventListener('mousemove', move as any);
   }
   const remove: React.MouseEventHandler<HTMLDivElement> = e =>{
+    e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.removeEventListener('mousemove', move as any);
     s.setPage({
@@ -63,10 +68,37 @@ const crop = (s: State, page: Page) => {
 
     });
   }
-  return (
-    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove} onMouseLeave={remove}>
-    </div>
-  )
+  
+  const styleW ={
+    position: "absolute" as const,
+    left: page.x + sidebarWidth + s.rs.book.width - cropSize,
+    top: page.y + toolbarHeight,
+    width: cropSize,
+    height: s.rs.book.height,
+  }
+  let offsetW = 0;
+  const moveW: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation();
+    const el = e.target as HTMLDivElement;
+    el.style.left = `${e.pageX - offsetW}px`
+  }
+  const addW: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation();
+    const el = e.target as HTMLDivElement;
+    offsetW=e.clientX-el.getBoundingClientRect().left;
+    el.addEventListener('mousemove', moveW as any);
+  }
+  const removeW: React.MouseEventHandler<HTMLDivElement> = e =>{
+    e.stopPropagation();
+    const el = e.target as HTMLDivElement;
+    el.removeEventListener('mousemove', moveW as any);
+    s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x - sidebarWidth + cropSize });
+  }
+  
+  return [
+    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove} onMouseLeave={remove}></div>,
+    <div style={styleW} key="cropW" onMouseDown={addW} onMouseUp={removeW} onMouseLeave={removeW}></div>
+  ]
 }
 
 const somePage = (s: State) => (page: Page) => {
