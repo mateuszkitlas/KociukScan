@@ -21,17 +21,9 @@ div#page {
   width: 100%;
 }
 /*----------*/
-div#page {
-  background-color: #000;
-  opacity: 0.5;
-}
-div#page > div {
-  border: 2px dashed #000;
-}
+div#page > div { border: 2px dashed #000; }
 
-#toolbar {
-  background-color: #334;
-}
+#toolbar { background-color: #334; }
 body {
   background-color: #223;
   color: #fff;
@@ -81,8 +73,3 @@ div#files > div.file {
 div#files > div.current { background-color: #556; }
 div#files > div.file:hover { background-color: #556; }
 div#files > div.current:hover { background-color: #667; }
-
-div.file > img {
-  height: 50px;
-  display: inline-block;
-}

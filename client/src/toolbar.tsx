@@ -47,6 +47,7 @@ const pageButtons = (s: State) => {
     return [
       b("rL", rotate(-0.5)),
       b("rR", rotate(0.5)),
+      b("90*", rotate(90)),
       b("180*", rotate(180)),
       b("L", moveX(-1)),
       b("R", moveX(1)),
@@ -62,7 +63,6 @@ const downloadButtons = (s: State) => {
   const download: B = async (_event) => {
     _event.stopPropagation();
     const r = await httpRequest<{ path: string }>({ kind: "pdf", book: s.rs.book });
-    //alert(JSON.stringify(r));
     if (r.success) {
       const link = document.createElement('a');
       link.href = r.result.path;
