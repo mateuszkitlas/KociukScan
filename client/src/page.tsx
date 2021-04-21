@@ -27,17 +27,29 @@ const CanvasFile = (f: File) => {
 const sidebarWidth = 156;
 const toolbarHeight = 60;
 
-function getPixelsByAngle(x: number, y: number, width: number, height: number, angle: number) {
-  var radians = angle * Math.PI / 180;
+const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
+  const radians = angle * Math.PI / 180;
   return [
-     //upper left
-     [x + width/2 + width/-2 * Math.cos(radians) - height/-2 * Math.sin(radians), y + height/2 + width/-2 * Math.sin(radians) + height/-2 * Math.cos(radians)],
-     //upper right
-     [x + width/2 + width/2 * Math.cos(radians) - height/-2 * Math.sin(radians), y + height/2 + width/2 * Math.sin(radians) + height/-2 * Math.cos(radians)],
-     //bottom right
-     [x + width/2 + width/2 * Math.cos(radians) - height/2 * Math.sin(radians), y + height/2 + width/2 * Math.sin(radians) + height/2 * Math.cos(radians)],
-     //bottom left
-     [x + width/2 + width/-2 * Math.cos(radians) - height/2 * Math.sin(radians), y + height/2 + width/-2 * Math.sin(radians) + height/2 * Math.cos(radians)],
+    //upper left
+    {
+      x: x + width/2 + width/-2 * Math.cos(radians) - height/-2 * Math.sin(radians),
+      y: y + height/2 + width/-2 * Math.sin(radians) + height/-2 * Math.cos(radians)
+    },
+    //upper right
+    {
+      x: x + width/2 + width/2 * Math.cos(radians) - height/-2 * Math.sin(radians),
+      y: y + height/2 + width/2 * Math.sin(radians) + height/-2 * Math.cos(radians)
+    },
+    //bottom right
+    {
+      x: x + width/2 + width/2 * Math.cos(radians) - height/2 * Math.sin(radians),
+      y: y + height/2 + width/2 * Math.sin(radians) + height/2 * Math.cos(radians)
+    },
+    //bottom left
+    {
+      x: x + width/2 + width/-2 * Math.cos(radians) - height/2 * Math.sin(radians),
+      y: y + height/2 + width/-2 * Math.sin(radians) + height/2 * Math.cos(radians)
+    },
   ];
 }
 
@@ -49,13 +61,14 @@ const somePage = (s: State) => (page: Page) => {
     width: s.rs.book.width,
     height: s.rs.book.height,
   }
-  const mx = Math.min(...getPixelsByAngle(0,0, 637, 877, page.rotate).map(x => x[0]));
-  const my = Math.min(...getPixelsByAngle(0,0, 637, 877, page.rotate).map(x => x[1]));
+  const newPoints = getPixelsByAngle(0, 0, 637, 877, page.rotate)
+  const minX = Math.min(...newPoints.map(x => x.x));
+  const minY = Math.min(...newPoints.map(x => x.y));
   return [
     <img
       src={imgPath(page)}
       alt=""
-      style={{transform: `rotate(${page.rotate}deg)`, marginLeft: -mx, marginTop: -my}}
+      style={{transform: `rotate(${page.rotate}deg)`, marginLeft: -minX, marginTop: -minY}}
       key={`page-${page.hash}`}
     />,
     <div style={crop} key="crop"></div>

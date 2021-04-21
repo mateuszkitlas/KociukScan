@@ -46,16 +46,21 @@ const x = async (json: Params, _url: any) => {
         pdf.pipe(createWriteStream(tmpPath("pdf.pdf")));
         for (const page of json.book.pages) {
           const img = await bufferSharp(sharp(imgPath(page.hash)).rotate(page.rotate));
-          const img2 = await bufferSharp(img.extend(500));
+          //const meta = await img.metadata();
+          const margin = 500; //Math.max(meta.width!, meta.width!)/2;
+          const img2 = await bufferSharp(img.extend((margin)));
           const img3 = img2
             .extract({
-              top: page.y + 500,
-              left: page.x + 500,
+              top: page.y + margin,
+              left: page.x + margin,
               width: json.book.width,
               height: json.book.height,
             });
           const img4 = await buffer(img3);
-          pdf.addPage({ margins: { left: 0, right: 0, top: 0, bottom: 0 } });
+          pdf.addPage({
+            margins: { left: 0, right: 0, top: 0, bottom: 0 },
+            size: [json.book.width, json.book.height]
+          });
           pdf.image(img4);
         }
         pdf.end();
