@@ -32,12 +32,16 @@ const scanningButtons = (s: State) => {
     }
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
   }
+  const stop: B = _e => {
+    s.setRS(rs => ({ ...rs, kind: "nothing" }));
+  }
+  
   switch (s.rs.kind) {
     case "nothing": return [
       b("scan", scanOnePage),
       b("scan*", scanOnePage),
     ]
-    case "scanning one": return [<span key="scanning">"scanning..."</span>]
+    case "scanning one": return [b("stop", stop)]
   }
 };
 
@@ -53,16 +57,20 @@ const pageButtons = (s: State) => {
     const moveY = (y: number): B => (_event) => {
       s.setPage({ ...page, y: page.y + y });
     }
+    const setZeroRotate: B = _e => {
+      s.setPage({ ...page, rotate: 0 });
+    }
     return [
       b("rL", rotate(-0.5)),
       b("rR", rotate(0.5)),
+      b("0*", setZeroRotate),
       b("90*", rotate(90)),
       b("180*", rotate(180)),
       b("L", moveX(-1)),
       b("R", moveX(1)),
       b("U", moveY(-1)),
       b("D", moveY(1)),
-      select([1, 1.33], page.zoom, e => {
+      select([0.375, 0.5, 1, 1.33], page.zoom, e => {
         const zoom = parseFloat(e.target.value);
         s.setPage({ ...page, zoom });
       }),

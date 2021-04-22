@@ -130,6 +130,25 @@ const crop = (s: State, page: Page) => {
   ]
 }
 
+const marginX = (zoom: number) => {
+  switch (zoom){
+    case 0.375: return -531;
+    case 0.5: return -425;
+    case 1: return 0;
+    case 1.33: return 105;
+    default: return 0;
+  }
+}
+const marginY = (zoom: number) => {
+  switch (zoom){
+    case 0.375: return -731;
+    case 0.5: return -585;
+    case 1: return 0;
+    case 1.33: return 145;
+    default: return 0;
+  }
+}
+
 const somePage = (s: State) => (page: Page) => {
   const newPoints = getPixelsByAngle(0, 0, page.original.width*page.zoom, page.original.height*page.zoom, page.rotate)
   const minX = Math.min(...newPoints.map(x => x.x));
@@ -140,8 +159,8 @@ const somePage = (s: State) => (page: Page) => {
       alt=""
       style={{
         transform: `rotate(${page.rotate}deg) scale(${page.zoom})`,
-        marginLeft: -minX + (page.zoom===1.33 ? 105 : 0),
-        marginTop: -minY + (page.zoom===1.33 ? 145 : 0),
+        marginLeft: -minX + marginX(page.zoom),
+        marginTop: -minY + marginY(page.zoom),
       }}
       key={`page-${page.hash}`}
     />,
