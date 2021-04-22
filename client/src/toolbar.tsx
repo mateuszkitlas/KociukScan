@@ -2,11 +2,24 @@ import React from 'react';
 import './App.css';
 import { httpRequest } from './utils';
 import { State } from './state';
-import { Page } from "../../common/book";
+import { Page, Book } from "../../common/book";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B) => (<div className="button" onClick={f} key={label}>{label}</div>);
 
+const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
+  return [
+    <select onChange={onChange} value={init}>
+      {values.map(v => <option value={v}>{v}</option>)}
+    </select>
+  ]
+};
+
+const dpiButton = (s: State) => 
+  select([75, 100, 200, 300], s.rs.book.dpi, e => {
+    const dpi = parseFloat(e.target.value) as Book["dpi"];
+    s.setBook({ ...s.rs.book, dpi });
+  });
 
 const scanningButtons = (s: State) => {
   const scanOnePage: B = async (_event) => {
@@ -53,6 +66,10 @@ const pageButtons = (s: State) => {
       b("R", moveX(1)),
       b("U", moveY(-1)),
       b("D", moveY(1)),
+      select([1, 1.33], page.zoom, e => {
+        const zoom = parseFloat(e.target.value);
+        s.setPage({ ...page, zoom });
+      }),
     ];
   } else {
     return [];
@@ -80,4 +97,4 @@ const downloadButtons = (s: State) => {
   return b("pdf", download);
 }
 
-export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s), downloadButtons(s)];
+export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s), downloadButtons(s), ...dpiButton(s)];

@@ -5,6 +5,7 @@ export interface Book {
   delay: number;
   width: number;
   height: number;
+  dpi: 75 | 100 | 200 | 300;
 }
 
 export interface Page {
@@ -14,4 +15,10 @@ export interface Page {
   y: number;
   rotate: number;
   orientation: "left" | "right";
+  zoom: number;
+  original: {
+    width: number,
+    height: number,
+    dpi: 75 | 100 | 200 | 300
+  }
 }

@@ -27,6 +27,7 @@ const emptyRawState: RawState = {
     fspath: "",
     width: 100,
     height: 100,
+    dpi: 100,
   }
 };
 

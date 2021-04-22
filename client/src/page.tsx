@@ -131,14 +131,18 @@ const crop = (s: State, page: Page) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
-  const newPoints = getPixelsByAngle(0, 0, 637, 877, page.rotate)
+  const newPoints = getPixelsByAngle(0, 0, page.original.width*page.zoom, page.original.height*page.zoom, page.rotate)
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
   return [
     <img
       src={imgPath(page, false)}
       alt=""
-      style={{transform: `rotate(${page.rotate}deg)`, marginLeft: -minX, marginTop: -minY}}
+      style={{
+        transform: `rotate(${page.rotate}deg) scale(${page.zoom})`,
+        marginLeft: -minX + (page.zoom===1.33 ? 105 : 0),
+        marginTop: -minY + (page.zoom===1.33 ? 145 : 0),
+      }}
       key={`page-${page.hash}`}
     />,
     crop(s, page)
