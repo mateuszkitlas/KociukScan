@@ -7,12 +7,14 @@ export type Result<T> =
 
 export async function httpRequest<T>(body: Params): Promise<Result<T>> {
   try {
-    const xx = await fetch("http://localhost/server", {
+    const raw = await fetch("/server", {
       body: JSON.stringify(body),
       method: "POST",
     });
-    const x = JSON.parse(await xx.text());
-    return x.error ? { success: false, result: x.error } : { success: true, result: x };
+    const parsed = JSON.parse(await raw.text());
+    return parsed.error
+      ? { success: false, result: parsed.error }
+      : { success: true, result: parsed };
   } catch(error) {
     return { success: false, result: error };
   }
