@@ -21,7 +21,7 @@ const toBuffer = (s: sharp.Sharp) =>
     }
   )
 );
-//const reSharp = async (s: sharp.Sharp) => sharp((await toBuffer(s)).buffer);
+const reSharp = async (s: sharp.Sharp) => sharp((await toBuffer(s)).buffer);
 const last = <T>(arr: T[]) => arr.length > 0 ? arr[arr.length - 1] : undefined;
 
 interface ProcessedPage {
@@ -41,12 +41,12 @@ const processPage = async (book: Book, page: Pick<Page, "x" | "y" | "zoom" | "ha
       Math.floor(img.info.height*page.zoom)
     );
   const sharp11 = sharp1.rotate(page.rotate);
-  //const margin = 500;
-  //const sharp2 = await reSharp(sharp1.extend((margin)));
-  const img3 = sharp11
+  const margin = 500;
+  const sharp2 = await reSharp(sharp11.extend((margin)));
+  const img3 = sharp2
     .extract({
-      top: page.y, // + margin,// - Math.floor(15*page.zoom),
-      left: page.x, // + margin,// - Math.floor(32*page.zoom),
+      top: page.y + margin,// - Math.floor(15*page.zoom),
+      left: page.x + margin,// - Math.floor(32*page.zoom),
       width: book.width,
       height: book.height,
     });
