@@ -22,7 +22,7 @@ div#page {
   width: calc(100% - 170px);
 }
 /*----------*/
-div#page > div { border: 2px dashed #000; }
+div#page > div { border: 1px dashed #000; outline: 1px dashed #fff; }
 
 #toolbar { background-color: #334; }
 body {

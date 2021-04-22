@@ -3,7 +3,7 @@ import { State } from './state';
 import { imgPath } from "./image";
 import { Page } from "../../common/book"
 
-const sidebarWidth = 156;
+const sidebarWidth = 170;
 const toolbarHeight = 60;
 
 const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
