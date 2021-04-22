@@ -1,6 +1,5 @@
 import React from "react";
 import { Book, Page } from '../../common/book';
-import { createMiniature } from './utils';
 
 export interface RawState {
   kind: "scanning one" | "nothing",
@@ -10,12 +9,12 @@ export interface RawState {
 
 export interface State {
   rs: RawState,
-  setRS: (rs: RawState) => RawState,
-  setBook: (book: Book) => RawState,
-  addPage: (page: Page) => RawState,
-  deletePage: (hash: string) => RawState,
+  setRS: (f: (rs: RawState) => RawState) => void,
+  setBook: (book: Book) => void,
+  addPage: (page: Page) => void,
+  deletePage: (hash: string) => void,
   getPage: (hash?: string) => Page | undefined,
-  setPage: (page: Page) => RawState,
+  setPage: (page: Page) => void,
 }
 
 const emptyRawState: RawState = {
@@ -38,32 +37,34 @@ const loadRS = () => {
 
 export const StateContext = React.createContext<State>({
   rs: loadRS(),
-  setRS: () => loadRS(),
-  setBook: () => loadRS(),
-  addPage: () => loadRS(),
-  deletePage: () => loadRS(),
+  setRS: () => {},
+  setBook: () => {},
+  addPage: () => {},
+  deletePage: () => {},
   getPage: () => undefined,
-  setPage: () => loadRS()
+  setPage: () => {},
 });
 
 export const StateProvider: React.FC = ({ children }) => {
-  const [rs, setRSRaw] = React.useState<RawState>(loadRS());
-  const setRS = (rs: RawState) => {
+  const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
     window.localStorage.setItem('rawState', JSON.stringify(rs));
-    setRSRaw(rs);
-    return rs;
+    return f(rs);
   }
-
-  const setBook = (book: Book) => setRS({ ...rs, book });
-  const setPages = (pages: Page[]) => setBook({ ...rs.book, pages });
-  const addPage = (page: Page) => setPages([...rs.book.pages, page]);
-  const deletePage = (hash: string) => setPages(rs.book.pages.filter(p => p.hash !== hash));
+  const [rs, setRS] = React.useReducer(reduce, loadRS());
+  /*const setRS = (f: (rs: RawState) => RawState) => {
+    setRSRaw(f);
+    return f(rs)
+  }*/
+  
+  const setBook = (book: Book) => setRS(rs => ({ ...rs, book }));
+  const setPages = (pages: Page[]) => setRS(rs => ({ ...rs, book: { ...rs.book, pages } }));
+  const addPage = (page: Page) =>
+    setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
+  const deletePage = (hash: string) =>
+    setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => p.hash !== hash) } }));
   const getPage = (hash?: string) => rs.book.pages.find(p => p.hash === hash);
-  const setPage = (page: Page) => {
-    const rs2 = setPages(rs.book.pages.map(p => p.hash === page.hash ? page : p));
-    createMiniature(rs2.book, page);
-    return rs2;
-  }
+  const setPage = (page: Page) =>
+    setPages(rs.book.pages.map(p => p.hash === page.hash ? page : p));
   const value = { rs, setRS, setBook, addPage, deletePage, getPage, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;

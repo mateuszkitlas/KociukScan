@@ -23,25 +23,21 @@ const dpiButton = (s: State) =>
 
 const scanningButtons = (s: State) => {
   const scanOnePage: B = async (_event) => {
-    s.setRS({ ...s.rs, kind: "scanning one" });
+    s.setRS(rs => ({ ...rs, kind: "scanning one" }));
     const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
     if (res.success) {
       s.addPage(res.result);
     } else {
-      s.setRS({ ...s.rs, kind: "nothing" });
       alert(JSON.stringify(res.result));
     }
+    s.setRS(rs => ({ ...rs, kind: "nothing" }));
   }
   switch (s.rs.kind) {
     case "nothing": return [
-      <div key="one" className="button" onClick={scanOnePage}>scan</div>,
-      <div key="many" className="button">
-        scan*
-      </div>
+      b("scan", scanOnePage),
+      b("scan*", scanOnePage),
     ]
-    case "scanning one": return [
-      <span key="scanning">"scanning..."</span>
-    ]
+    case "scanning one": return [<span key="scanning">"scanning..."</span>]
   }
 };
 

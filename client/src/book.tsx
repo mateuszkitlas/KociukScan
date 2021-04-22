@@ -10,7 +10,7 @@ export const renderFile = (s: State) => (p: Page) => {
   }
   const show: React.MouseEventHandler<HTMLDivElement> = (event) => {
     event.preventDefault();
-    s.setRS({ ...s.rs, pageHash: p.hash });
+    s.setRS(rs => ({ ...rs, pageHash: p.hash }));
   }
   return (
     <div
