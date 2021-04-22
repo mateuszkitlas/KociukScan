@@ -37,8 +37,8 @@ const cropSize = 40;
 const crop = (s: State, page: Page) => {
   const style = {
     position: "absolute" as const,
-    left: page.x + sidebarWidth,
-    top: page.y + toolbarHeight,
+    left: page.x,
+    top: page.y,
     width: s.rs.book.width,
     height: s.rs.book.height,
   }
@@ -47,8 +47,8 @@ const crop = (s: State, page: Page) => {
   const move: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
-    el.style.left = `${e.pageX - offsetX}px`
-    el.style.top = `${e.pageY - offsetY}px`
+    el.style.left = `${e.pageX - offsetX - sidebarWidth}px`
+    el.style.top = `${e.pageY - offsetY - toolbarHeight}px`
   }
   const add: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -63,16 +63,16 @@ const crop = (s: State, page: Page) => {
     el.removeEventListener('mousemove', move as any);
     s.setPage({
       ...page,
-      x: parseInt(el.style.left) - sidebarWidth,
-      y: parseInt(el.style.top) - toolbarHeight,
+      x: parseInt(el.style.left),
+      y: parseInt(el.style.top),
 
     });
   }
   
   const styleW = {
     position: "absolute" as const,
-    left: page.x + sidebarWidth + s.rs.book.width - cropSize,
-    top: page.y + toolbarHeight,
+    left: page.x + s.rs.book.width - cropSize,
+    top: page.y,
     width: cropSize,
     height: s.rs.book.height,
     backgroundColor: "transparent"
@@ -81,7 +81,7 @@ const crop = (s: State, page: Page) => {
   const moveW: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
-    el.style.left = `${e.pageX - offsetW}px`
+    el.style.left = `${e.pageX - offsetW - sidebarWidth}px`
   }
   const addW: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -93,13 +93,13 @@ const crop = (s: State, page: Page) => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.removeEventListener('mousemove', moveW as any);
-    s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x - sidebarWidth + cropSize });
+    s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x + cropSize });
   }
   
   const styleH ={
     position: "absolute" as const,
-    left: page.x + sidebarWidth,
-    top: page.y + toolbarHeight + s.rs.book.height - cropSize,
+    left: page.x,
+    top: page.y + s.rs.book.height - cropSize,
     width: s.rs.book.width,
     height: cropSize,
     backgroundColor: "transparent"
@@ -108,7 +108,7 @@ const crop = (s: State, page: Page) => {
   const moveH: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
-    el.style.top = `${e.pageY - offsetH}px`
+    el.style.top = `${e.pageY - offsetH - toolbarHeight}px`
   }
   const addH: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -120,7 +120,7 @@ const crop = (s: State, page: Page) => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.removeEventListener('mousemove', moveH as any);
-    s.setBook({ ...s.rs.book, height: parseInt(el.style.top) - page.y - toolbarHeight + cropSize });
+    s.setBook({ ...s.rs.book, height: parseInt(el.style.top) - page.y + cropSize });
   }
   
   return [

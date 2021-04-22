@@ -16,9 +16,10 @@ div#files {
   overflow-y: auto;
 }
 div#page {
-  display: inline-block;
-  overflow-y: auto;
-  width: 100%;
+  position: absolute;
+  left: 170px;
+  overflow-y: none;
+  width: calc(100% - 170px);
 }
 /*----------*/
 div#page > div { border: 2px dashed #000; }
@@ -66,9 +67,10 @@ div#files {
 }
 
 div#files > div.file {
-  width: calc(100%-20px);
-  padding: 10px;
+  width: 100%;
   background-color: transparent;
+  background-size: contain;
+  height: 100px;
 }
 div#files > div.current { background-color: #556; }
 div#files > div.file:hover { background-color: #556; }
