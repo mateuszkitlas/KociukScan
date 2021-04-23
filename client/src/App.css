@@ -18,7 +18,7 @@ div#files {
 div#page {
   position: absolute;
   left: 170px;
-  overflow-y: none;
+  overflow: hidden;
   width: calc(100% - 170px);
 }
 /*----------*/
