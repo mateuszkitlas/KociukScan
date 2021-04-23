@@ -21,22 +21,33 @@ const dpiButton = (s: State) =>
     s.setBook({ ...s.rs.book, dpi });
   });
 
-const scanningButtons = (s: State) => {
-  const scanOnePage: B = async (_event) => {
-    s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-    const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
-    s.setRS(rs => {
-      if (rs.kind === "scanning one") {
-        if (res.success) {
-          return { ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } };
-        } else {
-          alert(JSON.stringify(res.result));
-          return ({ ...rs, kind: "nothing" });
-        }
+const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
+  const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
+  s.setRS(rs => {
+    if (setActive(rs.kind === kind)) {
+      if (res.success) {
+        return { ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } };
       } else {
-        return rs;
+        alert(JSON.stringify(res.result));
+        return ({ ...rs, kind: "nothing" });
       }
-    });
+    } else {
+      return rs;
+    }
+  });
+}
+
+const scanningButtons = (s: State) => {
+  const one: B = async _e => {
+    s.setRS(rs => ({ ...rs, kind: "scanning one" }));
+    await scanIf(s, "scanning one", active => active)
+  }
+  const many: B = async _e => {
+    s.setRS(rs => ({ ...rs, kind: "scanning many" }));
+    let active = true;
+    while(active) {
+      await scanIf(s, "scanning many", activeNew => active = activeNew);
+    }
   }
   const stop: B = _e => {
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
@@ -44,10 +55,11 @@ const scanningButtons = (s: State) => {
   
   switch (s.rs.kind) {
     case "nothing": return [
-      b("scan", scanOnePage),
-      b("scan*", scanOnePage),
+      b("scan", one),
+      b("scan*", many),
     ]
     case "scanning one": return [b("stop", stop)]
+    case "scanning many": return [b("stop", stop)]
   }
 };
 

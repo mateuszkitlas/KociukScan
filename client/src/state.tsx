@@ -2,7 +2,7 @@ import React from "react";
 import { Book, Page } from '../../common/book';
 
 export interface RawState {
-  kind: "scanning one" | "nothing",
+  kind: "scanning one" | "scanning many" | "nothing",
   pageHash?: string;
   book: Book
 }
