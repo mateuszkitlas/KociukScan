@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { httpRequest } from './http';
 import { State } from './state';
-import { Page, Book } from "../../common/book";
+import { Page, DPI } from "../../common/book";
 import { sleep } from './utils';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
@@ -20,7 +20,7 @@ const select = (values: number[], init: number, onChange: React.ChangeEventHandl
 
 const dpiButton = (s: State) => 
   select([75, 100, 200, 300], s.rs.book.dpi, e => {
-    const dpi = parseFloat(e.target.value) as Book["dpi"];
+    const dpi = parseFloat(e.target.value) as DPI;
     s.setBook({ ...s.rs.book, dpi });
   });
 

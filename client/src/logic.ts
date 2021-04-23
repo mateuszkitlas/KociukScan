@@ -1,6 +1,4 @@
-import { Page } from '../../common/book';
-
-type DPI = Page["original"]["dpi"];
+import { DPI } from '../../common/book';
 
 export const zoomByDpi = (dpi: DPI) => {
   switch (dpi) {

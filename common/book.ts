@@ -1,3 +1,5 @@
+export type DPI = 75 | 100 | 200 | 300;
+
 export interface Book {
   title: string;
   pages: Page[];
@@ -5,7 +7,7 @@ export interface Book {
   delay: number;
   width: number;
   height: number;
-  dpi: 75 | 100 | 200 | 300;
+  dpi: DPI;
 }
 
 export interface Page {
@@ -15,8 +17,8 @@ export interface Page {
   rotate: number;
   orientation: "left" | "right";
   original: {
-    width: number,
-    height: number,
-    dpi: 75 | 100 | 200 | 300
+    width: number;
+    height: number;
+    dpi: DPI;
   }
 }
