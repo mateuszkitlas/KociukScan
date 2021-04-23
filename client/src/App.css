@@ -77,17 +77,24 @@ input {
   color: #fff;
 }
 
-div#files {
+div#pages {
   background-color: #334;
   width: 170px;
 }
 
-div#files > div.file {
+div#pages > div.page {
   width: 100%;
   background-color: transparent;
   background-size: contain;
   height: 100px;
 }
-div#files > div.current { background-color: #556; }
-div#files > div.file:hover { background-color: #556; }
-div#files > div.current:hover { background-color: #667; }
+div#pages > div.current { background-color: #556; }
+div#pages > div.page:hover { background-color: #556; }
+div#pages > div.current:hover { background-color: #667; }
+div#pages > div.page > div.button {
+  margin: 5px 5px 0px 0px;
+  display: block;
+  width: 15px;
+  float: right;
+  padding: 7px;
+}

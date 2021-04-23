@@ -4,6 +4,7 @@ import { httpRequest } from './http';
 import { State } from './state';
 import { Page, DPI } from "../../common/book";
 import { sleep } from './utils';
+import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf } from 'react-icons/fa';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B, active: boolean) => (
@@ -65,16 +66,16 @@ const scanningButtons = (s: State) => {
   
   return [
     ["scanning one", "scanning many"].includes(s.rs.kind)
-      ? b("stop", stop, true)
+      ? <div className="button" onClick={stop} key="stop"><FaStop /></div>
       : s.rs.kind === "generating pdf"
-      ? b("scan", one, false)
-      : b("scan", one, true),
+      ? <div className="button inactive" key="one"><FaPaw /></div>
+      : <div className="button" onClick={one} key="one"><FaPaw /></div>,
     <div
       className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
       onClick={s.rs.kind === "nothing" ? many : undefined}
       key="scan*"
     >
-      scan with delay
+      <FaPaw />
       {b("+", setDelay(1), true)}
       {s.rs.book.delay}sec
       {b("-", setDelay(-1), true)}
@@ -98,15 +99,15 @@ const pageButtons = (s: State) => {
       s.setPage({ ...page, rotate: 0 });
     }
     return [
-      b("rL", rotate(-0.5), true),
-      b("rR", rotate(0.5), true),
+      <div className="button" onClick={rotate(-0.5)} key="rl"><FaUndo /></div>,
+      <div className="button" onClick={rotate(0.5)} key="rr"><FaRedo /></div>,
       b("0*", setZeroRotate, true),
       b("90*", rotate(90), true),
       b("180*", rotate(180), true),
-      b("L", moveX(-1), true),
-      b("R", moveX(1), true),
-      b("U", moveY(-1), true),
-      b("D", moveY(1), true),
+      <div className="button" onClick={moveX(-1)} key="ml"><FaAngleLeft /></div>,
+      <div className="button" onClick={moveX(1)}  key="mr"><FaAngleRight /></div>,
+      <div className="button" onClick={moveY(-1)} key="mu"><FaAngleUp /></div>,
+      <div className="button" onClick={moveY(1)}  key="md"><FaAngleDown /></div>,
     ];
   } else {
     return [];
@@ -132,7 +133,15 @@ const downloadButtons = (s: State) => {
       alert(JSON.stringify(r.result));
     }
   }
-  return [b("pdf", download, s.rs.kind === "nothing")]
+  return (
+    <div
+      className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
+      onClick={download}
+      key="pdf"
+    >
+      <FaFilePdf />
+    </div>
+  );
 }
 
 export const buttons = (s: State) => [
