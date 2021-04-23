@@ -41,18 +41,15 @@ body {
   color: #fff;
   border-radius: 5px;
   user-select: none;
-}
-.button:hover {
-  background-color: #556;
-  border: 1;
   cursor: pointer;
 }
+.button.inactive { color: #667; }
+.button:hover { background-color: #556; }
+.button.inactive:hover { background-color: #445; }
 
 input {
-  border: 1;
-  border-style: dashed;
+  border: 1px dashed #445;
   border-radius: 5px;
-  border-color: #445;
   display: inline-block;
   background-color: transparent;
   padding: 6px;

@@ -6,6 +6,7 @@ import { Page, Book } from "../../common/book";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B) => (<div className="button" onClick={f} key={label}>{label}</div>);
+const inactiveB = (label: string) => (<div className="button inactive" key={label}>{label}</div>);
 
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
   return [
@@ -55,12 +56,14 @@ const scanningButtons = (s: State) => {
   }
   
   switch (s.rs.kind) {
-    case "nothing": return [
-      b("scan", one),
-      b("scan*", many),
-    ]
-    case "scanning one": return [b("stop", stop)]
-    case "scanning many": return [b("stop", stop)]
+    case "generating pdf":
+      return [inactiveB("stop"), inactiveB("scan*")]
+    case "nothing":
+      return [b("scan", one), b("scan*", many)]
+    case "scanning one":
+      return [b("stop", stop), inactiveB("scan*")]
+    case "scanning many":
+      return [inactiveB("scan"), b("stop", stop)]
   }
 };
 
@@ -100,8 +103,7 @@ const pageButtons = (s: State) => {
 }
 
 const downloadButtons = (s: State) => {
-  const download: B = async (_event) => {
-    _event.stopPropagation();
+  const download: B = async _e => {
     const r = await httpRequest<{ path: string }>({ kind: "pdf", book: s.rs.book });
     if (r.success) {
       const link = document.createElement('a');
@@ -116,6 +118,14 @@ const downloadButtons = (s: State) => {
     } else {
       alert(JSON.stringify(r.result));
     }
+  }
+  switch (s.rs.kind) {
+    case "generating pdf":
+    case "scanning one":
+    case "scanning many":
+      return [inactiveB("pdf")];
+    case "nothing":
+      return [b("pdf", download)]
   }
   return b("pdf", download);
 }
