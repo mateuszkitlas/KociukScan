@@ -2,6 +2,7 @@ import * as http from "http";
 
 const host = "localhost";
 
+const timeout = 60 * 60 * 1000;
 export type ServerHandle = {
   dispose: () => Promise<void>;
 };
@@ -57,8 +58,8 @@ export function activateHttpServer<P = any, R = any>(
         res.end();
       }
     })
-    .on("connection", (socket) => socket.setTimeout(200000))
-    .setTimeout(200000)
+    .on("connection", (socket) => socket.setTimeout(timeout))
+    .setTimeout(timeout)
     .listen(port, host);
   const dispose = () => new Promise<void>((resolve, reject) => server.close(err => (err ? reject(err) : resolve())));
   return new Promise((resolve, reject) => {
