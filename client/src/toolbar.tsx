@@ -3,10 +3,12 @@ import './App.css';
 import { httpRequest } from './http';
 import { State } from './state';
 import { Page, Book } from "../../common/book";
+import { sleep } from './utils';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
-const b = (label: string, f: B) => (<div className="button" onClick={f} key={label}>{label}</div>);
-const inactiveB = (label: string) => (<div className="button inactive" key={label}>{label}</div>);
+const b = (label: string, f: B, active: boolean) => (
+  <div className={`button ${active ? "" : "inactive"}`} onClick={active ? f : undefined} key={label}>{label}</div>
+);
 
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
   return [
@@ -24,18 +26,15 @@ const dpiButton = (s: State) =>
 
 const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
   const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
-  s.setRS(rs => {
-    if (setActive(rs.kind === kind)) {
-      if (res.success) {
-        return { ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } };
-      } else {
-        alert(JSON.stringify(res.result));
-        return ({ ...rs, kind: "nothing" });
-      }
+  const rs = await s.getRS();
+  if (setActive(rs.kind === kind)) {
+    if (res.success) {
+      return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } }));
     } else {
-      return rs;
+      alert(JSON.stringify(res.result));
+      return s.setRS(rs => ({ ...rs, kind: "nothing" }));
     }
-  });
+  }
 }
 
 const scanningButtons = (s: State) => {
@@ -50,6 +49,7 @@ const scanningButtons = (s: State) => {
     while(active) {
       /* eslint-disable no-loop-func
       */ await scanIf(s, "scanning many", activeNew => active = activeNew);
+      await sleep((await s.getRS()).book.delay);
     }
   }
   const stop: B = _e => {
@@ -58,27 +58,28 @@ const scanningButtons = (s: State) => {
   
   const setDelay = (delta: number): B => e => {
     e.stopPropagation();
-    s.setBook({ ...s.rs.book, delay: s.rs.book.delay + delta });
+    if (s.rs.book.delay + delta >= 0) {
+      s.setBook({ ...s.rs.book, delay: s.rs.book.delay + delta });
+    }
   }
   
-  switch (s.rs.kind) {
-    case "generating pdf":
-      return [inactiveB("stop"), inactiveB("scan*")]
-    case "nothing":
-      return [
-        b("scan", one),
-        <div className="button" onClick={many} key="scan*">
-          scan with delay
-          {b("+", setDelay(1))}
-          {s.rs.book.delay}sec
-          {b("-", setDelay(-1))}
-        </div>
-      ]
-    case "scanning one":
-      return [b("stop", stop), inactiveB("scan*")]
-    case "scanning many":
-      return [inactiveB("scan"), b("stop", stop)]
-  }
+  return [
+    ["scanning one", "scanning many"].includes(s.rs.kind)
+      ? b("stop", stop, true)
+      : s.rs.kind === "generating pdf"
+      ? b("scan", one, false)
+      : b("scan", one, true),
+    <div
+      className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
+      onClick={s.rs.kind === "nothing" ? many : undefined}
+      key="scan*"
+    >
+      scan with delay
+      {b("+", setDelay(1), true)}
+      {s.rs.book.delay}sec
+      {b("-", setDelay(-1), true)}
+    </div>
+  ]
 };
 
 const pageButtons = (s: State) => {
@@ -97,15 +98,15 @@ const pageButtons = (s: State) => {
       s.setPage({ ...page, rotate: 0 });
     }
     return [
-      b("rL", rotate(-0.5)),
-      b("rR", rotate(0.5)),
-      b("0*", setZeroRotate),
-      b("90*", rotate(90)),
-      b("180*", rotate(180)),
-      b("L", moveX(-1)),
-      b("R", moveX(1)),
-      b("U", moveY(-1)),
-      b("D", moveY(1)),
+      b("rL", rotate(-0.5), true),
+      b("rR", rotate(0.5), true),
+      b("0*", setZeroRotate, true),
+      b("90*", rotate(90), true),
+      b("180*", rotate(180), true),
+      b("L", moveX(-1), true),
+      b("R", moveX(1), true),
+      b("U", moveY(-1), true),
+      b("D", moveY(1), true),
     ];
   } else {
     return [];
@@ -131,14 +132,7 @@ const downloadButtons = (s: State) => {
       alert(JSON.stringify(r.result));
     }
   }
-  switch (s.rs.kind) {
-    case "generating pdf":
-    case "scanning one":
-    case "scanning many":
-      return [inactiveB("pdf")];
-    case "nothing":
-      return [b("pdf", download)]
-  }
+  return [b("pdf", download, s.rs.kind === "nothing")]
 }
 
 export const buttons = (s: State) => [

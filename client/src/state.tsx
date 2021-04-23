@@ -9,6 +9,7 @@ export interface RawState {
 
 export interface State {
   rs: RawState,
+  getRS: () => Promise<RawState>,
   setRS: (f: (rs: RawState) => RawState) => void,
   setBook: (book: Book) => void,
   addPage: (page: Page) => void,
@@ -37,6 +38,7 @@ const loadRS = () => {
 
 export const StateContext = React.createContext<State>({
   rs: loadRS(),
+  getRS: async () => loadRS(),
   setRS: () => {},
   setBook: () => {},
   addPage: () => {},
@@ -51,11 +53,7 @@ export const StateProvider: React.FC = ({ children }) => {
     return f(rs);
   }
   const [rs, setRS] = React.useReducer(reduce, loadRS());
-  /*const setRS = (f: (rs: RawState) => RawState) => {
-    setRSRaw(f);
-    return f(rs)
-  }*/
-  
+  const getRS = () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs }));
   const setBook = (book: Book) => setRS(rs => ({ ...rs, book }));
   const setPages = (pages: Page[]) => setRS(rs => ({ ...rs, book: { ...rs.book, pages } }));
   const addPage = (page: Page) =>
@@ -65,7 +63,7 @@ export const StateProvider: React.FC = ({ children }) => {
   const getPage = (hash?: string) => rs.book.pages.find(p => p.hash === hash);
   const setPage = (page: Page) =>
     setPages(rs.book.pages.map(p => p.hash === page.hash ? page : p));
-  const value = { rs, setRS, setBook, addPage, deletePage, getPage, setPage };
+  const value = { rs, getRS, setRS, setBook, addPage, deletePage, getPage, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }
