@@ -9,8 +9,8 @@ const b = (label: string, f: B) => (<div className="button" onClick={f} key={lab
 
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
   return [
-    <select onChange={onChange} value={init}>
-      {values.map(v => <option value={v}>{v}</option>)}
+    <select onChange={onChange} value={init} key={`select${init}`}>
+      {values.map(v => <option value={v} key={v}>{v}</option>)}
     </select>
   ]
 };
@@ -46,7 +46,8 @@ const scanningButtons = (s: State) => {
     s.setRS(rs => ({ ...rs, kind: "scanning many" }));
     let active = true;
     while(active) {
-      await scanIf(s, "scanning many", activeNew => active = activeNew);
+      /* eslint-disable no-loop-func
+      */ await scanIf(s, "scanning many", activeNew => active = activeNew);
     }
   }
   const stop: B = _e => {
