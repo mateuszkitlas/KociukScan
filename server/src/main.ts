@@ -116,9 +116,12 @@ const x = async (json: Params, _url: any) => {
       return await createMiniature(json.book, json.page, json.page.original.dpi);
     case "pdf":
       try {
+        const start = Date.now();
         const pdf = new pdfkit({ autoFirstPage: false });
         pdf.pipe(createWriteStream(tmpPath("pdf.pdf")));
-        for (const page of json.book.pages) {
+        for (let i = 0; i < json.book.pages.length; i++) {
+          const page = json.book.pages[i];
+          console.log(`generating ${i + 1} out of ${json.book.pages.length} pages...`);
           pdf
             .addPage({
               margins: { left: 0, right: 0, top: 0, bottom: 0 },
@@ -127,6 +130,8 @@ const x = async (json: Params, _url: any) => {
             .image((await processPage(json.book, page, page.original.dpi)).buffer);
         }
         pdf.end();
+        const elapsedTime = (Date.now() - start)/1000;
+        console.log(`Done in ${elapsedTime}seconds`);
         return { path: "tmp/pdf.pdf" };
       } catch(error) {
         return { error: error || "undefined error" };
