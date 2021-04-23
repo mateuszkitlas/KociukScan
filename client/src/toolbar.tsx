@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { httpRequest } from './utils';
+import { httpRequest } from './http';
 import { State } from './state';
 import { Page, Book } from "../../common/book";
 
@@ -92,10 +92,6 @@ const pageButtons = (s: State) => {
       b("R", moveX(1)),
       b("U", moveY(-1)),
       b("D", moveY(1)),
-      select([0.375, 0.5, 1, 1.33], page.zoom, e => {
-        const zoom = parseFloat(e.target.value);
-        s.setPage({ ...page, zoom });
-      }),
     ];
   } else {
     return [];
@@ -104,7 +100,9 @@ const pageButtons = (s: State) => {
 
 const downloadButtons = (s: State) => {
   const download: B = async _e => {
+    s.setRS(rs => ({ ...rs, kind: "generating pdf" }));
     const r = await httpRequest<{ path: string }>({ kind: "pdf", book: s.rs.book });
+    s.setRS(rs => ({ ...rs, kind: "nothing" }));
     if (r.success) {
       const link = document.createElement('a');
       link.href = r.result.path;
@@ -127,7 +125,6 @@ const downloadButtons = (s: State) => {
     case "nothing":
       return [b("pdf", download)]
   }
-  return b("pdf", download);
 }
 
 export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s), downloadButtons(s), ...dpiButton(s)];

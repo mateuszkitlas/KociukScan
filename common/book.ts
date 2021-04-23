@@ -10,12 +10,10 @@ export interface Book {
 
 export interface Page {
   hash: string;
-  nr?: number;
   x: number;
   y: number;
   rotate: number;
   orientation: "left" | "right";
-  zoom: number;
   original: {
     width: number,
     height: number,

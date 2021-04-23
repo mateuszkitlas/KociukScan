@@ -2,6 +2,7 @@ import React from 'react';
 import { State } from './state';
 import { imgPath } from "./image";
 import { Page } from "../../common/book"
+import { marginX, marginY, zoomByDpi } from "./logic"
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -130,31 +131,13 @@ const crop = (s: State, page: Page) => {
   ]
 }
 
-const marginX = (zoom: number) => {
-  switch (zoom){
-    case 0.375: return -531;
-    case 0.5: return -425;
-    case 1: return 0;
-    case 1.33: return 105;
-    default: return 0;
-  }
-}
-const marginY = (zoom: number) => {
-  switch (zoom){
-    case 0.375: return -731;
-    case 0.5: return -585;
-    case 1: return 0;
-    case 1.33: return 145;
-    default: return 0;
-  }
-}
-
 const somePage = (s: State) => (page: Page) => {
+  const zoom = zoomByDpi(page.original.dpi);
   const newPoints = getPixelsByAngle(
     0,
     0,
-    page.original.width*page.zoom,
-    page.original.height*page.zoom,
+    page.original.width*zoom,
+    page.original.height*zoom,
     page.rotate
   )
   const minX = Math.min(...newPoints.map(x => x.x));
@@ -164,9 +147,10 @@ const somePage = (s: State) => (page: Page) => {
       src={imgPath(page, false)}
       alt=""
       style={{
-        transform: `rotate(${page.rotate}deg) scale(${page.zoom})`,
-        marginLeft: -minX + marginX(page.zoom),
-        marginTop: -minY + marginY(page.zoom),
+        transform: `rotate(${page.rotate}deg) scale(${zoom})`,
+        marginLeft: -minX + marginX(page.original.dpi),
+        marginTop: -minY + marginY(page.original.dpi),
+        userSelect: "none",
       }}
       key={`page-${page.hash}`}
     />,
