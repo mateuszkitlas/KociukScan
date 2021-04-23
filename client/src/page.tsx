@@ -150,7 +150,13 @@ const marginY = (zoom: number) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
-  const newPoints = getPixelsByAngle(0, 0, page.original.width*page.zoom, page.original.height*page.zoom, page.rotate)
+  const newPoints = getPixelsByAngle(
+    0,
+    0,
+    page.original.width*page.zoom,
+    page.original.height*page.zoom,
+    page.rotate
+  )
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
   return [
