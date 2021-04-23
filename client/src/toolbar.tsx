@@ -25,12 +25,18 @@ const scanningButtons = (s: State) => {
   const scanOnePage: B = async (_event) => {
     s.setRS(rs => ({ ...rs, kind: "scanning one" }));
     const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
-    if (res.success) {
-      s.addPage(res.result);
-    } else {
-      alert(JSON.stringify(res.result));
-    }
-    s.setRS(rs => ({ ...rs, kind: "nothing" }));
+    s.setRS(rs => {
+      if (rs.kind === "scanning one") {
+        if (res.success) {
+          return { ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } };
+        } else {
+          alert(JSON.stringify(res.result));
+          return ({ ...rs, kind: "nothing" });
+        }
+      } else {
+        return rs;
+      }
+    });
   }
   const stop: B = _e => {
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
