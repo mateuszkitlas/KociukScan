@@ -11,7 +11,7 @@ const inactiveB = (label: string) => (<div className="button inactive" key={labe
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
   return [
     <select onChange={onChange} value={init} key={`select${init}`}>
-      {values.map(v => <option value={v} key={v}>{v}</option>)}
+      {values.map(v => <option value={v} key={v}>{v} dpi</option>)}
     </select>
   ]
 };
@@ -41,7 +41,8 @@ const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolea
 const scanningButtons = (s: State) => {
   const one: B = async _e => {
     s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-    await scanIf(s, "scanning one", active => active)
+    await scanIf(s, "scanning one", active => active);
+    s.setRS(rs => ({ ...rs, kind: "nothing" }));
   }
   const many: B = async _e => {
     s.setRS(rs => ({ ...rs, kind: "scanning many" }));
@@ -55,11 +56,24 @@ const scanningButtons = (s: State) => {
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
   }
   
+  const setDelay = (delta: number): B => e => {
+    e.stopPropagation();
+    s.setBook({ ...s.rs.book, delay: s.rs.book.delay + delta });
+  }
+  
   switch (s.rs.kind) {
     case "generating pdf":
       return [inactiveB("stop"), inactiveB("scan*")]
     case "nothing":
-      return [b("scan", one), b("scan*", many)]
+      return [
+        b("scan", one),
+        <div className="button" onClick={many} key="scan*">
+          scan with delay
+          {b("+", setDelay(1))}
+          {s.rs.book.delay}sec
+          {b("-", setDelay(-1))}
+        </div>
+      ]
     case "scanning one":
       return [b("stop", stop), inactiveB("scan*")]
     case "scanning many":
@@ -127,4 +141,9 @@ const downloadButtons = (s: State) => {
   }
 }
 
-export const buttons = (s: State) => [...scanningButtons(s), ...pageButtons(s), downloadButtons(s), ...dpiButton(s)];
+export const buttons = (s: State) => [
+  ...dpiButton(s),
+  ...scanningButtons(s),
+  downloadButtons(s),
+  ...pageButtons(s),
+];

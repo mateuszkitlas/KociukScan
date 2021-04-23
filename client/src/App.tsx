@@ -9,13 +9,6 @@ const changeTitle: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = 
   s.setBook({ ...s.rs.book, title: e.target.value });
 }
 
-const changeDelay: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = (s: State) => (e) => {
-  const delay = parseInt(e.target.value);
-  if (0 <= delay && delay < 20) {
-    s.setBook({ ...s.rs.book, delay });
-  }
-}
-
 const AppProvided = () => {
   const s = React.useContext(StateContext);
   return (
@@ -23,7 +16,6 @@ const AppProvided = () => {
       <div id="toolbar" key="toolbar">
         <input key="title" type="text" value={s.rs.book.title} onChange={changeTitle(s)}/>
         {buttons(s)}
-        <input key="delay" type="number" value={s.rs.book.delay} onChange={changeDelay(s)}/>
       </div>
       <div id="wrapper" key="wrapper">
         <div id="files" key="files">

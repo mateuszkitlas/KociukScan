@@ -47,6 +47,25 @@ body {
 .button:hover { background-color: #556; }
 .button.inactive:hover { background-color: #445; }
 
+.button > .button {
+  margin: 0 10px 0 10px;
+  padding: 0 5px 0 5px;
+  background-color: #556;
+}
+.button > .button:hover { background-color: #778; }
+
+select {
+  background-color: #445;
+  border-radius: 5px;
+  padding: 8px 0 8px 8px;
+  margin: 0 10px 0 10px;
+  display: inline-block;
+  color: #fff;
+  font-size: 16px;
+  border: 0;
+}
+
+
 input {
   border: 1px dashed #445;
   border-radius: 5px;
