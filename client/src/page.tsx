@@ -50,6 +50,17 @@ const crop = (s: State, page: Page) => {
     const el = e.target as HTMLDivElement;
     el.style.left = `${e.pageX - offsetX - sidebarWidth}px`
     el.style.top = `${e.pageY - offsetY - toolbarHeight}px`
+    el.onmouseup = function (e) {
+      e.stopPropagation();
+      const el = e.target as HTMLDivElement;
+      el.removeEventListener('mousemove', move as any);
+      s.setPage({
+        hash: page.hash,
+        duplicated: page.duplicated,
+        x: parseInt(el.style.left),
+        y: parseInt(el.style.top),
+      });
+    }
   }
   const add: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -57,17 +68,6 @@ const crop = (s: State, page: Page) => {
     offsetX=e.clientX-el.getBoundingClientRect().left;
     offsetY=e.clientY-el.getBoundingClientRect().top;
     el.addEventListener('mousemove', move as any);
-  }
-  const remove: React.MouseEventHandler<HTMLDivElement> = e =>{
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.removeEventListener('mousemove', move as any);
-    s.setPage({
-      hash: page.hash,
-      duplicated: page.duplicated,
-      x: parseInt(el.style.left),
-      y: parseInt(el.style.top),
-    });
   }
   
   const styleW = {
@@ -83,6 +83,12 @@ const crop = (s: State, page: Page) => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.style.left = `${e.pageX - offsetW - sidebarWidth}px`
+    el.onmouseup = function (e) {
+      e.stopPropagation();
+      const el = e.target as HTMLDivElement;
+      el.removeEventListener('mousemove', moveW as any);
+      s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x + cropSize });
+    }
   }
   const addW: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -90,13 +96,7 @@ const crop = (s: State, page: Page) => {
     offsetW=e.clientX-el.getBoundingClientRect().left;
     el.addEventListener('mousemove', moveW as any);
   }
-  const removeW: React.MouseEventHandler<HTMLDivElement> = e =>{
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.removeEventListener('mousemove', moveW as any);
-    s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x + cropSize });
-  }
-  
+
   const styleH ={
     position: "absolute" as const,
     left: page.x,
@@ -110,6 +110,12 @@ const crop = (s: State, page: Page) => {
     e.stopPropagation();
     const el = e.target as HTMLDivElement;
     el.style.top = `${e.pageY - offsetH - toolbarHeight}px`
+    el.onmouseup = function (e) {
+      e.stopPropagation();
+      const el = e.target as HTMLDivElement;
+      el.removeEventListener('mousemove', moveH as any);
+      s.setBook({ ...s.rs.book, height: parseInt(el.style.top) - page.y + cropSize });
+    }
   }
   const addH: React.MouseEventHandler<HTMLDivElement> = e => {
     e.stopPropagation();
@@ -117,17 +123,11 @@ const crop = (s: State, page: Page) => {
     offsetH=e.clientY-el.getBoundingClientRect().top;
     el.addEventListener('mousemove', moveH as any);
   }
-  const removeH: React.MouseEventHandler<HTMLDivElement> = e =>{
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.removeEventListener('mousemove', moveH as any);
-    s.setBook({ ...s.rs.book, height: parseInt(el.style.top) - page.y + cropSize });
-  }
   
   return [
-    <div style={style} key="crop" onMouseDown={add} onMouseUp={remove} onMouseLeave={remove}></div>,
-    <div style={styleW} key="cropW" onMouseDown={addW} onMouseUp={removeW} onMouseLeave={removeW}></div>,
-    <div style={styleH} key="cropH" onMouseDown={addH} onMouseUp={removeH} onMouseLeave={removeH}></div>
+    <div style={style} key="crop" onMouseDown={add}></div>,
+    <div style={styleW} key="cropW" onMouseDown={addW}></div>,
+    <div style={styleH} key="cropH" onMouseDown={addH}></div>
   ]
 }
 
