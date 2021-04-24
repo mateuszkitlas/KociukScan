@@ -1,5 +1,5 @@
 import React from 'react';
-import { Page } from '../../common/book';
+import { Page } from './types';
 import { imgPath } from './image';
 import { State, eqPage } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';

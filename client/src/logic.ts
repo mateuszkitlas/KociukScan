@@ -1,4 +1,4 @@
-import { Book, DPI, Page } from '../../common/book';
+import { Book, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
   return arr.length > 0 ? arr[arr.length - 1] : undefined;

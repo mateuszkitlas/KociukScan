@@ -10,26 +10,31 @@
     "@types/jest": "^26.0.15",
     "@types/md5": "^2.3.0",
     "@types/node": "^12.0.0",
+    "@types/pdfkit": "^0.11.0",
     "@types/react": "^17.0.0",
     "@types/react-dom": "^17.0.0",
     "@types/request-promise": "^4.1.47",
     "@types/request-promise-native": "^1.0.17",
+    "@types/sharp": "^0.28.0",
     "express": "^4.17.1",
     "md5": "^2.3.0",
+    "pdfkit": "^0.12.1",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-icons": "^4.2.0",
     "react-scripts": "4.0.3",
     "request-promise": "^4.2.6",
     "request-promise-native": "^1.0.9",
+    "sharp": "^0.28.1",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "start": "craco start",
+    "build": "craco build",
+    "test": "craco test",
+    "eject": "craco eject",
+    "electron": "electron ."
   },
   "eslintConfig": {
     "extends": [
@@ -48,5 +53,10 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "devDependencies": {
+    "craco": "^0.0.3",
+    "electron": "12.0.5"
+  },
+  "main": "main.js"
 }

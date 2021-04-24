@@ -1,4 +1,4 @@
-import { Page } from '../../common/book';
+import { Page } from './types';
 
 export const imgPath = (p: Page, miniature: boolean) =>
   miniature

@@ -1,7 +1,7 @@
 import React from 'react';
 import { State } from './state';
 import { imgPath } from "./image";
-import { Page } from "../../common/book"
+import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 
 const sidebarWidth = 170;
