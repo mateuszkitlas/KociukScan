@@ -35,6 +35,31 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
 
 const cropSize = 40;
 
+const dragable = (useX: boolean, useY: boolean, action: (xy: { x: number, y: number }) => void) => {
+  let offsetX = 0;
+  let offsetY = 0;
+  
+  const add: React.MouseEventHandler<HTMLDivElement> = e => {
+    e.stopPropagation();
+    const el = e.target as HTMLDivElement;
+    offsetX=e.clientX-el.getBoundingClientRect().left;
+    offsetY=e.clientY-el.getBoundingClientRect().top;
+    el.onmousemove = function(e) {
+      e.stopPropagation();
+      const el = e.target as HTMLDivElement;
+      if (useX) { el.style.left = `${e.pageX - offsetX - sidebarWidth}px`; }
+      if (useY) { el.style.top = `${e.pageY - offsetY - toolbarHeight}px`; }
+      el.onmouseup = function (e) {
+        e.stopPropagation();
+        const el = e.target as HTMLDivElement;
+        el.onmousemove = null;
+        action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+      }
+    }
+  }
+  return add;
+}
+
 const crop = (s: State, page: Page) => {
   const style = {
     position: "absolute" as const,
@@ -43,91 +68,40 @@ const crop = (s: State, page: Page) => {
     width: s.rs.book.width,
     height: s.rs.book.height,
   }
-  let offsetX = 0;
-  let offsetY = 0;
-  const move: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.style.left = `${e.pageX - offsetX - sidebarWidth}px`
-    el.style.top = `${e.pageY - offsetY - toolbarHeight}px`
-    el.onmouseup = function (e) {
-      e.stopPropagation();
-      const el = e.target as HTMLDivElement;
-      el.removeEventListener('mousemove', move as any);
-      s.setPage({
-        hash: page.hash,
-        duplicated: page.duplicated,
-        x: parseInt(el.style.left),
-        y: parseInt(el.style.top),
-      });
-    }
-  }
-  const add: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    offsetX=e.clientX-el.getBoundingClientRect().left;
-    offsetY=e.clientY-el.getBoundingClientRect().top;
-    el.addEventListener('mousemove', move as any);
-  }
-  
+  const add = dragable(true, true, xy => s.setPage({ ...page, ...xy }));
+
   const styleW = {
     position: "absolute" as const,
     left: page.x + s.rs.book.width - cropSize,
     top: page.y,
     width: cropSize,
-    height: s.rs.book.height,
-    backgroundColor: "transparent"
+    height: s.rs.book.height - cropSize - 2,
   }
-  let offsetW = 0;
-  const moveW: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.style.left = `${e.pageX - offsetW - sidebarWidth}px`
-    el.onmouseup = function (e) {
-      e.stopPropagation();
-      const el = e.target as HTMLDivElement;
-      el.removeEventListener('mousemove', moveW as any);
-      s.setBook({ ...s.rs.book, width: parseInt(el.style.left) - page.x + cropSize });
-    }
-  }
-  const addW: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    offsetW=e.clientX-el.getBoundingClientRect().left;
-    el.addEventListener('mousemove', moveW as any);
-  }
+  const addW = dragable(true, false, ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }));
 
-  const styleH ={
+  const styleH = {
     position: "absolute" as const,
     left: page.x,
     top: page.y + s.rs.book.height - cropSize,
-    width: s.rs.book.width,
+    width: s.rs.book.width - cropSize - 2,
     height: cropSize,
-    backgroundColor: "transparent"
   }
-  let offsetH = 0;
-  const moveH: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    el.style.top = `${e.pageY - offsetH - toolbarHeight}px`
-    el.onmouseup = function (e) {
-      e.stopPropagation();
-      const el = e.target as HTMLDivElement;
-      el.removeEventListener('mousemove', moveH as any);
-      s.setBook({ ...s.rs.book, height: parseInt(el.style.top) - page.y + cropSize });
-    }
+  const addH = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
+
+  const styleWH = {
+    position: "absolute" as const,
+    left: page.x + s.rs.book.width - cropSize,
+    top: page.y + s.rs.book.height - cropSize,
+    width: cropSize,
+    height: cropSize,
   }
-  const addH: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    offsetH=e.clientY-el.getBoundingClientRect().top;
-    el.addEventListener('mousemove', moveH as any);
-  }
-  
+  const addWH = dragable(true, true, ({x, y}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize, height: y - page.y + cropSize }));
+
   return [
     <div style={style} key="crop" onMouseDown={add}></div>,
     <div style={styleW} key="cropW" onMouseDown={addW}></div>,
-    <div style={styleH} key="cropH" onMouseDown={addH}></div>
+    <div style={styleH} key="cropH" onMouseDown={addH}></div>,
+    <div style={styleWH} key="cropWH" onMouseDown={addWH}></div>,
   ]
 }
 
