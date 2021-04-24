@@ -1,5 +1,6 @@
 import { Book, Page } from '../../common/book';
 import { Params } from "../../common/params";
+import { toProcessedPageOpts } from './logic';
 
 export type Result<T> =
   | { success: true, result: T }
@@ -26,5 +27,9 @@ export async function httpRequest<T>(body: Params): Promise<Result<T>> {
 }
 
 export const createMiniature = (book: Book, page: Page) => {
-  return httpRequest<string>({ kind: "miniature", book, page });
+  return httpRequest<string>({
+    kind: "miniature",
+    opts: toProcessedPageOpts(book, page),
+    miniatureHash: page.miniatureHash
+  });
 }

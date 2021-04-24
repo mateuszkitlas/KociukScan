@@ -1,4 +1,4 @@
-import { DPI } from '../../common/book';
+import { Book, DPI, Page } from '../../common/book';
 
 export const zoomByDpi = (dpi: DPI) => {
   switch (dpi) {
@@ -25,3 +25,22 @@ export const marginY = (dpi: DPI) => {
     case 75: return 145;
   }
 }
+
+export interface ProcessedPageOpts {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  hash: string;
+  rotate: number;
+  dpi: DPI;
+}
+export const toProcessedPageOpts = (book: Book, page: Page): ProcessedPageOpts => ({
+  width: book.width,
+  height: book.height,
+  x: page.x,
+  y: page.y,
+  hash: page.hash,
+  rotate: page.rotate,
+  dpi: page.original.dpi,
+});

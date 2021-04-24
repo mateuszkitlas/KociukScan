@@ -1,13 +1,13 @@
 import { activateHttpServer } from './httpServer';
 import { spawnPromise } from './utils';
 import { Params } from "../../common/params";
-import { Book, DPI, Page } from "../../common/book";
+import { Page } from "../../common/book";
 import * as sharp from "sharp";
 import { join } from "path";
 import * as md5 from "md5";
 import { writeFileSync, createWriteStream, unlink } from 'fs';
 import * as pdfkit from "pdfkit";
-import { zoomByDpi } from "../../client/src/logic";
+import { zoomByDpi, ProcessedPageOpts, toProcessedPageOpts } from "../../client/src/logic";
 
 const last = <T>(arr: T[]) => arr.length > 0 ? arr[arr.length - 1] : undefined;
 
@@ -30,18 +30,14 @@ const reSharp = async (s: sharp.Sharp) => sharp((await toBuffer(s)).buffer);
 
 
 interface ProcessedPage {
-  original: Page["original"],
-  buffer: Buffer
+  original: Page["original"];
+  buffer: Buffer;
 }
 
 
-const processPage = async (
-  book: Book,
-  page: Pick<Page, "x" | "y" | "hash" | "rotate">,
-  dpi: Page["original"]["dpi"],
-): Promise<ProcessedPage> => {
-  const zoom = zoomByDpi(dpi);
-  const img = await toBuffer(sharp(imgPath(page.hash)));
+const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
+  const zoom = zoomByDpi(opts.dpi);
+  const img = await toBuffer(sharp(imgPath(opts.hash)));
   const original = img.info;
   
   const sharp1 = zoom === 1
@@ -50,32 +46,28 @@ const processPage = async (
       Math.floor(img.info.width*zoom),
       Math.floor(img.info.height*zoom)
     );
-  const sharp11 = sharp1.rotate(page.rotate);
+  const sharp11 = sharp1.rotate(opts.rotate);
   const margin = 500;
   const sharp2 = await reSharp(sharp11.extend((margin)));
   const img3 = sharp2
     .extract({
-      top: page.y + margin,
-      left: page.x + margin,
-      width: book.width,
-      height: book.height,
+      top: opts.y + margin,
+      left: opts.x + margin,
+      width: opts.width,
+      height: opts.height,
     });
   return {
     buffer: (await toBuffer(img3)).buffer,
     original: {
       width: original.width,
       height: original.height,
-      dpi,
+      dpi: opts.dpi,
     }
   };
 }
 
-const createMiniature = async (
-  book: Book,
-  page: Pick<Page, "x" | "y" | "hash" | "rotate">,
-  dpi: DPI,
-) => {
-  const img = await processPage(book, page, dpi)
+const createMiniature = async (opts: ProcessedPageOpts) => {
+  const img = await processPage(opts)
   const { buffer } = await toBuffer(sharp(img.buffer)
     .resize({
       width: 100,
@@ -85,7 +77,7 @@ const createMiniature = async (
     })
   )
   const miniatureHash = md5(buffer);
-  sharp(buffer).toFile(miniaturePath(page.hash, miniatureHash));
+  sharp(buffer).toFile(miniaturePath(opts.hash, miniatureHash));
   return { original: img.original, miniatureHash };
 }
 
@@ -114,15 +106,23 @@ const x = async (json: Params, _url: any) => {
           }),
           hash,
         };
-        const { original, miniatureHash } = await createMiniature(json.book, page, json.book.dpi);
+        const { original, miniatureHash } = await createMiniature({
+          width: json.book.width,
+          height: json.book.height,
+          x: page.x,
+          y: page.y,
+          hash: page.hash,
+          rotate: page.rotate,
+          dpi: json.book.dpi,
+        });
         return { ...page, original, miniatureHash };
       } catch(error) {
         return { error: error || "undefined error" };
       }
     case "miniature":
       const [{ miniatureHash }] = await Promise.all([
-        createMiniature(json.book, json.page, json.page.original.dpi),
-        new Promise(resolve => unlink(miniaturePath(json.page.hash, json.page.miniatureHash), resolve)),
+        createMiniature(json.opts),
+        new Promise(resolve => unlink(miniaturePath(json.opts.hash, json.miniatureHash), resolve)),
       ]);
       return miniatureHash;
     case "pdf":
@@ -133,12 +133,13 @@ const x = async (json: Params, _url: any) => {
         for (let i = 0; i < json.book.pages.length; i++) {
           const page = json.book.pages[i];
           console.log(`generating ${i + 1} out of ${json.book.pages.length} pages...`);
+          const { buffer } = await processPage(toProcessedPageOpts(json.book, page));
           pdf
             .addPage({
               margins: { left: 0, right: 0, top: 0, bottom: 0 },
               size: [json.book.width, json.book.height]
             })
-            .image((await processPage(json.book, page, page.original.dpi)).buffer);
+            .image(buffer);
         }
         pdf.end();
         const elapsedTime = (Date.now() - start)/1000;
