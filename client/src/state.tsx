@@ -1,5 +1,6 @@
 import React from "react";
 import { Book, Page } from '../../common/book';
+import { createMiniature } from './http';
 
 type PageNr = Pick<Page, "hash" | "duplicated">;
 
@@ -18,7 +19,7 @@ export interface State {
   addPage: (page: Page) => void,
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
-  setPage: (page: Partial<Page> & PageNr) => void,
+  setPage: (page: Page) => void,
 }
 
 const emptyRawState: RawState = {
@@ -70,7 +71,7 @@ export const StateProvider: React.FC = ({ children }) => {
   const deletePage = (page: PageNr) =>
     setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => !eqPage(page)(p)) } }));
   const getPage = (page?: PageNr) => rs.book.pages.find(eqPage(page))
-  const setPage = (page: Partial<Page> & PageNr) =>
+  const setPage = async (page: Page) => {
     setRS(rs => ({
       ...rs,
       book: {
@@ -78,6 +79,17 @@ export const StateProvider: React.FC = ({ children }) => {
         pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
       }
     }));
+    const req = await createMiniature(rs.book, page);
+    if (req.success) {
+      setRS(rs => ({
+        ...rs,
+        book: {
+          ...rs.book,
+          pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, miniatureHash: req.result } : p)
+        }
+      }));
+    }
+  }
   const value = { rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;

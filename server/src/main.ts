@@ -1,16 +1,20 @@
 import { activateHttpServer } from './httpServer';
 import { spawnPromise } from './utils';
 import { Params } from "../../common/params";
-import { Book, Page } from "../../common/book";
+import { Book, DPI, Page } from "../../common/book";
 import * as sharp from "sharp";
 import { join } from "path";
 import * as md5 from "md5";
-import { writeFileSync, createWriteStream } from 'fs';
+import { writeFileSync, createWriteStream, unlink } from 'fs';
 import * as pdfkit from "pdfkit";
 import { zoomByDpi } from "../../client/src/logic";
 
+const last = <T>(arr: T[]) => arr.length > 0 ? arr[arr.length - 1] : undefined;
+
 const tmpPath = (filename: string) => join(__dirname, "../../../../tmp", filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
+const miniaturePath = (hash: string, miniatureHash: string) => imgPath(`${hash}-${miniatureHash}-miniature`);
+
 const toBuffer = (s: sharp.Sharp) =>
   new Promise<{ buffer: Buffer, info: sharp.OutputInfo}>(
     (resolve, reject) => s.toBuffer((err, buffer, info) => {
@@ -23,7 +27,7 @@ const toBuffer = (s: sharp.Sharp) =>
   )
 );
 const reSharp = async (s: sharp.Sharp) => sharp((await toBuffer(s)).buffer);
-const last = <T>(arr: T[]) => arr.length > 0 ? arr[arr.length - 1] : undefined;
+
 
 interface ProcessedPage {
   original: Page["original"],
@@ -69,16 +73,20 @@ const processPage = async (
 const createMiniature = async (
   book: Book,
   page: Pick<Page, "x" | "y" | "hash" | "rotate">,
-  dpi: Page["original"]["dpi"],
+  dpi: DPI,
 ) => {
   const img = await processPage(book, page, dpi)
-  await sharp(img.buffer).resize({
-    width: 100,
-    height: 100,
-    fit: sharp.fit.contain,
-    background: { r: 0, g: 0, b: 0, alpha: 0 },
-  }).toFile(tmpPath(`${page.hash}-miniature.png`));
-  return img.original;
+  const { buffer } = await toBuffer(sharp(img.buffer)
+    .resize({
+      width: 100,
+      height: 100,
+      fit: sharp.fit.contain,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+  )
+  const miniatureHash = md5(buffer);
+  sharp(buffer).toFile(miniaturePath(page.hash, miniatureHash));
+  return { original: img.original, miniatureHash };
 }
 
 const x = async (json: Params, _url: any) => {
@@ -106,13 +114,17 @@ const x = async (json: Params, _url: any) => {
           }),
           hash,
         };
-        const original = await createMiniature(json.book, page, json.book.dpi);
-        return { ...page, original };
+        const { original, miniatureHash } = await createMiniature(json.book, page, json.book.dpi);
+        return { ...page, original, miniatureHash };
       } catch(error) {
         return { error: error || "undefined error" };
       }
     case "miniature":
-      return await createMiniature(json.book, json.page, json.page.original.dpi);
+      const [{ miniatureHash }] = await Promise.all([
+        createMiniature(json.book, json.page, json.page.original.dpi),
+        new Promise(resolve => unlink(miniaturePath(json.page.hash, json.page.miniatureHash), resolve)),
+      ]);
+      return miniatureHash;
     case "pdf":
       try {
         const start = Date.now();

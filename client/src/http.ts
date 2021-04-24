@@ -26,5 +26,5 @@ export async function httpRequest<T>(body: Params): Promise<Result<T>> {
 }
 
 export const createMiniature = (book: Book, page: Page) => {
-  return httpRequest({ kind: "miniature", book, page });
+  return httpRequest<string>({ kind: "miniature", book, page });
 }
