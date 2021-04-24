@@ -5,6 +5,7 @@ import { State } from './state';
 import { Page, DPI } from "../../common/book";
 import { sleep } from './utils';
 import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf } from 'react-icons/fa';
+import { toProcessedPageOptsFromLast } from './logic';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B, active: boolean) => (
@@ -26,7 +27,7 @@ const dpiButton = (s: State) =>
   });
 
 const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
-  const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
+  const res = await httpRequest<Page>({ kind: "scan", opts: toProcessedPageOptsFromLast(s.rs.book) });
   const rs = await s.getRS();
   if (setActive(rs.kind === kind)) {
     if (res.success) {

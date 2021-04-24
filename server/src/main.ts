@@ -9,8 +9,6 @@ import { writeFileSync, createWriteStream, unlink } from 'fs';
 import * as pdfkit from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts, toProcessedPageOpts } from "../../client/src/logic";
 
-const last = <T>(arr: T[]) => arr.length > 0 ? arr[arr.length - 1] : undefined;
-
 const tmpPath = (filename: string) => join(__dirname, "../../../../tmp", filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
 const miniaturePath = (hash: string, miniatureHash: string) => imgPath(`${hash}-${miniatureHash}-miniature`);
@@ -28,12 +26,10 @@ const toBuffer = (s: sharp.Sharp) =>
 );
 const reSharp = async (s: sharp.Sharp) => sharp((await toBuffer(s)).buffer);
 
-
 interface ProcessedPage {
   original: Page["original"];
   buffer: Buffer;
 }
-
 
 const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
   const zoom = zoomByDpi(opts.dpi);
@@ -90,32 +86,23 @@ const x = async (json: Params, _url: any) => {
           "--mode",
           "Color",
           "--resolution",
-          json.book.dpi.toString(),
+          json.opts.dpi.toString(),
           "--format",
           "png"
         ]);
         const hash = md5(stdout);
         const path = imgPath(hash);
         writeFileSync(path, stdout);
-        const page = {
-          ...(last(json.book.pages) || {
-            x: 0,
-            y: 0,
-            orientation: "left",
-            rotate: 0,
-          }),
+        const { original, miniatureHash } = await createMiniature({ ...json.opts, hash });
+        const page: Page = {
           hash,
+          miniatureHash,
+          x: json.opts.x,
+          y: json.opts.y,
+          rotate: json.opts.rotate,
+          original,
         };
-        const { original, miniatureHash } = await createMiniature({
-          width: json.book.width,
-          height: json.book.height,
-          x: page.x,
-          y: page.y,
-          hash: page.hash,
-          rotate: page.rotate,
-          dpi: json.book.dpi,
-        });
-        return { ...page, original, miniatureHash };
+        return page;
       } catch(error) {
         return { error: error || "undefined error" };
       }

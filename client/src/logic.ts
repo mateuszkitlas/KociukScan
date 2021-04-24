@@ -1,5 +1,9 @@
 import { Book, DPI, Page } from '../../common/book';
 
+export function last<T>(arr: T[]) {
+  return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}
+
 export const zoomByDpi = (dpi: DPI) => {
   switch (dpi) {
     case 75: return 1.33;
@@ -35,6 +39,7 @@ export interface ProcessedPageOpts {
   rotate: number;
   dpi: DPI;
 }
+
 export const toProcessedPageOpts = (book: Book, page: Page): ProcessedPageOpts => ({
   width: book.width,
   height: book.height,
@@ -44,3 +49,15 @@ export const toProcessedPageOpts = (book: Book, page: Page): ProcessedPageOpts =
   rotate: page.rotate,
   dpi: page.original.dpi,
 });
+
+export const toProcessedPageOptsFromLast = (book: Book): Omit<ProcessedPageOpts, "hash"> => {
+  const page = last(book.pages);
+  return {
+    width: book.width,
+    height: book.height,
+    x: page?.x || 0,
+    y: page?.y || 0,
+    rotate: page?.rotate || 0,
+    dpi: book.dpi,
+  };
+}
