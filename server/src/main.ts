@@ -103,7 +103,6 @@ const x = async (json: Params, _url: any) => {
             y: 0,
             orientation: "left",
             rotate: 0,
-            zoom: 1,
           }),
           hash,
         };
