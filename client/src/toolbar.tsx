@@ -84,7 +84,7 @@ const scanningButtons = (s: State) => {
 };
 
 const pageButtons = (s: State) => {
-  const page = s.getPage(s.rs.pageHash);
+  const page = s.getPage(s.rs.currentPage);
   if (page) {
     const rotate = (deg: number): B => (_event) => {
       s.setPage({ ...page, rotate: page.rotate + deg });

@@ -1,21 +1,24 @@
 import React from "react";
 import { Book, Page } from '../../common/book';
 
+type PageNr = Pick<Page, "hash" | "duplicated">;
+
 export interface RawState {
-  kind: "scanning one" | "scanning many" | "nothing" | "generating pdf",
-  pageHash?: string;
-  book: Book
+  kind: "scanning one" | "scanning many" | "nothing" | "generating pdf";
+  currentPage?: PageNr;
+  book: Book;
 }
 
 export interface State {
   rs: RawState,
+  isCurrentPage: (p: Page) => boolean,
   getRS: () => Promise<RawState>,
   setRS: (f: (rs: RawState) => RawState) => void,
   setBook: (book: Book) => void,
   addPage: (page: Page) => void,
-  deletePage: (hash: string) => void,
-  getPage: (hash?: string) => Page | undefined,
-  setPage: (page: Page) => void,
+  deletePage: (page: PageNr) => void,
+  getPage: (page?: PageNr) => Page | undefined,
+  setPage: (page: Partial<Page> & PageNr) => void,
 }
 
 const emptyRawState: RawState = {
@@ -38,6 +41,7 @@ const loadRS = () => {
 
 export const StateContext = React.createContext<State>({
   rs: loadRS(),
+  isCurrentPage: () => false,
   getRS: async () => loadRS(),
   setRS: () => {},
   setBook: () => {},
@@ -47,23 +51,34 @@ export const StateContext = React.createContext<State>({
   setPage: () => {},
 });
 
+export const eqPage =
+  (pn?: PageNr) => (p: Page) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
+
 export const StateProvider: React.FC = ({ children }) => {
   const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
     window.localStorage.setItem('rawState', JSON.stringify(rs));
     return f(rs);
   }
   const [rs, setRS] = React.useReducer(reduce, loadRS());
-  const getRS = () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs }));
-  const setBook = (book: Book) => setRS(rs => ({ ...rs, book }));
-  const setPages = (pages: Page[]) => setRS(rs => ({ ...rs, book: { ...rs.book, pages } }));
+  const isCurrentPage = eqPage(rs.currentPage);
+  const getRS =
+    () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs }));
+  const setBook =
+    (book: Book) => setRS(rs => ({ ...rs, book }));
   const addPage = (page: Page) =>
     setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
-  const deletePage = (hash: string) =>
-    setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => p.hash !== hash) } }));
-  const getPage = (hash?: string) => rs.book.pages.find(p => p.hash === hash);
-  const setPage = (page: Page) =>
-    setPages(rs.book.pages.map(p => p.hash === page.hash ? page : p));
-  const value = { rs, getRS, setRS, setBook, addPage, deletePage, getPage, setPage };
+  const deletePage = (page: PageNr) =>
+    setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => !eqPage(page)(p)) } }));
+  const getPage = (page?: PageNr) => rs.book.pages.find(eqPage(page))
+  const setPage = (page: Partial<Page> & PageNr) =>
+    setRS(rs => ({
+      ...rs,
+      book: {
+        ...rs.book,
+        pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
+      }
+    }));
+  const value = { rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }

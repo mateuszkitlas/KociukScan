@@ -63,10 +63,10 @@ const crop = (s: State, page: Page) => {
     const el = e.target as HTMLDivElement;
     el.removeEventListener('mousemove', move as any);
     s.setPage({
-      ...page,
+      hash: page.hash,
+      duplicated: page.duplicated,
       x: parseInt(el.style.left),
       y: parseInt(el.style.top),
-
     });
   }
   
@@ -163,6 +163,6 @@ const nonePage = (s: State) => {
 }
 
 export const page = (s: State) => {
-  const file = s.getPage(s.rs.pageHash);
+  const file = s.getPage(s.rs.currentPage);
   return file ? somePage(s)(file) : nonePage(s);
 }

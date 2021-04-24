@@ -12,6 +12,7 @@ export interface Book {
 
 export interface Page {
   hash: string;
+  duplicated?: string;
   x: number;
   y: number;
   rotate: number;
