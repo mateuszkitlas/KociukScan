@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from './types';
-import { imgSrcAsData } from './image';
+import { imgSrcAsDataMiniature } from './image';
 import { State, eqPage } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
@@ -43,7 +43,7 @@ export const renderFile = (s: State) => (page: Page) => {
   const key = (n: string) => n + page.hash + page.duplicated;
   
   const divRef = React.useRef<HTMLDivElement>(null);
-  const srcData = imgSrcAsData(s.rs.book, page, true);
+  const srcData = imgSrcAsDataMiniature(s.rs.book, page);
   srcData.then(d => {
     if (divRef.current) {
       divRef.current.style.backgroundImage = `url("${d}")`;

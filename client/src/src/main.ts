@@ -1,12 +1,12 @@
-import { spawnPromise } from './utils';
 import { Book, Page } from "../types";
 import type { Sharp, OutputInfo, SharpOptions, FitEnum } from "sharp";
 import { join } from "path";
 import md5 from "md5";
-import { writeFileSync, createWriteStream, unlink } from 'fs';
+import { writeFileSync, createWriteStream, unlink, readFileSync } from 'fs';
 import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts, toProcessedPageOpts } from "../logic";
 import type * as electronT from "electron"
+import { scan } from 'scanner-to-buffer';
 
 const sharp: {
   (buf: Buffer | string, o?: SharpOptions): Sharp,
@@ -68,9 +68,14 @@ const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
   };
 }
 
-export const createPNG = async (hash: string) => {
-  const buf = await sharp(imgPath(hash)).toFormat("png").toBuffer();
-  return buf.toString("base64");
+export const createPNG = (hash: string) => {
+  try {
+    const buf = readFileSync(imgPath(hash));
+    //const buf = await sharp(imgPath(hash)).toFormat("png").toBuffer();
+    return buf.toString("base64");
+  } catch {
+    return ""
+  }
 }
 
 const createMiniature = async (opts: ProcessedPageOpts) => {
@@ -102,17 +107,11 @@ export const createMiniaturePNG = async (opts: ProcessedPageOpts) => {
   return buffer.toString("base64")
 }
 
-export const scan = async (opts: Omit<ProcessedPageOpts, "hash">) => {
+export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) => {
   console.log("scanning...");
-  const { stdout } = await spawnPromise("scanimage", [
-    "--mode",
-    "Color",
-    "--resolution",
-    opts.dpi.toString(),
-    "--format",
-    "png"
-  ]);
+  const stdout = await scan({ dpi: opts.dpi, format: "png" });
   const hash = md5(stdout);
+  console.log(hash);
   const path = imgPath(hash);
   writeFileSync(path, stdout);
   const { original, miniatureHash } = await createMiniature({ ...opts, hash });

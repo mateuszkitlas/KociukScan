@@ -116,16 +116,9 @@ const somePage = (s: State) => (page: Page) => {
   )
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
-  const imgRef = React.useRef<HTMLImageElement>(null);
-  const srcData = imgSrcAsData(s.rs.book, page, false);
-  srcData.then(d => {
-    if (imgRef.current) {
-      imgRef.current.src = d;
-    }
-  });
   return <div id="page" key="page">
     <img
-      ref={imgRef}
+      src={imgSrcAsData(page.hash)}
       alt=""
       style={{
         transform: `rotate(${page.rotate}deg) scale(${zoom})`,
