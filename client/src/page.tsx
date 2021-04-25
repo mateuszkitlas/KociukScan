@@ -1,6 +1,6 @@
 import React from 'react';
 import { State } from './state';
-import { imgPath } from "./image";
+import { imgSrcAsData } from "./image";
 import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 
@@ -98,10 +98,10 @@ const crop = (s: State, page: Page) => {
   const addWH = dragable(true, true, ({x, y}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize, height: y - page.y + cropSize }));
 
   return [
-    <div style={style} key="crop" onMouseDown={add}></div>,
-    <div style={styleW} key="cropW" onMouseDown={addW}></div>,
-    <div style={styleH} key="cropH" onMouseDown={addH}></div>,
-    <div style={styleWH} key="cropWH" onMouseDown={addWH}></div>,
+    <div draggable={false} style={style} key="crop" onMouseDown={add}></div>,
+    <div draggable={false} style={styleW} key="cropW" onMouseDown={addW}></div>,
+    <div draggable={false} style={styleH} key="cropH" onMouseDown={addH}></div>,
+    <div draggable={false} style={styleWH} key="cropWH" onMouseDown={addWH}></div>,
   ]
 }
 
@@ -116,9 +116,16 @@ const somePage = (s: State) => (page: Page) => {
   )
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
-  return [
+  const imgRef = React.useRef<HTMLImageElement>(null);
+  const srcData = imgSrcAsData(s.rs.book, page, false);
+  srcData.then(d => {
+    if (imgRef.current) {
+      imgRef.current.src = d;
+    }
+  });
+  return <div id="page" key="page">
     <img
-      src={imgPath(page, false)}
+      ref={imgRef}
       alt=""
       style={{
         transform: `rotate(${page.rotate}deg) scale(${zoom})`,
@@ -126,10 +133,11 @@ const somePage = (s: State) => (page: Page) => {
         marginTop: -minY + marginY(page.original.dpi),
         userSelect: "none",
       }}
+      draggable={false}
       key={`page-${page.hash}`}
-    />,
-    crop(s, page)
-  ];
+    />
+    {crop(s, page)}
+  </div>;
 }
 
 const nonePage = (s: State) => {

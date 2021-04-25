@@ -4,16 +4,17 @@ import type { Sharp, OutputInfo, SharpOptions, FitEnum } from "sharp";
 import { join } from "path";
 import md5 from "md5";
 import { writeFileSync, createWriteStream, unlink } from 'fs';
-//import type { } from "pdfkit";
+import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts, toProcessedPageOpts } from "../logic";
+
+type PDFKit = typeof pdfkitT;
 
 const sharp: {
   (buf: Buffer | string, o?: SharpOptions): Sharp,
   fit: FitEnum
 } = window.require("sharp");
-const pdfkit = window.require("pdfkit");
+const pdfkit: PDFKit["default"] = window.require("pdfkit");
 
-console.log(__dirname);
 const tmpPath = (filename: string) => join(__dirname, "/home/mati/projects/scan/tmp", filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
 const miniaturePath = (hash: string, miniatureHash: string) => imgPath(`${hash}-${miniatureHash}-miniature`);
@@ -67,6 +68,11 @@ const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
   };
 }
 
+export const createPNG = async (hash: string) => {
+  const buf = await sharp(imgPath(hash)).toFormat("png").toBuffer();
+  return buf.toString("base64");
+}
+
 const createMiniature = async (opts: ProcessedPageOpts) => {
   const img = await processPage(opts)
   const { buffer } = await toBuffer(sharp(img.buffer)
@@ -80,6 +86,20 @@ const createMiniature = async (opts: ProcessedPageOpts) => {
   const miniatureHash = md5(buffer);
   sharp(buffer).toFile(miniaturePath(opts.hash, miniatureHash));
   return { original: img.original, miniatureHash };
+}
+
+export const createMiniaturePNG = async (opts: ProcessedPageOpts) => {
+  const img = await processPage(opts)
+  const buffer = await sharp(img.buffer)
+    .resize({
+      width: 100,
+      height: 100,
+      fit: sharp.fit.contain,
+      background: { r: 0, g: 0, b: 0, alpha: 0 },
+    })
+    .toFormat("png")
+    .toBuffer()
+  return buffer.toString("base64")
 }
 
 export const scan = async (opts: Omit<ProcessedPageOpts, "hash">) => {
