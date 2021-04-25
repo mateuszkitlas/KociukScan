@@ -43,7 +43,7 @@ export const renderFile = (s: State) => (page: Page) => {
   const key = (n: string) => n + page.hash + page.duplicated;
   
   const divRef = React.useRef<HTMLDivElement>(null);
-  const srcData = imgSrcAsData(s.rs.book, page, false);
+  const srcData = imgSrcAsData(s.rs.book, page, true);
   srcData.then(d => {
     if (divRef.current) {
       divRef.current.style.backgroundImage = `url("${d}")`;
