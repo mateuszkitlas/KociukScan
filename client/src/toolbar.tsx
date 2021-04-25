@@ -113,17 +113,8 @@ const pageButtons = (s: State) => {
 const downloadButtons = (s: State) => {
   const download: B = async _e => {
     s.setRS(rs => ({ ...rs, kind: "generating pdf" }));
-    const r = await pdf(s.rs.book);
+    await pdf(s.rs.book);
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
-    const link = document.createElement('a');
-    link.href = r.path;
-    document.body.appendChild(link);
-    link.setAttribute(
-      'download',
-      `${s.rs.book.title}.pdf`,
-    );
-    link.click();
-    document.body.removeChild(link);
   }
   return (
     <div

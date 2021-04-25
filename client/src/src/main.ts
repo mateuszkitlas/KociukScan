@@ -6,14 +6,14 @@ import md5 from "md5";
 import { writeFileSync, createWriteStream, unlink } from 'fs';
 import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts, toProcessedPageOpts } from "../logic";
-
-type PDFKit = typeof pdfkitT;
+import type * as electronT from "electron"
 
 const sharp: {
   (buf: Buffer | string, o?: SharpOptions): Sharp,
   fit: FitEnum
 } = window.require("sharp");
-const pdfkit: PDFKit["default"] = window.require("pdfkit");
+const pdfkit: (typeof pdfkitT)["default"] = window.require("pdfkit");
+const electron: (typeof electronT) = require('electron');
 
 const tmpPath = (filename: string) => join(__dirname, "/home/mati/projects/scan/tmp", filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
@@ -138,20 +138,28 @@ export const miniature = async (opts: ProcessedPageOpts, oldMiniatureHash: strin
 export const pdf = async (book: Book) => {
   const start = Date.now();
   const pdf = new pdfkit({ autoFirstPage: false });
-  pdf.pipe(createWriteStream(tmpPath("pdf.pdf")));
-  for (let i = 0; i < book.pages.length; i++) {
-    const page = book.pages[i];
-    console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
-    const { buffer } = await processPage(toProcessedPageOpts(book, page));
-    pdf
-      .addPage({
-        margins: { left: 0, right: 0, top: 0, bottom: 0 },
-        size: [book.width, book.height]
-      })
-      .image(buffer);
+  const filename = electron.remote.dialog.showSaveDialogSync({
+    defaultPath: `${book.title}.pdf`,
+    filters: [{
+      name: "PDF document",
+      extensions: ["pdf", "PDF"]
+    }],
+  });
+  if (filename) {
+    pdf.pipe(createWriteStream(filename));
+    for (let i = 0; i < book.pages.length; i++) {
+      const page = book.pages[i];
+      console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
+      const { buffer } = await processPage(toProcessedPageOpts(book, page));
+      pdf
+        .addPage({
+          margins: { left: 0, right: 0, top: 0, bottom: 0 },
+          size: [book.width, book.height]
+        })
+        .image(buffer);
+    }
+    pdf.end();
+    const elapsedTime = (Date.now() - start)/1000;
+    console.log(`Done in ${elapsedTime}seconds`);
   }
-  pdf.end();
-  const elapsedTime = (Date.now() - start)/1000;
-  console.log(`Done in ${elapsedTime}seconds`);
-  return { path: "tmp/pdf.pdf" };
 };
