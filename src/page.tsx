@@ -1,8 +1,8 @@
 import React from 'react';
 import { State } from './state';
-import { imgSrcAsData } from "./image";
 import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
+import { createPNG } from './scanner';
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -118,7 +118,7 @@ const somePage = (s: State) => (page: Page) => {
   const minY = Math.min(...newPoints.map(x => x.y));
   return <div id="page" key="page">
     <img
-      src={imgSrcAsData(page.hash)}
+      src={'data:image/png;base64,' + createPNG(page.hash)}
       alt=""
       style={{
         transform: `rotate(${page.rotate}deg) scale(${zoom})`,

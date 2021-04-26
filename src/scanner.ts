@@ -2,7 +2,7 @@ import { Book, Page } from "./types";
 import type { Sharp, OutputInfo, SharpOptions, FitEnum } from "sharp";
 import { join } from "path";
 import md5 from "md5";
-import { writeFileSync, createWriteStream, unlink, readFileSync } from 'fs';
+import { writeFileSync, createWriteStream, readFileSync } from 'fs';
 import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts } from "./logic";
 import type * as electronT from "electron"
