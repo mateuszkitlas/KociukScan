@@ -11791,10 +11791,10 @@ saxes@^5.0.0:
   dependencies:
     xmlchars "^2.2.0"
 
-scanner-to-buffer@^1.0.0:
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/scanner-to-buffer/-/scanner-to-buffer-1.0.0.tgz#7762236159f1c6d8fabadb8235d3df565c1f6cf3"
-  integrity sha512-PF5e9lHVSWzWnDhWgL3vQVAwakJVJVaPEzWTQjy+4aj8l2yno9Q/Hd7RD67Z2WdcEeB3VL4wpYoj0eQKYwC6gQ==
+scanner-to-buffer@^1.2.0:
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/scanner-to-buffer/-/scanner-to-buffer-1.2.0.tgz#b75c26da4cab3a329675d3325397817c44db8eaa"
+  integrity sha512-uaHPei+F2iSfqWcnLsNNi2vr1UbpeLKWqaSZ+wPhzv/xuJ66xXiOW+Fj8bkDlr8svhY/qUlr7hVzO9zCBG4XWg==
   dependencies:
     "@types/node" "^14.14.41"
 
