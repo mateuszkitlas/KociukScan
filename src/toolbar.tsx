@@ -5,7 +5,7 @@ import { DPI } from "./types";
 import { sleep } from './utils';
 import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf } from 'react-icons/fa';
 import { toProcessedPageOptsFromLast } from './logic';
-import { pdf, scanX } from './src/main';
+import { pdf, scanX } from './main';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B, active: boolean) => (
