@@ -1,8 +1,8 @@
 import { Book, Page } from './types';
-import { toProcessedPageOpts } from './logic';
-import { createMiniaturePNG, createPNG } from './main';
+import { ProcessedPageOpts } from './logic';
+import { createMiniaturePNG, createPNG } from './scanner';
 
 export const imgSrcAsDataMiniature = async (book: Book, page: Page) =>
-  'data:image/png;base64,' + (await createMiniaturePNG(toProcessedPageOpts(book, page)));
+  'data:image/png;base64,' + (await createMiniaturePNG(ProcessedPageOpts.from(book, page)));
 
 export const imgSrcAsData = (hash: string) => 'data:image/png;base64,' + createPNG(hash);

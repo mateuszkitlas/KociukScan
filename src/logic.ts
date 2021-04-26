@@ -39,25 +39,25 @@ export interface ProcessedPageOpts {
   rotate: number;
   dpi: DPI;
 }
-
-export const toProcessedPageOpts = (book: Book, page: Page): ProcessedPageOpts => ({
-  width: book.width,
-  height: book.height,
-  x: page.x,
-  y: page.y,
-  hash: page.hash,
-  rotate: page.rotate,
-  dpi: page.original.dpi,
-});
-
-export const toProcessedPageOptsFromLast = (book: Book): Omit<ProcessedPageOpts, "hash"> => {
-  const page = last(book.pages);
-  return {
+export module ProcessedPageOpts {
+  export const from = (book: Book, page: Page): ProcessedPageOpts => ({
     width: book.width,
     height: book.height,
-    x: page?.x || 0,
-    y: page?.y || 0,
-    rotate: page?.rotate || 0,
-    dpi: book.dpi,
-  };
+    x: page.x,
+    y: page.y,
+    hash: page.hash,
+    rotate: page.rotate,
+    dpi: page.original.dpi,
+  });
+  export const fromLast = (book: Book): Omit<ProcessedPageOpts, "hash"> => {
+    const page = last(book.pages);
+    return {
+      width: book.width,
+      height: book.height,
+      x: page?.x || 0,
+      y: page?.y || 0,
+      rotate: page?.rotate || 0,
+      dpi: book.dpi,
+    };
+  }
 }

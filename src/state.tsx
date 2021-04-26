@@ -1,6 +1,5 @@
 import React from "react";
 import { Book, Page } from './types';
-import { createMiniature } from './http';
 
 type PageNr = Pick<Page, "hash" | "duplicated">;
 
@@ -76,14 +75,6 @@ export const StateProvider: React.FC = ({ children }) => {
       book: {
         ...rs.book,
         pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
-      }
-    }));
-    const miniatureHash = await createMiniature(rs.book, page);
-    setRS(rs => ({
-      ...rs,
-      book: {
-        ...rs.book,
-        pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, miniatureHash } : p)
       }
     }));
   }
