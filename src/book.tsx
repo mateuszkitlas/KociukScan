@@ -1,6 +1,5 @@
 import React from 'react';
 import { Page } from './types';
-import { imgSrcAsDataMiniature } from './image';
 import { State, eqPage } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
@@ -42,21 +41,18 @@ export const renderFile = (s: State) => (page: Page) => {
   }
   const key = (n: string) => n + page.hash + page.duplicated;
   
-  const divRef = React.useRef<HTMLDivElement>(null);
-  const srcData = imgSrcAsDataMiniature(s.rs.book, page);
-  srcData.then(d => {
-    if (divRef.current) {
-      divRef.current.style.backgroundImage = `url("${d}")`;
-    }
-  });
+  const miniature = s.rs.miniatures[page.hash]
+  const style = {
+    backgroundRepeat: "no-repeat",
+    backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,
+  } as const;
   
   return (
     <div
-      ref={divRef}
       className={`page ${s.isCurrentPage(page) ? "current" : ""}`}
       key={key("div")}
       onClick={show}
-      style={{ backgroundRepeat: "no-repeat" }}
+      style={style}
     >
       <div className="button" onClick={duplicate} key={key("duplicate")}><FaCopy /></div>
       <div className="button" onClick={del} key={key("del")}><FaTrash /></div>
