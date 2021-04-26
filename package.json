@@ -5,6 +5,11 @@
   "homepage": "./",
   "description": "Scanning books",
   "license": "ISC",
+  "author": "mateusz.kitlas@gmail.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mateuszkitlas/scan.git"
+  },
   "dependencies": {
     "@types/md5": "^2.3.0",
     "@types/node": "^12.0.0",
@@ -33,7 +38,8 @@
     "electron-dev": "ELECTRON_START_URL=http://localhost:3000 electron .",
     "electron": "electron .",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "make-win": "electron-forge make --platform win32"
   },
   "eslintConfig": {
     "extends": [
