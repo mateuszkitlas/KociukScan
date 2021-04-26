@@ -2,6 +2,7 @@
   "name": "scan",
   "version": "0.1.0",
   "private": true,
+  "homepage": "./",
   "dependencies": {
     "@testing-library/jest-dom": "^5.11.4",
     "@testing-library/react": "^11.1.0",
@@ -36,7 +37,7 @@
     "build": "craco build",
     "test": "craco test",
     "eject": "craco eject",
-    "electron": "electron ."
+    "electron": "ELECTRON_START_URL=http://localhost:3000 electron ."
   },
   "eslintConfig": {
     "extends": [

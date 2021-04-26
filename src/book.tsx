@@ -41,7 +41,7 @@ export const renderFile = (s: State) => (page: Page) => {
   }
   const key = (n: string) => n + page.hash + page.duplicated;
   
-  const miniature = s.rs.miniatures[page.hash]
+  const miniature = (s.rs.miniatures || {})[page.hash];
   const style = {
     backgroundRepeat: "no-repeat",
     backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,

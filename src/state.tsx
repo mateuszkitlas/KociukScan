@@ -9,7 +9,7 @@ export interface RawState {
   kind: "scanning one" | "scanning many" | "nothing" | "generating pdf";
   currentPage?: PageNr;
   book: Book;
-  miniatures: Record<string, string>
+  miniatures?: Record<string, string>
 }
 
 export interface State {
@@ -42,10 +42,7 @@ const loadRS = () => {
   const rs = window.localStorage.getItem('rawState');
   if (rs) {
     const prs: RawState = JSON.parse(rs);
-    return {
-      ...prs,
-      miniatures: {},
-    }
+    return prs
   } else {
     return emptyRawState;
   }
@@ -94,7 +91,7 @@ export const StateProvider: React.FC = ({ children }) => {
     }));
   }
   const initMiniatures = async () => {
-    if (Object.keys(rs.miniatures).length === 0) {
+    if (!rs.miniatures) {
       const b64s = await Promise.all(
         rs.book.pages.map(async p => [
           p.hash,
