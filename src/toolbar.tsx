@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
-import { httpRequest } from './http';
 import { State } from './state';
-import { Page, DPI } from "../../common/book";
+import { DPI } from "./types";
 import { sleep } from './utils';
 import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf } from 'react-icons/fa';
+import { ProcessedPageOpts } from './logic';
+import { pdf, scanX } from './scanner';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B, active: boolean) => (
@@ -26,15 +27,10 @@ const dpiButton = (s: State) =>
   });
 
 const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
-  const res = await httpRequest<Page>({ kind: "scan", book: s.rs.book });
+  const page = await scanX(ProcessedPageOpts.fromLast(s.rs.book));
   const rs = await s.getRS();
   if (setActive(rs.kind === kind)) {
-    if (res.success) {
-      return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, res.result] } }));
-    } else {
-      alert(JSON.stringify(res.result));
-      return s.setRS(rs => ({ ...rs, kind: "nothing" }));
-    }
+    return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
   }
 }
 
@@ -117,21 +113,8 @@ const pageButtons = (s: State) => {
 const downloadButtons = (s: State) => {
   const download: B = async _e => {
     s.setRS(rs => ({ ...rs, kind: "generating pdf" }));
-    const r = await httpRequest<{ path: string }>({ kind: "pdf", book: s.rs.book });
+    await pdf(s.rs.book);
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
-    if (r.success) {
-      const link = document.createElement('a');
-      link.href = r.result.path;
-      document.body.appendChild(link);
-      link.setAttribute(
-        'download',
-        `${s.rs.book.title}.pdf`,
-      );
-      link.click();
-      document.body.removeChild(link);
-    } else {
-      alert(JSON.stringify(r.result));
-    }
   }
   return (
     <div

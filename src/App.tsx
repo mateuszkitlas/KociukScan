@@ -5,12 +5,13 @@ import { State, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
 import { page } from './page';
 
-const changeTitle: ((s: State) => React.ChangeEventHandler<HTMLInputElement>) = (s: State) => (e) => {
+const changeTitle = (s: State): React.ChangeEventHandler<HTMLInputElement> => async e => {
   s.setBook({ ...s.rs.book, title: e.target.value });
 }
 
 const AppProvided = () => {
   const s = React.useContext(StateContext);
+  s.initMiniatures();
   return (
     <div id="App">
       <div id="toolbar" key="toolbar">
@@ -21,7 +22,7 @@ const AppProvided = () => {
         <div id="pages" key="pages">
           {s.rs.book.pages.map(renderFile(s))}
         </div>
-        <div id="page" key="page">{page(s)}</div>
+        {page(s)}
       </div>
     </div>
   )

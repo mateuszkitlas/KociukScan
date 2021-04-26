@@ -1,6 +1,7 @@
 import React from "react";
-import { Book, Page } from '../../common/book';
-import { createMiniature } from './http';
+import { ProcessedPageOpts } from './logic';
+import { createMiniaturePNG } from './scanner';
+import { Book, Page } from './types';
 
 type PageNr = Pick<Page, "hash" | "duplicated">;
 
@@ -8,6 +9,7 @@ export interface RawState {
   kind: "scanning one" | "scanning many" | "nothing" | "generating pdf";
   currentPage?: PageNr;
   book: Book;
+  miniatures?: Record<string, string>
 }
 
 export interface State {
@@ -20,6 +22,7 @@ export interface State {
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
+  initMiniatures: () => Promise<void>
 }
 
 const emptyRawState: RawState = {
@@ -28,16 +31,21 @@ const emptyRawState: RawState = {
     title: "New Book",
     delay: 5,
     pages: [],
-    fspath: "",
     width: 100,
     height: 100,
     dpi: 100,
-  }
+  },
+  miniatures: {}
 };
 
 const loadRS = () => {
   const rs = window.localStorage.getItem('rawState');
-  return rs ? JSON.parse(rs) : emptyRawState;
+  if (rs) {
+    const prs: RawState = JSON.parse(rs);
+    return prs
+  } else {
+    return emptyRawState;
+  }
 }
 
 export const StateContext = React.createContext<State>({
@@ -50,6 +58,7 @@ export const StateContext = React.createContext<State>({
   deletePage: () => {},
   getPage: () => undefined,
   setPage: () => {},
+  initMiniatures: () => Promise.resolve(),
 });
 
 export const eqPage =
@@ -57,7 +66,8 @@ export const eqPage =
 
 export const StateProvider: React.FC = ({ children }) => {
   const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
-    window.localStorage.setItem('rawState', JSON.stringify(rs));
+    const { miniatures, ...withoutMiniatures } = rs;
+    window.localStorage.setItem('rawState', JSON.stringify(withoutMiniatures));
     return f(rs);
   }
   const [rs, setRS] = React.useReducer(reduce, loadRS());
@@ -79,18 +89,20 @@ export const StateProvider: React.FC = ({ children }) => {
         pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
       }
     }));
-    const req = await createMiniature(rs.book, page);
-    if (req.success) {
-      setRS(rs => ({
-        ...rs,
-        book: {
-          ...rs.book,
-          pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, miniatureHash: req.result } : p)
-        }
-      }));
+  }
+  const initMiniatures = async () => {
+    if (!rs.miniatures) {
+      const b64s = await Promise.all(
+        rs.book.pages.map(async p => [
+          p.hash,
+          await createMiniaturePNG(ProcessedPageOpts.from(rs.book, p))
+        ] as const)
+      );
+      const miniatures = Object.fromEntries(b64s)
+      setRS(rs => ({ ...rs, miniatures }));
     }
   }
-  const value = { rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage };
+  const value = { rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage, initMiniatures };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }
