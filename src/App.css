@@ -1,0 +1,100 @@
+#App {
+  width: 100%;
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+}
+#toolbar { flex: 0 1 auto; }
+#wrapper {
+  flex: 1 1 auto;
+  overflow-y: hidden;
+  display: flex;
+}
+body, html, #root { height: 100%; }
+div#files {
+  display: inline-block;
+  overflow-y: auto;
+}
+div#page {
+  position: absolute;
+  left: 170px;
+  overflow: hidden;
+  width: calc(100% - 170px);
+}
+/*----------*/
+div#page > div { border: 1px dashed #000; outline: 1px dashed #fff; }
+
+#toolbar { background-color: #334; }
+body {
+  background-color: #223;
+  color: #fff;
+  font-size: 16px;
+  margin: 0;
+}
+
+.button {
+  display: inline-block;
+  background-color: #445;
+  padding: 10px;
+  margin: 10px;
+  font-size: 16px;
+  color: #fff;
+  border-radius: 5px;
+  user-select: none;
+  cursor: pointer;
+}
+.button.inactive { color: #667; }
+.button:hover { background-color: #556; }
+.button.inactive:hover { background-color: #445; }
+
+.button > .button {
+  margin: 0 10px 0 10px;
+  padding: 0 5px 0 5px;
+  background-color: #556;
+}
+.button > .button:hover { background-color: #778; }
+
+select {
+  background-color: #445;
+  border-radius: 5px;
+  padding: 8px 0 8px 8px;
+  margin: 0 10px 0 10px;
+  display: inline-block;
+  color: #fff;
+  font-size: 16px;
+  border: 0;
+}
+
+
+input {
+  border: 1px dashed #445;
+  border-radius: 5px;
+  display: inline-block;
+  background-color: transparent;
+  padding: 6px;
+  margin: 10px;
+  font-size: 16px;
+  color: #fff;
+}
+
+div#pages {
+  background-color: #334;
+  width: 170px;
+}
+
+div#pages > div.page {
+  width: 100%;
+  background-color: transparent;
+  background-size: contain;
+  height: 100px;
+}
+div#pages > div.current { background-color: #556; }
+div#pages > div.page:hover { background-color: #556; }
+div#pages > div.current:hover { background-color: #667; }
+div#pages > div.page > div.button {
+  margin: 5px 5px 0px 0px;
+  display: block;
+  width: 15px;
+  float: right;
+  padding: 7px;
+}
