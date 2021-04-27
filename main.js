@@ -4,7 +4,7 @@ const url = require('url');
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
-    width: 1000,
+    width: 1200,
     height: 1000,
     webPreferences: {
       nodeIntegration: true,
@@ -14,7 +14,7 @@ function createWindow () {
   })
   
   const startUrl = process.env.ELECTRON_START_URL || url.format({
-    pathname: path.join(__dirname, 'build", "index.html'),
+    pathname: path.join(__dirname, 'build/index.html'),
     protocol: 'file:',
     slashes: true
   });

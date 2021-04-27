@@ -40,9 +40,12 @@ const emptyRawState: RawState = {
 };
 
 const loadRS = () => {
-  const rs = window.localStorage.getItem('rawState');
-  if (rs) {
-    const prs: RawState = JSON.parse(rs);
+  const bookRaw = window.localStorage.getItem('book');
+  if (bookRaw) {
+    const prs: RawState = {
+      ...emptyRawState,
+      book: JSON.parse(bookRaw)
+    }
     return prs
   } else {
     return emptyRawState;
@@ -68,8 +71,7 @@ export const eqPage =
 
 export const StateProvider: React.FC = ({ children }) => {
   const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
-    const { miniatures, ...withoutMiniatures } = rs;
-    window.localStorage.setItem('rawState', JSON.stringify(withoutMiniatures));
+    window.localStorage.setItem('book', JSON.stringify(rs.book));
     return f(rs);
   }
   const [rs, setRS] = React.useReducer(reduce, loadRS());

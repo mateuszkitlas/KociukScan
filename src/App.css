@@ -4,7 +4,7 @@
   flex-flow: column;
   height: 100%;
 }
-#toolbar { flex: 0 1 auto; }
+#toolbar { flex: 0 1 auto; height: 60px; }
 #wrapper {
   flex: 1 1 auto;
   overflow-y: hidden;
