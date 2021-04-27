@@ -31,15 +31,9 @@ const toBuffer = (s: Sharp) =>
 );
 const reSharp = async (s: Sharp) => sharp((await toBuffer(s)).buffer);
 
-interface ProcessedPage {
-  original: Page["original"];
-  buffer: Buffer;
-}
-
-const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
+const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
   const zoom = zoomByDpi(opts.dpi);
   const img = await toBuffer(sharp(imgPath(opts.hash)));
-  const original = img.info;
   
   const sharp1 = zoom === 1
     ? sharp(img.buffer)
@@ -57,14 +51,7 @@ const processPage = async (opts: ProcessedPageOpts): Promise<ProcessedPage> => {
       width: opts.width,
       height: opts.height,
     });
-  return {
-    buffer: (await toBuffer(img3)).buffer,
-    original: {
-      width: original.width,
-      height: original.height,
-      dpi: opts.dpi,
-    }
-  };
+  return (await toBuffer(img3)).buffer
 }
 
 export const createPNG = (hash: string) => {
@@ -77,8 +64,7 @@ export const createPNG = (hash: string) => {
 }
 
 export const createMiniaturePNG = async (opts: ProcessedPageOpts) => {
-  const img = await processPage(opts)
-  const buffer = await sharp(img.buffer)
+  const buffer = await sharp(await processPage(opts))
     .resize({
       width: 100,
       height: 100,
@@ -132,7 +118,7 @@ export const pdf = async (book: Book) => {
     for (let i = 0; i < book.pages.length; i++) {
       const page = book.pages[i];
       console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
-      const { buffer } = await processPage(ProcessedPageOpts.from(book, page));
+      const buffer = await processPage(ProcessedPageOpts.from(book, page));
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },
