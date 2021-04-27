@@ -61,7 +61,7 @@ const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
   return (await toBuffer(img3)).buffer
 }
 
-export const createPNG = (hash: string) => {
+export const loadPNG = (hash: string) => {
   try {
     const buf = readFileSync(imgPath(hash));
     return buf.toString("base64");
@@ -70,7 +70,7 @@ export const createPNG = (hash: string) => {
   }
 }
 
-export const createMiniaturePNG = async (opts: ProcessedPageOpts) => {
+export const miniaturePNG = async (opts: ProcessedPageOpts) => {
   const buffer = await sharp(await processPage(opts))
     .resize({
       width: 100,

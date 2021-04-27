@@ -1,6 +1,6 @@
 import React from "react";
 import { ProcessedPageOpts } from './logic';
-import { createMiniaturePNG } from './scanner';
+import { miniaturePNG } from './scanner';
 import { Book, Page } from './types';
 
 type PageNr = Pick<Page, "hash" | "duplicated">;
@@ -22,7 +22,8 @@ export interface State {
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
-  initMiniatures: () => Promise<void>
+  initMiniatures: () => Promise<void>,
+  createMiniature: (p: Page) => Promise<void>,
 }
 
 const emptyRawState: RawState = {
@@ -59,6 +60,7 @@ export const StateContext = React.createContext<State>({
   getPage: () => undefined,
   setPage: () => {},
   initMiniatures: () => Promise.resolve(),
+  createMiniature: () => Promise.resolve(),
 });
 
 export const eqPage =
@@ -89,20 +91,19 @@ export const StateProvider: React.FC = ({ children }) => {
         pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
       }
     }));
+    await createMiniature(page);
   }
-  const initMiniatures = async () => {
-    if (!rs.miniatures) {
-      const b64s = await Promise.all(
-        rs.book.pages.map(async p => [
-          p.hash,
-          await createMiniaturePNG(ProcessedPageOpts.from(rs.book, p))
-        ] as const)
-      );
-      const miniatures = Object.fromEntries(b64s)
-      setRS(rs => ({ ...rs, miniatures }));
-    }
+  const createMiniature = async (p: Page) => {
+    const b64 = await miniaturePNG(ProcessedPageOpts.from(rs.book, p));
+    setRS(rs => ({ ...rs, miniatures: { ...(rs.miniatures || {}), [p.hash]: b64 } }));
   }
-  const value = { rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage, initMiniatures };
+  const recreateAllMiniatures = () => Promise.all(rs.book.pages.map(createMiniature));
+  const initMiniatures = async () => { !rs.miniatures && (await recreateAllMiniatures()) };
+
+  const value = {
+    rs, isCurrentPage, getRS, setRS, setBook, addPage, deletePage, getPage, setPage,
+    initMiniatures, createMiniature,
+  };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
 }
