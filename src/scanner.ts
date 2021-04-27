@@ -2,7 +2,7 @@ import { Book, Page } from "./types";
 import type { Sharp, OutputInfo, SharpOptions, FitEnum } from "sharp";
 import { join } from "path";
 import md5 from "md5";
-import { writeFileSync, createWriteStream, readFileSync } from 'fs';
+import { writeFileSync, createWriteStream, readFileSync, existsSync, mkdirSync } from 'fs';
 import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts } from "./logic";
 import type * as electronT from "electron"
@@ -15,7 +15,14 @@ const sharp: {
 const pdfkit: (typeof pdfkitT)["default"] = window.require("pdfkit");
 const electron: (typeof electronT) = require('electron');
 
-const tmpPath = (filename: string) => join(__dirname, "/home/mati/projects/scan/tmp", filename);
+const rootPath = electron.remote.process?.cwd();
+const tmpRawPath = join(rootPath, "tmp");
+if (!existsSync(tmpRawPath)) {
+  mkdirSync(tmpRawPath);
+}
+
+
+const tmpPath = (filename: string) => join(tmpRawPath, filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
 
 const toBuffer = (s: Sharp) =>
