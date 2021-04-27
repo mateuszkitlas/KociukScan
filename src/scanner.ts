@@ -21,7 +21,6 @@ if (!existsSync(tmpRawPath)) {
   mkdirSync(tmpRawPath);
 }
 
-
 const tmpPath = (filename: string) => join(tmpRawPath, filename);
 const imgPath = (hash: string) => tmpPath(`${hash}.png`);
 
