@@ -35,8 +35,7 @@ const emptyRawState: RawState = {
     width: 100,
     height: 100,
     dpi: 100,
-  },
-  miniatures: {}
+  }
 };
 
 const loadRS = () => {

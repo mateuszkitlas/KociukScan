@@ -72,9 +72,9 @@ const scanningButtons = (s: State) => {
       key="scan*"
     >
       <FaPaw />
-      {b("+", setDelay(1), true)}
-      {s.rs.book.delay}sec
       {b("-", setDelay(-1), true)}
+      {s.rs.book.delay}sec
+      {b("+", setDelay(1), true)}
     </div>
   ]
 };
