@@ -70,38 +70,60 @@ const crop = (s: State, page: Page) => {
   }
   const add = dragable(true, true, xy => s.setPage({ ...page, ...xy }));
 
-  const styleW = {
+  const styleRight = {
     position: "absolute" as const,
     left: page.x + s.rs.book.width - cropSize,
-    top: page.y,
+    top: page.y + cropSize,
     width: cropSize,
-    height: s.rs.book.height - cropSize - 2,
+    height: s.rs.book.height - 2 * cropSize,
   }
-  const addW = dragable(true, false, ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }));
-
-  const styleH = {
+  const addRight = dragable(true, false, ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }));
+  const styleLeft = {
     position: "absolute" as const,
     left: page.x,
-    top: page.y + s.rs.book.height - cropSize,
-    width: s.rs.book.width - cropSize - 2,
-    height: cropSize,
-  }
-  const addH = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
-
-  const styleWH = {
-    position: "absolute" as const,
-    left: page.x + s.rs.book.width - cropSize,
-    top: page.y + s.rs.book.height - cropSize,
+    top: page.y + cropSize,
     width: cropSize,
+    height: s.rs.book.height - 2 * cropSize,
+  }
+  const addLeft = dragable(true, false, ({x}) =>
+    s.setBook({
+      ...s.rs.book,
+      width: (s.rs.book.width - x) + page.x,
+      pages: s.rs.book.pages.map(p => p.hash === page.hash ? { ...page, x } : p),
+    })
+  );
+
+  const styleBottom = {
+    position: "absolute" as const,
+    left: page.x + cropSize,
+    top: page.y + s.rs.book.height - cropSize,
+    width: s.rs.book.width - 2 * cropSize,
     height: cropSize,
   }
-  const addWH = dragable(true, true, ({x, y}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize, height: y - page.y + cropSize }));
+  const addBottom = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
+  const styleTop = {
+    position: "absolute" as const,
+    left: page.x + cropSize,
+    top: page.y,
+    width: s.rs.book.width - 2 * cropSize,
+    height: cropSize,
+  }
+  const addTop = dragable(false, true, ({y}) =>
+    s.setBook({
+      ...s.rs.book,
+      height: (s.rs.book.height - y) + page.y,
+      pages: s.rs.book.pages.map(p => p.hash === page.hash ? { ...page, y } : p),
+    })
+  );
+  
+
 
   return [
     <div draggable={false} style={style} key="crop" onMouseDown={add}></div>,
-    <div draggable={false} style={styleW} key="cropW" onMouseDown={addW}></div>,
-    <div draggable={false} style={styleH} key="cropH" onMouseDown={addH}></div>,
-    <div draggable={false} style={styleWH} key="cropWH" onMouseDown={addWH}></div>,
+    <div draggable={false} style={styleRight} key="cropW" onMouseDown={addRight}></div>,
+    <div draggable={false} style={styleLeft} key="cropW" onMouseDown={addLeft}></div>,
+    <div draggable={false} style={styleBottom} key="cropH" onMouseDown={addBottom}></div>,
+    <div draggable={false} style={styleTop} key="cropH" onMouseDown={addTop}></div>,
   ]
 }
 

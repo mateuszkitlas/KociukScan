@@ -63,8 +63,8 @@ export const loadPNG = (hash: string) => {
 export const miniaturePNG = async (opts: ProcessedPageOpts) => {
   const buffer = await sharp(await processPage(opts))
     .resize({
-      width: 100,
-      height: 100,
+      width: 400,
+      height: 400,
       fit: sharp.fit.contain,
       background: { r: 0, g: 0, b: 0, alpha: 0 },
     })
