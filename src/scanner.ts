@@ -6,6 +6,7 @@ import { zoomByDpi, ProcessedPageOpts } from "./logic";
 import { electron, Sharp, OutputInfo, sharp, pdfkit } from './electronImports';
 import { scan } from 'scanner-to-buffer';
 import { State } from './state';
+import { arrayBufferToBuffer } from './utils';
 
 const rootPath = electron.remote.process?.cwd();
 export const tmpRawPath = join(rootPath, "tmp");
@@ -78,14 +79,11 @@ const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
   sharp(buf).toBuffer((err, _buf, info) => err ? reject(err) : resolve(info))
 );
 
-export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) => {
-  console.log("scanning...");
-  const stdout = await scan({ dpi: opts.dpi, format: "png" });
-  const hash = md5(stdout);
-  const info = await getInfo(stdout);
-  console.log(hash);
+const scanFromBuffer = async (buffer: Buffer, opts: Omit<ProcessedPageOpts, "hash">) => {
+  const hash = md5(buffer);
+  const info = await getInfo(buffer);
   const path = imgPath(hash);
-  writeFileSync(path, stdout);
+  writeFileSync(path, buffer);
   const page: Page = {
     hash,
     miniatureHash: "000",
@@ -100,6 +98,15 @@ export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) => {
   };
   return page;
 }
+
+export const scanFromFile = async (buffer: ArrayBuffer, opts: Omit<ProcessedPageOpts, "hash" | "dpi">) =>
+  scanFromBuffer(
+    arrayBufferToBuffer(buffer),
+    { ...opts, dpi: 300 }
+  );
+
+export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) =>
+  scanFromBuffer(await scan({ dpi: opts.dpi, format: "png" }), opts);
 
 export const pdf = async (s: State) => {
   const book = s.rs.book;
