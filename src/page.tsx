@@ -3,6 +3,7 @@ import { State } from './state';
 import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
+import { FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -93,22 +94,22 @@ const crop = (s: State, page: Page) => {
     })
   );
 
-  const styleBottom = {
+  const styleDown = {
     position: "absolute" as const,
     left: page.x + cropSize,
     top: page.y + s.rs.book.height - cropSize,
     width: s.rs.book.width - 2 * cropSize,
     height: cropSize,
   }
-  const addBottom = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
-  const styleTop = {
+  const addDown = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
+  const styleUp = {
     position: "absolute" as const,
     left: page.x + cropSize,
     top: page.y,
     width: s.rs.book.width - 2 * cropSize,
     height: cropSize,
   }
-  const addTop = dragable(false, true, ({y}) =>
+  const addUp = dragable(false, true, ({y}) =>
     s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
@@ -116,14 +117,29 @@ const crop = (s: State, page: Page) => {
     })
   );
   
-
+  const arrowStyle = ({ width, height }: { width: number, height: number }) => ({
+    marginTop: height/2 - cropSize/4,
+    marginLeft: width/2 - cropSize/4,
+    height: cropSize/2,
+    width: cropSize/2,
+    color: "#000",
+  })
+  
 
   return [
     <div draggable={false} style={style} key="crop" onMouseDown={add}></div>,
-    <div draggable={false} style={styleRight} key="cropW" onMouseDown={addRight}></div>,
-    <div draggable={false} style={styleLeft} key="cropW" onMouseDown={addLeft}></div>,
-    <div draggable={false} style={styleBottom} key="cropH" onMouseDown={addBottom}></div>,
-    <div draggable={false} style={styleTop} key="cropH" onMouseDown={addTop}></div>,
+    <div draggable={false} style={styleRight} key="cropRight" onMouseDown={addRight}>
+      <FaLongArrowAltRight style={arrowStyle(styleRight)}/>
+    </div>,
+    <div draggable={false} style={styleLeft} key="cropLeft" onMouseDown={addLeft}>
+      <FaLongArrowAltLeft style={arrowStyle(styleLeft)}/>
+    </div>,
+    <div draggable={false} style={styleDown} key="cropDown" onMouseDown={addDown}>
+      <FaLongArrowAltDown style={arrowStyle(styleDown)}/>
+    </div>,
+    <div draggable={false} style={styleUp} key="cropUp" onMouseDown={addUp}>
+      <FaLongArrowAltUp style={arrowStyle(styleUp)}/>
+    </div>,
   ]
 }
 
