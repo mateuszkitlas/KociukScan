@@ -1,22 +1,13 @@
 import { Book, Page } from "./types";
-import type { Sharp, OutputInfo, SharpOptions, FitEnum } from "sharp";
 import { join } from "path";
 import md5 from "md5";
 import { writeFileSync, createWriteStream, readFileSync, existsSync, mkdirSync } from 'fs';
-import type * as pdfkitT from "pdfkit";
 import { zoomByDpi, ProcessedPageOpts } from "./logic";
-import type * as electronT from "electron"
+import { electron, Sharp, OutputInfo, sharp, pdfkit } from './electronImports';
 import { scan } from 'scanner-to-buffer';
 
-const sharp: {
-  (buf: Buffer | string, o?: SharpOptions): Sharp,
-  fit: FitEnum
-} = window.require("sharp");
-const pdfkit: (typeof pdfkitT)["default"] = window.require("pdfkit");
-const electron: (typeof electronT) = require('electron');
-
 const rootPath = electron.remote.process?.cwd();
-const tmpRawPath = join(rootPath, "tmp");
+export const tmpRawPath = join(rootPath, "tmp");
 if (!existsSync(tmpRawPath)) {
   mkdirSync(tmpRawPath);
 }

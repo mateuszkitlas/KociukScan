@@ -9,7 +9,7 @@ export interface RawState {
   kind: "scanning one" | "scanning many" | "nothing" | "generating pdf";
   currentPage?: PageNr;
   book: Book;
-  miniatures?: Record<string, string>
+  miniatures?: Record<string, string>;
 }
 
 export interface State {
@@ -35,7 +35,7 @@ const emptyRawState: RawState = {
     width: 100,
     height: 100,
     dpi: 100,
-  }
+  },
 };
 
 const loadRS = () => {
