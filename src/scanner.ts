@@ -1,21 +1,11 @@
-import { Book, Page } from "./types";
-import { join } from "path";
+import { Page } from "./types";
 import md5 from "md5";
-import { writeFileSync, createWriteStream, readFileSync, existsSync, mkdirSync } from 'fs';
+import { writeFileSync, createWriteStream, readFileSync } from 'fs';
 import { zoomByDpi, ProcessedPageOpts } from "./logic";
-import { electron, Sharp, OutputInfo, sharp, pdfkit } from './electronImports';
+import { Sharp, OutputInfo, sharp, pdfkit, dialog } from './electronImports';
 import { scan } from 'scanner-to-buffer';
 import { State } from './state';
-import { arrayBufferToBuffer } from './utils';
-
-const rootPath = electron.remote.process?.cwd();
-export const tmpRawPath = join(rootPath, "tmp");
-if (!existsSync(tmpRawPath)) {
-  mkdirSync(tmpRawPath);
-}
-
-const tmpPath = (filename: string) => join(tmpRawPath, filename);
-const imgPath = (hash: string) => tmpPath(`${hash}.png`);
+import { arrayBufferToBuffer, hashToPng } from './utils';
 
 const toBuffer = (s: Sharp) =>
   new Promise<{ buffer: Buffer, info: OutputInfo}>(
@@ -32,7 +22,7 @@ const reSharp = async (s: Sharp) => sharp((await toBuffer(s)).buffer);
 
 const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
   const zoom = zoomByDpi(opts.dpi);
-  const img = await toBuffer(sharp(imgPath(opts.hash)));
+  const img = await toBuffer(sharp(hashToPng(opts.hash)));
   
   const sharp1 = zoom === 1
     ? sharp(img.buffer)
@@ -55,7 +45,7 @@ const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
 
 export const loadPNG = (hash: string) => {
   try {
-    const buf = readFileSync(imgPath(hash));
+    const buf = readFileSync(hashToPng(hash));
     return buf.toString("base64");
   } catch {
     return ""
@@ -82,11 +72,10 @@ const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
 const scanFromBuffer = async (buffer: Buffer, opts: Omit<ProcessedPageOpts, "hash">) => {
   const hash = md5(buffer);
   const info = await getInfo(buffer);
-  const path = imgPath(hash);
+  const path = hashToPng(hash);
   writeFileSync(path, buffer);
   const page: Page = {
     hash,
-    miniatureHash: "000",
     x: opts.x,
     y: opts.y,
     rotate: opts.rotate,
@@ -112,8 +101,8 @@ export const pdf = async (s: State) => {
   const book = s.rs.book;
   const doContinue = async () => (await s.getRS()).kind === "generating pdf";
   const pdf = new pdfkit({ autoFirstPage: false });
-  const filename = electron.remote.dialog.showSaveDialogSync({
-    defaultPath: `${book.title}.pdf`,
+  const filename = dialog.showSaveDialogSync({
+    defaultPath: `Book.pdf`,
     filters: [{
       name: "PDF document",
       extensions: ["pdf", "PDF"]

@@ -1,3 +1,8 @@
+import { join } from "path";
+import { existsSync, mkdirSync } from 'fs';
+import { electron } from './electronImports';
+
+
 export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000*seconds));
 
 export function arrayBufferToBuffer(ab: ArrayBuffer) {
@@ -8,3 +13,12 @@ export function arrayBufferToBuffer(ab: ArrayBuffer) {
   }
   return buf;
 }
+
+const rootPath = electron.remote.process?.cwd();
+export const tmpRawPath = join(rootPath, "tmp");
+if (!existsSync(tmpRawPath)) {
+  mkdirSync(tmpRawPath);
+}
+
+const tmpPath = (filename: string) => join(tmpRawPath, filename);
+export const hashToPng = (hash: string) => tmpPath(`${hash}.png`);

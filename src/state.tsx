@@ -35,7 +35,6 @@ export interface State {
 const emptyRawState: RawState = {
   kind: "nothing",
   book: {
-    title: "New Book",
     delay: 5,
     pages: [],
     width: 100,

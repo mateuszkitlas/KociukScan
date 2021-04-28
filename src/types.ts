@@ -1,7 +1,6 @@
 export type DPI = 75 | 100 | 200 | 300;
 
 export interface Book {
-  title: string;
   pages: Page[];
   delay: number;
   width: number;
@@ -11,7 +10,6 @@ export interface Book {
 
 export interface Page {
   hash: string;
-  miniatureHash: string;
   duplicated?: string;
   x: number;
   y: number;

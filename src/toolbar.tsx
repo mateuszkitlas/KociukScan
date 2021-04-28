@@ -3,9 +3,10 @@ import './App.css';
 import { State } from './state';
 import { DPI } from "./types";
 import { sleep } from './utils';
-import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf } from 'react-icons/fa';
+import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf, FaSave } from 'react-icons/fa';
 import { ProcessedPageOpts } from './logic';
 import { pdf, scanX } from './scanner';
+import { exportBook } from './exportBook';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const b = (label: string, f: B, active: boolean) => (
@@ -75,6 +76,13 @@ const scanningButtons = (s: State) => {
       {b("-", setDelay(-1), true)}
       {s.rs.book.delay}sec
       {b("+", setDelay(1), true)}
+    </div>,
+    <div
+      className="button"
+      onClick={() => exportBook(s)}
+      key="export"
+    >
+      <FaSave/>
     </div>
   ]
 };
