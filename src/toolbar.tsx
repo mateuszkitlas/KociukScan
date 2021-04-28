@@ -112,8 +112,8 @@ const pageButtons = (s: State) => {
 
 const downloadButtons = (s: State) => {
   const download: B = async _e => {
-    s.setRS(rs => ({ ...rs, kind: "generating pdf" }));
-    await pdf(s.rs.book);
+    s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: 0 }));
+    await pdf(s);
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
   }
   return (
@@ -123,6 +123,11 @@ const downloadButtons = (s: State) => {
       key="pdf"
     >
       <FaFilePdf />
+      {
+        s.rs.kind === "generating pdf"
+         ? `${s.rs.processedPages}/${s.rs.book.pages.length}`
+         : undefined
+      }
     </div>
   );
 }

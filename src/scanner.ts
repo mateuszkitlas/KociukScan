@@ -5,6 +5,7 @@ import { writeFileSync, createWriteStream, readFileSync, existsSync, mkdirSync }
 import { zoomByDpi, ProcessedPageOpts } from "./logic";
 import { electron, Sharp, OutputInfo, sharp, pdfkit } from './electronImports';
 import { scan } from 'scanner-to-buffer';
+import { State } from './state';
 
 const rootPath = electron.remote.process?.cwd();
 export const tmpRawPath = join(rootPath, "tmp");
@@ -100,8 +101,9 @@ export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) => {
   return page;
 }
 
-export const pdf = async (book: Book) => {
-  const start = Date.now();
+export const pdf = async (s: State) => {
+  const book = s.rs.book;
+  const doContinue = async () => (await s.getRS()).kind === "generating pdf";
   const pdf = new pdfkit({ autoFirstPage: false });
   const filename = electron.remote.dialog.showSaveDialogSync({
     defaultPath: `${book.title}.pdf`,
@@ -112,7 +114,8 @@ export const pdf = async (book: Book) => {
   });
   if (filename) {
     pdf.pipe(createWriteStream(filename));
-    for (let i = 0; i < book.pages.length; i++) {
+    for (let i = 0; i < book.pages.length && await doContinue(); i++) {
+      s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i }))
       const page = book.pages[i];
       console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
       const buffer = await processPage(ProcessedPageOpts.from(book, page));
@@ -124,7 +127,5 @@ export const pdf = async (book: Book) => {
         .image(buffer);
     }
     pdf.end();
-    const elapsedTime = (Date.now() - start)/1000;
-    console.log(`Done in ${elapsedTime}seconds`);
   }
 };

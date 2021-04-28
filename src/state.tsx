@@ -5,12 +5,18 @@ import { Book, Page } from './types';
 
 type PageNr = Pick<Page, "hash" | "duplicated">;
 
-export interface RawState {
-  kind: "scanning one" | "scanning many" | "nothing" | "generating pdf";
+interface Common {
   currentPage?: PageNr;
   book: Book;
   miniatures?: Record<string, string>;
 }
+export type RawState = Common & (
+  | { kind: "scanning one" | "scanning many" | "nothing" }
+  | {
+    kind: "generating pdf";
+    processedPages: number;
+  }
+)
 
 export interface State {
   rs: RawState,
