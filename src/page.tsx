@@ -3,7 +3,7 @@ import { State } from './state';
 import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
-import { FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
+import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -127,7 +127,9 @@ const crop = (s: State, page: Page) => {
   
 
   return [
-    <div draggable={false} style={style} key="crop" onMouseDown={add}></div>,
+    <div draggable={false} style={style} key="crop" onMouseDown={add}>
+      <FaArrowsAlt style={arrowStyle(style)}/>
+    </div>,
     <div draggable={false} style={styleRight} key="cropRight" onMouseDown={addRight}>
       <FaLongArrowAltRight style={arrowStyle(styleRight)}/>
     </div>,
