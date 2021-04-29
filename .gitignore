@@ -6,3 +6,5 @@ tmp
 build
 out/
 *.png
+static/*.js
+.cache
