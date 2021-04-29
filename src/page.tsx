@@ -1,5 +1,5 @@
 import React from 'react';
-import { State } from './state';
+import { eqPage, State } from './state';
 import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
@@ -90,7 +90,7 @@ const crop = (s: State, page: Page) => {
     s.setBook({
       ...s.rs.book,
       width: (s.rs.book.width - x) + page.x,
-      pages: s.rs.book.pages.map(p => p.hash === page.hash ? { ...page, x } : p),
+      pages: s.rs.book.pages.map(p => eqPage(page)(p) ? { ...page, x } : p),
     })
   );
 
@@ -113,7 +113,7 @@ const crop = (s: State, page: Page) => {
     s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
-      pages: s.rs.book.pages.map(p => p.hash === page.hash ? { ...page, y } : p),
+      pages: s.rs.book.pages.map(p => eqPage(page)(p) ? { ...page, y } : p),
     })
   );
   

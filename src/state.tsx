@@ -3,12 +3,15 @@ import { ProcessedPageOpts } from './logic';
 import { miniaturePNG } from './scanner';
 import { Book, Page } from './types';
 
-type PageNr = Pick<Page, "hash" | "duplicated">;
+export type PageNr = Pick<Page, "hash" | "duplicated">;
+export namespace PageNr {
+  export const get = ({ hash, duplicated }: Page) => ({ hash, duplicated });
+}
 
 interface Common {
   currentPage?: PageNr;
   book: Book;
-  miniatures?: Record<string, string>;
+  miniatures?: Map<string, string>;
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -89,7 +92,11 @@ export const StateProvider: React.FC = ({ children }) => {
   }
   const createMiniature = async (p: Page) => {
     const b64 = await miniaturePNG(ProcessedPageOpts.from(rs.book, p));
-    setRS(rs => ({ ...rs, miniatures: { ...(rs.miniatures || {}), [p.hash]: b64 } }));
+    setRS(rs => {
+      const miniatures = rs.miniatures || new Map<string, string>();
+      miniatures.set(JSON.stringify(PageNr.get(p)), b64);
+      return ({ ...rs, miniatures })
+    });
   }
   const recreateAllMiniatures = () => Promise.all(rs.book.pages.map(createMiniature));
   const initMiniatures = async () => { !rs.miniatures && (await recreateAllMiniatures()) };
