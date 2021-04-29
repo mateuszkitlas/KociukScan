@@ -65,14 +65,15 @@ const scanningButtons = (s: State) => {
   
   return [
     ["scanning one", "scanning many"].includes(s.rs.kind)
-      ? <div className="button" onClick={stop} key="stop"><FaStop /></div>
+      ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
       : s.rs.kind === "generating pdf"
-      ? <div className="button inactive" key="one"><FaPaw /></div>
-      : <div className="button" onClick={one} key="one"><FaPaw /></div>,
+      ? <div className="button inactive" key="one" title="Scan"><FaPaw /></div>
+      : <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>,
     <div
       className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
       onClick={s.rs.kind === "nothing" ? many : undefined}
       key="scan*"
+      title="Scan many pages"
     >
       <FaPaw />
       {b("-", setDelay(-1), true)}
@@ -83,6 +84,7 @@ const scanningButtons = (s: State) => {
       className="button"
       onClick={() => exportBook(s)}
       key="export"
+      title="Save"
     >
       <FaFileDownload/>
     </div>,
@@ -90,6 +92,7 @@ const scanningButtons = (s: State) => {
       className="button"
       onClick={() => importBook(s)}
       key="export"
+      title="Load"
     >
       <FaFileUpload/>
     </div>
@@ -138,6 +141,7 @@ const downloadButtons = (s: State) => {
       className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
       onClick={download}
       key="pdf"
+      title="Generate PDF"
     >
       <FaFilePdf />
       {
