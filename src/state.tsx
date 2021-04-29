@@ -43,18 +43,9 @@ const emptyRawState: RawState = {
 };
 
 const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));
-
-export const loadRS = (bookRaw: string | null) => {
-  if (bookRaw) {
-    const prs: RawState = {
-      ...emptyRawState,
-      book: JSON.parse(bookRaw)
-    }
-    return prs
-  } else {
-    return emptyRawState;
-  }
-}
+export const loadRSFromBook = (book: Book) => ({ ...emptyRawState, book });
+const loadRS = (bookRaw: string | null) =>
+  bookRaw ? loadRSFromBook(JSON.parse(bookRaw)) : emptyRawState;
 
 export const StateContext = React.createContext<State>({
   rs: loadRSFromLS(),

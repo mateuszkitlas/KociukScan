@@ -1,7 +1,9 @@
-import { State } from './state';
+import { loadRSFromBook, State } from './state';
 import AdmZip from "adm-zip";
 import { hashToPng } from './utils';
 import { dialog } from './electronImports';
+import { Book } from './types';
+import { dirname } from 'path';
 
 export const exportBook = async (s: State) => {
   const filename = dialog.showSaveDialogSync({
@@ -18,4 +20,20 @@ export const exportBook = async (s: State) => {
       error ? reject(error) : resolve()
     ));
   }
-}
+};
+
+export const importBook = async (s: State) => {
+  const filename = dialog.showOpenDialogSync({
+    defaultPath: "book.zip",
+    filters: [{ extensions: ["zip", "ZIP"], name: "zip"}],
+    properties: ["openFile"]
+  });
+  if (filename && filename[0]) {
+    const zip = new AdmZip(filename[0]);
+    const book: Book = JSON.parse(zip.readAsText("book.json"));
+    for (const page of book.pages) {
+      zip.extractEntryTo(`${page.hash}.png`, dirname(hashToPng(page.hash)), true, true);
+    }
+    s.setRS(_ => loadRSFromBook(book));
+  }
+};
