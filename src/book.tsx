@@ -1,6 +1,6 @@
 import React from 'react';
 import { Page } from './types';
-import { State, eqPage, PageNr } from './state';
+import { State, PageNr } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
 
@@ -20,7 +20,7 @@ export const renderFile = (s: State) => (page: Page) => {
     const duplicated = md5(Date.now().toString());
     const newPage = { ...page, duplicated };
     s.setRS(rs => {
-      const pageNr = rs.book.pages.findIndex(eqPage(page))
+      const pageNr = rs.book.pages.findIndex(PageNr.eq(page))
       return {
         ...rs,
         currentPage: { ...currentPage, duplicated },

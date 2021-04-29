@@ -6,6 +6,8 @@ import { Book, Page } from './types';
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {
   export const get = ({ hash, duplicated }: Page) => ({ hash, duplicated });
+  export const eq =
+    (pn?: PageNr) => (p: Page) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
 }
 
 interface Common {
@@ -63,29 +65,26 @@ export const StateContext = React.createContext<State>({
   createMiniature: () => Promise.resolve(),
 });
 
-export const eqPage =
-  (pn?: PageNr) => (p: Page) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
-
 export const StateProvider: React.FC = ({ children }) => {
   const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
     window.localStorage.setItem('book', JSON.stringify(rs.book));
     return f(rs);
   }
   const [rs, setRS] = React.useReducer(reduce, loadRSFromLS());
-  const isCurrentPage = eqPage(rs.currentPage);
+  const isCurrentPage = PageNr.eq(rs.currentPage);
   const getRS =
     () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs }));
   const setBook =
     (book: Book) => setRS(rs => ({ ...rs, book }));
   const deletePage = (page: PageNr) =>
-    setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => !eqPage(page)(p)) } }));
-  const getPage = (page?: PageNr) => rs.book.pages.find(eqPage(page))
+    setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => !PageNr.eq(page)(p)) } }));
+  const getPage = (page?: PageNr) => rs.book.pages.find(PageNr.eq(page))
   const setPage = async (page: Page) => {
     setRS(rs => ({
       ...rs,
       book: {
         ...rs.book,
-        pages: rs.book.pages.map(p => eqPage(page)(p) ? { ...p, ...page } : p)
+        pages: rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...p, ...page } : p)
       }
     }));
     await createMiniature(page);
