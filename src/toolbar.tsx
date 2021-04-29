@@ -11,10 +11,6 @@ import { pdf, scanX } from './scanner';
 import { exportBook, importBook } from './exportBook';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
-const b = (label: string, f: B, active: boolean) => (
-  <div className={`button ${active ? "" : "inactive"}`} onClick={active ? f : undefined} key={label}>{label}</div>
-);
-
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
   return [
     <select onChange={onChange} value={init} key={`select${init}`}>
@@ -76,9 +72,9 @@ const scanningButtons = (s: State) => {
       title="Scan many pages"
     >
       <FaPaw />
-      {b("-", setDelay(-1), true)}
+      <div className="button" onClick={setDelay(-1)} key="-" title="-1 second" >-</div>
       {s.rs.book.delay}sec
-      {b("+", setDelay(1), true)}
+      <div className="button" onClick={setDelay(1)} key="+" title="+1 second" >+</div>
     </div>,
     <div
       className="button"
@@ -111,19 +107,15 @@ const pageButtons = (s: State) => {
     const moveY = (y: number): B => (_event) => {
       s.setPage({ ...page, y: page.y + y });
     }
-    const setZeroRotate: B = _e => {
-      s.setPage({ ...page, rotate: 0 });
-    }
     return [
-      <div className="button" onClick={rotate(-0.5)} key="rl"><FaUndo /></div>,
-      <div className="button" onClick={rotate(0.5)} key="rr"><FaRedo /></div>,
-      b("0*", setZeroRotate, true),
-      b("90*", rotate(90), true),
-      b("180*", rotate(180), true),
-      <div className="button" onClick={moveX(-1)} key="ml"><FaAngleLeft /></div>,
-      <div className="button" onClick={moveX(1)}  key="mr"><FaAngleRight /></div>,
-      <div className="button" onClick={moveY(-1)} key="mu"><FaAngleUp /></div>,
-      <div className="button" onClick={moveY(1)}  key="md"><FaAngleDown /></div>,
+      <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
+      <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,
+      <div className="button" onClick={rotate(90)}   key="90*" title="Rotate by 90º" >90º</div>,
+      <div className="button" onClick={rotate(180)}  key="180*" title="Rotate by 180º">180º</div>,
+      <div className="button" onClick={moveX(-1)} key="ml" title="Move left" ><FaAngleLeft /></div>,
+      <div className="button" onClick={moveX(1)}  key="mr" title="Move right"><FaAngleRight /></div>,
+      <div className="button" onClick={moveY(-1)} key="mu" title="Move up"   ><FaAngleUp /></div>,
+      <div className="button" onClick={moveY(1)}  key="md" title="Move down" ><FaAngleDown /></div>,
     ];
   } else {
     return [];

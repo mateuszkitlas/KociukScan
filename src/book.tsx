@@ -57,8 +57,8 @@ export const renderFile = (s: State) => (page: Page) => {
       onClick={show}
       style={style}
     >
-      <div className="button" onClick={duplicate} key={key("duplicate")}><FaCopy /></div>
-      <div className="button" onClick={del} key={key("del")}><FaTrash /></div>
+      <div className="button" onClick={duplicate} key={key("duplicate")} title="duplicate"><FaCopy /></div>
+      <div className="button" onClick={del} key={key("del")} title="delete"><FaTrash /></div>
     </div>
   )
 }
