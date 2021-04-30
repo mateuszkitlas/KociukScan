@@ -125,11 +125,7 @@ const crop = (s: State, page: Page) => {
     color: "#000",
   })
   
-
-  return [
-    <div draggable={false} style={style} key="crop" onMouseDown={add}>
-      <FaArrowsAlt style={arrowStyle(style)}/>
-    </div>,
+  const resize = [
     <div draggable={false} style={styleRight} key="cropRight" onMouseDown={addRight}>
       <FaLongArrowAltRight style={arrowStyle(styleRight)}/>
     </div>,
@@ -141,7 +137,14 @@ const crop = (s: State, page: Page) => {
     </div>,
     <div draggable={false} style={styleUp} key="cropUp" onMouseDown={addUp}>
       <FaLongArrowAltUp style={arrowStyle(styleUp)}/>
+    </div>
+  ]
+
+  return [
+    <div draggable={false} style={style} key="crop" onMouseDown={add}>
+      <FaArrowsAlt style={arrowStyle(style)}/>
     </div>,
+    ...(s.rs.allowPageResize ? resize : []),
   ]
 }
 

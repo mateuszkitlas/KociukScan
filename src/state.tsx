@@ -14,6 +14,7 @@ interface Common {
   currentPage?: PageNr;
   book: Book;
   miniatures?: Map<string, string>;
+  allowPageResize: boolean;
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -45,6 +46,7 @@ const emptyRawState: RawState = {
     height: 400,
     dpi: 100,
   },
+  allowPageResize: false,
 };
 
 const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));

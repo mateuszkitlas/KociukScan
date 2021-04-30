@@ -57,7 +57,7 @@ body {
 select {
   background-color: #445;
   border-radius: 5px;
-  padding: 8px 0 8px 8px;
+  padding: 11px 0 11px 8px;
   margin: 0 10px 0 10px;
   display: inline-block;
   color: #fff;
@@ -65,17 +65,17 @@ select {
   border: 0;
 }
 
-
-input {
-  border: 1px dashed #445;
-  border-radius: 5px;
+label {
+  background-color: #445;
   display: inline-block;
-  background-color: transparent;
-  padding: 6px;
+  padding: 3px 10px 3px 3px;
+  border-radius: 5px;
   margin: 10px;
   font-size: 16px;
   color: #fff;
+  user-select: none;
 }
+label:hover { background-color: #556; }
 
 div#pages {
   background-color: #334;
