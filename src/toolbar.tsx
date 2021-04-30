@@ -87,7 +87,7 @@ const scanningButtons = (s: State) => {
     <div
       className="button"
       onClick={() => importBook(s)}
-      key="export"
+      key="import"
       title="Load"
     >
       <FaFileUpload/>
@@ -119,7 +119,7 @@ const pageButtons = (s: State) => {
       <div className="button" onClick={moveX(1)}  key="mr" title="Move right"><FaAngleRight /></div>,
       <div className="button" onClick={moveY(-1)} key="mu" title="Move up"   ><FaAngleUp /></div>,
       <div className="button" onClick={moveY(1)}  key="md" title="Move down" ><FaAngleDown /></div>,
-      <label>
+      <label key="allowPageResize">
         <input className="button" type="checkbox" checked={s.rs.allowPageResize} onChange={allowPageResize}/>
         allow page resize
       </label>
