@@ -6,6 +6,10 @@ import { Book, Page } from './types';
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {
   export const get = ({ hash, duplicated }: Page) => ({ hash, duplicated });
+  export const key = (p: Page) => { // TODO use in miniatures {}
+    const v = get(p);
+    return `${v.hash}-${v.duplicated}`;
+  }
   export const eq =
     (pn?: PageNr) => (p: Page) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
 }
