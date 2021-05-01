@@ -76,8 +76,8 @@ export const ModalYesNo = (props: ModalYesNo.Props) => props.show
         margin: "0 auto"
       }}
     >
-      <div className="button" onClick={props.onYes}>Yes</div>
-      <div className="button" onClick={props.onNo}>No</div>
+      <div className="button" onClick={e => {e.stopPropagation(); props.onYes()}}>Yes</div>
+      <div className="button" onClick={e => {e.stopPropagation(); props.onNo()}}>No</div>
     </div>
   </Modal>
   : null;

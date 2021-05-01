@@ -42,7 +42,7 @@ export interface State {
   createMiniature: (p: Page) => Promise<void>,
 }
 
-const emptyRawState: RawState = {
+export const emptyRawState: RawState = {
   kind: "nothing",
   book: {
     delay: 5,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { State } from './state';
-import { ModalWithClose } from './modal';
+import { State, emptyRawState } from './state';
+import { ModalWithClose, ModalYesNo } from './modal';
 import { FaCog } from 'react-icons/fa';
 import { list } from 'scanner-to-buffer';
 
@@ -10,6 +10,7 @@ interface P {
 interface S {
   show: boolean;
   devices?: string[] | null;
+  deleteProject?: boolean;
 }
 export class Settings extends React.Component<P, S> {
   constructor(props: P) {
@@ -20,6 +21,10 @@ export class Settings extends React.Component<P, S> {
     this.setState({ devices: null });
     const devices = await list();
     this.setState({ devices });
+  }
+  deleteProject = () => {
+    this.props.s.setRS(_ => emptyRawState);
+    this.setState({ deleteProject: false })
   }
   renderDevices = (d: string[]) => <div>Detected devices ({d.length}):<br/>{d.map(this.renderDevice)}</div>
   renderDevice = (device: string) => <li key={device}>
@@ -38,17 +43,24 @@ export class Settings extends React.Component<P, S> {
       <FaCog/>
       {this.state.show
       ? <ModalWithClose onClose={() => this.setState({ show: false })}>
-        <div style={{width: "100%", display: "block"}}>
-          {
-            this.state.devices === undefined
-            ? <div className="button" onClick={this.detect}>Detect scanning devices</div>
-            : this.state.devices === null
-              ? <div className="button inactive">Detecting scanning devices...</div>
-              : this.renderDevices(this.state.devices)
-            }
-        </div>
+        {this.state.devices === undefined
+        ? <div className="button" onClick={this.detect}>Detect scanning devices</div>
+        : this.state.devices === null
+          ? <div className="button inactive">Detecting scanning devices...</div>
+          : this.renderDevices(this.state.devices)
+        }
+        <div
+          className="button"
+          onClick={e => {e.stopPropagation(); this.setState({ deleteProject: true });}}
+        >Delete whole project</div>
       </ModalWithClose>
       : null}
+      <ModalYesNo
+        show={!!this.state.deleteProject}
+        message="Are you sure?"
+        onYes={this.deleteProject}
+        onNo={() => this.setState({ deleteProject: false })}
+      ></ModalYesNo>
     </div>
   }
 }
