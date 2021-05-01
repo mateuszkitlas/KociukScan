@@ -29,7 +29,7 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
       <div
         style={{
           position: "fixed",
-          top: "50%",
+          top: 300,
           left: "50%",
           transform: "translate(-50%) scale(1)",
           backgroundColor: "#334",

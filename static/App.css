@@ -8,9 +8,9 @@
   top: 60px;
 }
 body, html, #root { height: 100%; }
-div#files {
-  display: inline-block;
-  overflow-y: auto;
+div#pages {
+  overflow-y: scroll;
+  height: 1000px;
 }
 div#page {
   position: absolute;
