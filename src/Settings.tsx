@@ -4,6 +4,8 @@ import { ModalWithClose, ModalYesNo } from './modal';
 import { FaCog, FaFileDownload, FaFileUpload } from 'react-icons/fa';
 import { list } from 'scanner-to-buffer';
 import { exportBook, importBook } from './exportBook';
+import { DPI } from './types';
+
 
 interface P {
   s: State;
@@ -27,34 +29,52 @@ export class Settings extends React.Component<P, S> {
     this.props.s.setRS(_ => emptyRawState);
     this.setState({ deleteProject: false })
   }
-  renderDevices = (d: string[]) => <div>Detected devices ({d.length}):<br/>{d.map(this.renderDevice)}</div>
-  renderDevice = (device: string) => <li key={device}>
-      {device}
-      { device === this.props.s.rs.device
-        ? "(current)"
-        : <div className="button" onClick={() => this.props.s.setRS(rs => ({ ...rs, device }))}>use</div>
-      }
-    </li>
-  render = () => {
+
+  renderDevices = (d: string[]) => [
+    `(${d.length}):`,
+    <ul>
+      {d.map(device =>
+        <li key={device}>
+          {device}
+          { device === this.props.s.rs.device
+            ? "(current)"
+            : <div className="button" onClick={() => this.props.s.setRS(rs => ({ ...rs, device }))}>use</div>
+          }
+        </li>)}
+    </ul>
+  ]
+
+  renderModal = () => {
     const s = this.props.s;
-    return <div
-      className="button"
-      onClick={() => this.setState({ show: true })}
-      title="Settings"
-    >
-      <FaCog/>
-      {this.state.show
-      ? <ModalWithClose onClose={() => this.setState({ show: false })}>
+    return <ul>
+      <li>
+        Scanning devices
         {this.state.devices === undefined
-        ? <div className="button" onClick={this.detect}>Detect scanning devices</div>
-        : this.state.devices === null
-          ? <div className="button inactive">Detecting scanning devices...</div>
-          : this.renderDevices(this.state.devices)
-        }
+          ? <div className="button" onClick={this.detect}>detect</div>
+          : this.state.devices === null
+            ? <div className="button inactive">detecting...</div>
+            : this.renderDevices(this.state.devices)}
+      </li>
+      <li>
+        DPI
+        <select
+          onChange={e => {
+            const dpi = parseFloat(e.target.value) as DPI;
+            s.setBook({ ...s.rs.book, dpi });
+          }}
+          value={s.rs.book.dpi}
+          key={`dpi`}
+        >{[75, 100, 200, 300].map(v => <option value={v} key={v}>{v}</option>)}
+        </select><br/>
+        The higher DPI, the better quality of picture, but it's also more time consuming.
+      </li>
+      <li>
         <div
           className="button"
           onClick={e => {e.stopPropagation(); this.setState({ deleteProject: true });}}
-        >Delete whole project</div>
+        >Delete whole project</div><br/>
+      </li>
+      <li>
         <div
           className="button"
           onClick={() => exportBook(s)}
@@ -69,7 +89,19 @@ export class Settings extends React.Component<P, S> {
           title="Load"
         ><FaFileUpload/> Load
         </div>
-      </ModalWithClose>
+      </li>
+    </ul>
+  }
+
+  render = () =>
+    <div
+      className="button"
+      onClick={() => this.setState({ show: true })}
+      title="Settings"
+    >
+      <FaCog/>
+      {this.state.show
+      ? <ModalWithClose onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
       : null}
       <ModalYesNo
         show={!!this.state.deleteProject}
@@ -78,6 +110,4 @@ export class Settings extends React.Component<P, S> {
         onNo={() => this.setState({ deleteProject: false })}
       ></ModalYesNo>
     </div>
-  }
 }
-

@@ -1,26 +1,12 @@
 import React from 'react';
 import './App.css';
 import { State } from './state';
-import { DPI } from "./types";
 import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaFilePdf } from 'react-icons/fa';
 import { pdf } from './scanner';
 import { Settings } from './Settings';
 import { ScanningButtons } from './ScanningButtons';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
-const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
-  return [
-    <select onChange={onChange} value={init} key={`select${init}`}>
-      {values.map(v => <option value={v} key={v}>{v} dpi</option>)}
-    </select>
-  ]
-};
-
-const dpiButton = (s: State) => 
-  select([75, 100, 200, 300], s.rs.book.dpi, e => {
-    const dpi = parseFloat(e.target.value) as DPI;
-    s.setBook({ ...s.rs.book, dpi });
-  });
 
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
@@ -82,7 +68,6 @@ const downloadButtons = (s: State) => {
 
 
 export const buttons = (s: State) => [
-  ...dpiButton(s),
   <ScanningButtons s={s} key="ScanningButtons"/>,
   downloadButtons(s),
   ...pageButtons(s),
