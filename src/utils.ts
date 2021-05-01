@@ -1,7 +1,9 @@
 import { join } from "path";
 import { existsSync, mkdirSync } from 'fs';
 import { electron } from './electronImports';
-
+import { renderToStaticMarkup } from "react-dom/server";
+import { createElement } from "react";
+import { IconType } from 'react-icons/lib';
 
 export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000*seconds));
 
@@ -13,6 +15,12 @@ export function arrayBufferToBuffer(ab: ArrayBuffer) {
   }
   return buf;
 }
+
+export const reactSvgComponentToMarkupString = (component: IconType) =>
+  `url(data:image/svg+xml,${encodeURIComponent(
+    renderToStaticMarkup(createElement(component))
+  )})`;
+
 
 const rootPath = electron.remote.process?.cwd();
 export const tmpRawPath = join(rootPath, "tmp");

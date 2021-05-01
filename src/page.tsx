@@ -4,6 +4,7 @@ import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
+import { reactSvgComponentToMarkupString } from './utils';
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -67,39 +68,18 @@ const crop = (s: State, page: Page) => {
     }
     return add;
   }
-  
-  const style = {
-    position: "absolute" as const,
-    left: page.x,
-    top: page.y,
-    width: s.rs.book.width,
-    height: s.rs.book.height,
-  }
+
   const add = dragable(
     x => -cropSize < x,
     y => -cropSize < y,
     xy => s.setPage({ ...page, ...xy })
   );
 
-  const styleRight = {
-    position: "absolute" as const,
-    left: page.x + s.rs.book.width - cropSize,
-    top: page.y + cropSize,
-    width: cropSize,
-    height: s.rs.book.height - 2 * cropSize,
-  }
   const addRight = dragable(
     x => page.x + cropSize * 2 < x,
     () => false,
     ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
   );
-  const styleLeft = {
-    position: "absolute" as const,
-    left: page.x,
-    top: page.y + cropSize,
-    width: cropSize,
-    height: s.rs.book.height - 2 * cropSize,
-  }
   const addLeft = dragable(
     x => x < page.x + s.rs.book.width - 3 * cropSize,
     () => false,
@@ -110,25 +90,12 @@ const crop = (s: State, page: Page) => {
     })
   );
 
-  const styleDown = {
-    position: "absolute" as const,
-    left: page.x + cropSize,
-    top: page.y + s.rs.book.height - cropSize,
-    width: s.rs.book.width - 2 * cropSize,
-    height: cropSize,
-  }
   const addDown = dragable(
     () => false,
     y => page.y + cropSize*2 < y,
     ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize })
   );
-  const styleUp = {
-    position: "absolute" as const,
-    left: page.x + cropSize,
-    top: page.y,
-    width: s.rs.book.width - 2 * cropSize,
-    height: cropSize,
-  }
+
   const addUp = dragable(
     () => false,
     y => y < page.y + s.rs.book.height - 3 * cropSize,
@@ -138,34 +105,79 @@ const crop = (s: State, page: Page) => {
       pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
     })
   );
-  
-  const arrowStyle = ({ width, height }: { width: number, height: number }) => ({
-    marginTop: height/2 - cropSize/4,
-    marginLeft: width/2 - cropSize/4,
-    height: cropSize/2,
-    width: cropSize/2,
-    color: "#000",
-  })
+  const commonStyle = {
+    position: "absolute",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+  } as const;
   
   const resize = [
-    <div draggable={false} style={styleRight} key="cropRight" onMouseDown={addRight}>
-      <FaLongArrowAltRight style={arrowStyle(styleRight)}/>
-    </div>,
-    <div draggable={false} style={styleLeft} key="cropLeft" onMouseDown={addLeft}>
-      <FaLongArrowAltLeft style={arrowStyle(styleLeft)}/>
-    </div>,
-    <div draggable={false} style={styleDown} key="cropDown" onMouseDown={addDown}>
-      <FaLongArrowAltDown style={arrowStyle(styleDown)}/>
-    </div>,
-    <div draggable={false} style={styleUp} key="cropUp" onMouseDown={addUp}>
-      <FaLongArrowAltUp style={arrowStyle(styleUp)}/>
-    </div>
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + s.rs.book.width - cropSize,
+        top: page.y + cropSize,
+        width: cropSize,
+        height: s.rs.book.height - 2 * cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltRight),
+      }}
+      key="cropRight"
+      onMouseDown={addRight}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x,
+        top: page.y + cropSize,
+        width: cropSize,
+        height: s.rs.book.height - 2 * cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltLeft),
+      }}
+      key="cropLeft"
+      onMouseDown={addLeft}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + cropSize,
+        top: page.y + s.rs.book.height - cropSize,
+        width: s.rs.book.width - 2 * cropSize,
+        height: cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltDown),
+      }}
+      key="cropDown"
+      onMouseDown={addDown}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + cropSize,
+        top: page.y,
+        width: s.rs.book.width - 2 * cropSize,
+        height: cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltUp),
+      }}
+      key="cropUp"
+      onMouseDown={addUp}
+    ></div>
   ]
 
   return [
-    <div draggable={false} style={style} key="crop" onMouseDown={add}>
-      <FaArrowsAlt style={arrowStyle(style)}/>
-    </div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x,
+        top: page.y,
+        width: s.rs.book.width,
+        height: s.rs.book.height,
+        backgroundImage: reactSvgComponentToMarkupString(FaArrowsAlt),
+      }} key="crop" onMouseDown={add}
+    ></div>,
     ...(s.rs.allowPageResize ? resize : []),
   ]
 }
