@@ -25,6 +25,7 @@ export class ScanningButtons extends React.Component<P, S> {
     const s = this.props.s;
     try {
       const page = await scanX(ProcessedPageOpts.fromLast(s.rs));
+      await s.createMiniature(page);
       const rs = await s.getRS();
       if (setActive(rs.kind === kind)) {
         return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
