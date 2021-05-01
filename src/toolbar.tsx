@@ -2,14 +2,10 @@ import React from 'react';
 import './App.css';
 import { State } from './state';
 import { DPI } from "./types";
-import { sleep } from './utils';
-import {
-  FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaPaw, FaStop, FaFilePdf,
-  FaFileUpload, FaFileDownload } from 'react-icons/fa';
-import { ProcessedPageOpts } from './logic';
-import { pdf, scanX } from './scanner';
-import { exportBook, importBook } from './exportBook';
+import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaFilePdf } from 'react-icons/fa';
+import { pdf } from './scanner';
 import { Settings } from './Settings';
+import { ScanningButtons } from './ScanningButtons';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
@@ -25,76 +21,6 @@ const dpiButton = (s: State) =>
     const dpi = parseFloat(e.target.value) as DPI;
     s.setBook({ ...s.rs.book, dpi });
   });
-
-const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
-  const page = await scanX(ProcessedPageOpts.fromLast(s.rs));
-  const rs = await s.getRS();
-  if (setActive(rs.kind === kind)) {
-    return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
-  }
-}
-
-const scanningButtons = (s: State) => {
-  const one: B = async _e => {
-    s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-    await scanIf(s, "scanning one", active => active);
-    s.setRS(rs => ({ ...rs, kind: "nothing" }));
-  }
-  const many: B = async _e => {
-    s.setRS(rs => ({ ...rs, kind: "scanning many" }));
-    let active = true;
-    while(active) {
-      /* eslint-disable no-loop-func
-      */ await scanIf(s, "scanning many", activeNew => active = activeNew);
-      await sleep((await s.getRS()).book.delay);
-    }
-  }
-  const stop: B = _e => {
-    s.setRS(rs => ({ ...rs, kind: "nothing" }));
-  }
-  
-  const setDelay = (delta: number): B => e => {
-    e.stopPropagation();
-    if (s.rs.book.delay + delta >= 0) {
-      s.setBook({ ...s.rs.book, delay: s.rs.book.delay + delta });
-    }
-  }
-  
-  return [
-    ["scanning one", "scanning many"].includes(s.rs.kind)
-      ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
-      : s.rs.kind === "generating pdf"
-      ? <div className="button inactive" key="one" title="Scan"><FaPaw /></div>
-      : <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>,
-    <div
-      className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
-      onClick={s.rs.kind === "nothing" ? many : undefined}
-      key="scan*"
-      title="Scan many pages"
-    >
-      <FaPaw />
-      <div className="button" onClick={setDelay(-1)} key="-" title="-1 second" >-</div>
-      {s.rs.book.delay}sec
-      <div className="button" onClick={setDelay(1)} key="+" title="+1 second" >+</div>
-    </div>,
-    <div
-      className="button"
-      onClick={() => exportBook(s)}
-      key="export"
-      title="Save"
-    >
-      <FaFileDownload/>
-    </div>,
-    <div
-      className="button"
-      onClick={() => importBook(s)}
-      key="import"
-      title="Load"
-    >
-      <FaFileUpload/>
-    </div>
-  ]
-};
 
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
@@ -157,8 +83,8 @@ const downloadButtons = (s: State) => {
 
 export const buttons = (s: State) => [
   ...dpiButton(s),
-  ...scanningButtons(s),
+  <ScanningButtons s={s} key="ScanningButtons"/>,
   downloadButtons(s),
   ...pageButtons(s),
-  <Settings s={s} key="settings"/>
+  <Settings s={s} key="Settings"/>
 ];
