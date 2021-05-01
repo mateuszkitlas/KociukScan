@@ -7,6 +7,7 @@ import { ProcessedPageOpts } from './logic';
 import { scanX } from './scanner';
 import { exportBook, importBook } from './exportBook';
 import { ModalWithClose } from './modal';
+import { Page } from './types';
 
 
 interface P {
@@ -21,15 +22,10 @@ export class ScanningButtons extends React.Component<P, S> {
     super(props);
     this.state = {};
   }
-  scanIf = async (kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
+  scan = async () => {
     const s = this.props.s;
     try {
-      const page = await scanX(ProcessedPageOpts.fromLast(s.rs));
-      await s.createMiniature(page);
-      const rs = await s.getRS();
-      if (setActive(rs.kind === kind)) {
-        return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
-      }
+      return await scanX(ProcessedPageOpts.fromLast(s.rs));
     } catch (err) {
       this.setState({ showError: err.message });
     }
@@ -38,22 +34,34 @@ export class ScanningButtons extends React.Component<P, S> {
     const s = this.props.s;
     const one: B = async _e => {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-      await this.scanIf("scanning one", active => active);
-      s.setRS(rs => ({ ...rs, kind: "nothing" }));
+      const page = await this.scan();
+      if (page) {
+        await this.props.s.createMiniature(page);
+        s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
+      } else {
+        s.setRS(rs => ({ ...rs, kind: "nothing" }));
+      }
     }
     const many: B = async _e => {
       s.setRS(rs => ({ ...rs, kind: "scanning many" }));
-      let active = true;
-      while(active) {
-        /* eslint-disable no-loop-func
-        */ await this.scanIf("scanning many", activeNew => active = activeNew);
-        const context = new AudioContext();
-        const o = context.createOscillator();
-        o.type = "sine";
-        o.connect(context.destination);
-        o.start();
-        setTimeout(() => o.stop(), 400);
-        await sleep((await s.getRS()).book.delay);
+      const doScan = async () => (await s.getRS()).kind === "scanning many"
+      while(await doScan()) {
+        const page = await this.scan();
+        if(page && (await doScan())) {
+          const context = new AudioContext();
+          const o = context.createOscillator();
+          o.type = "sine";
+          o.connect(context.destination);
+          o.start();
+          setTimeout(() => o.stop(), 400);
+          await Promise.all([
+            this.props.s.createMiniature(page),
+            sleep((await s.getRS()).book.delay)
+          ]);
+          s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
+        } else {
+          s.setRS(rs => ({ ...rs, kind: "nothing" }));
+        }
       }
     }
     const stop: B = _e => {
