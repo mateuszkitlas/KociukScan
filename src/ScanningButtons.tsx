@@ -47,6 +47,12 @@ export class ScanningButtons extends React.Component<P, S> {
       while(active) {
         /* eslint-disable no-loop-func
         */ await this.scanIf("scanning many", activeNew => active = activeNew);
+        const context = new AudioContext();
+        const o = context.createOscillator();
+        o.type = "sine";
+        o.connect(context.destination);
+        o.start();
+        setTimeout(() => o.stop(), 400);
         await sleep((await s.getRS()).book.delay);
       }
     }
