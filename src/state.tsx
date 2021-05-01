@@ -6,6 +6,10 @@ import { Book, Page } from './types';
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {
   export const get = ({ hash, duplicated }: Page) => ({ hash, duplicated });
+  export const key = (p: Page) => { // TODO use in miniatures {}
+    const v = get(p);
+    return `${v.hash}-${v.duplicated}`;
+  }
   export const eq =
     (pn?: PageNr) => (p: Page) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
 }
@@ -14,6 +18,7 @@ interface Common {
   currentPage?: PageNr;
   book: Book;
   miniatures?: Map<string, string>;
+  allowPageResize: boolean;
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -45,6 +50,7 @@ const emptyRawState: RawState = {
     height: 400,
     dpi: 100,
   },
+  allowPageResize: false,
 };
 
 const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));

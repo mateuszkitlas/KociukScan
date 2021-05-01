@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import { renderFile } from './book';
-import { StateContext, StateProvider } from './state';
+import { MiniPage } from './book';
+import { PageNr, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
 import { page } from './page';
 
@@ -14,10 +14,10 @@ const AppProvided = () => {
         {buttons(s)}
       </div>
       <div id="wrapper" key="wrapper">
-        <div id="pages" key="pages">
-          {s.rs.book.pages.map(renderFile(s))}
-        </div>
         {page(s)}
+        <div id="pages" key="pages">
+          {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
+        </div>
       </div>
     </div>
   )

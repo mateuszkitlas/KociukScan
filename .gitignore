@@ -5,6 +5,6 @@ yarn-error.log*
 tmp
 build
 out/
-*.png
+tmp/*.png
 static/*.js
 .cache

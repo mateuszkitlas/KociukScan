@@ -87,7 +87,7 @@ const scanningButtons = (s: State) => {
     <div
       className="button"
       onClick={() => importBook(s)}
-      key="export"
+      key="import"
       title="Load"
     >
       <FaFileUpload/>
@@ -107,6 +107,9 @@ const pageButtons = (s: State) => {
     const moveY = (y: number): B => (_event) => {
       s.setPage({ ...page, y: page.y + y });
     }
+    const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e => {
+      s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
+    }
     return [
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
       <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,
@@ -116,6 +119,10 @@ const pageButtons = (s: State) => {
       <div className="button" onClick={moveX(1)}  key="mr" title="Move right"><FaAngleRight /></div>,
       <div className="button" onClick={moveY(-1)} key="mu" title="Move up"   ><FaAngleUp /></div>,
       <div className="button" onClick={moveY(1)}  key="md" title="Move down" ><FaAngleDown /></div>,
+      <label key="allowPageResize">
+        <input className="button" type="checkbox" checked={s.rs.allowPageResize} onChange={allowPageResize}/>
+        allow page resize
+      </label>
     ];
   } else {
     return [];
