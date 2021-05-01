@@ -1,7 +1,7 @@
 import { Page } from "./types";
 import md5 from "md5";
 import { writeFileSync, createWriteStream, readFileSync } from 'fs';
-import { zoomByDpi, ProcessedPageOpts } from "./logic";
+import { zoomByDpi, ProcessedPageOpts, ScanOpts } from "./logic";
 import { Sharp, OutputInfo, sharp, pdfkit, dialog } from './electronImports';
 import { scan } from 'scanner-to-buffer';
 import { State } from './state';
@@ -69,7 +69,7 @@ const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
   sharp(buf).toBuffer((err, _buf, info) => err ? reject(err) : resolve(info))
 );
 
-const scanFromBuffer = async (buffer: Buffer, opts: Omit<ProcessedPageOpts, "hash">) => {
+const scanFromBuffer = async (buffer: Buffer, opts: ScanOpts) => {
   const hash = md5(buffer);
   const info = await getInfo(buffer);
   const path = hashToPng(hash);
@@ -94,8 +94,8 @@ export const scanFromFile = async (buffer: ArrayBuffer, opts: Omit<ProcessedPage
     { ...opts, dpi: 300 }
   );
 
-export const scanX = async (opts: Omit<ProcessedPageOpts, "hash">) =>
-  scanFromBuffer(await scan({ dpi: opts.dpi, format: "png" }), opts);
+export const scanX = async (opts: ScanOpts) =>
+  scanFromBuffer(await scan({ dpi: opts.dpi, format: "png", device: opts.device }), opts);
 
 export const pdf = async (s: State) => {
   const book = s.rs.book;

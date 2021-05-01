@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { MiniPage } from './book';
+import { MiniPage } from './MiniPage';
 import { PageNr, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
 import { page } from './page';
@@ -10,14 +10,14 @@ const AppProvided = () => {
   s.initMiniatures();
   return (
     <div id="App">
-      <div id="toolbar" key="toolbar">
-        {buttons(s)}
-      </div>
       <div id="wrapper" key="wrapper">
         {page(s)}
         <div id="pages" key="pages">
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
+      </div>
+      <div id="toolbar" key="toolbar" style={{transform: "scale(1)"}}>
+        {buttons(s)}
       </div>
     </div>
   )

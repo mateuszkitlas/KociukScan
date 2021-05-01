@@ -9,6 +9,7 @@ import {
 import { ProcessedPageOpts } from './logic';
 import { pdf, scanX } from './scanner';
 import { exportBook, importBook } from './exportBook';
+import { Settings } from './Settings';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 const select = (values: number[], init: number, onChange: React.ChangeEventHandler<HTMLSelectElement>) => {
@@ -26,7 +27,7 @@ const dpiButton = (s: State) =>
   });
 
 const scanIf = async (s: State, kind: State["rs"]["kind"], setActive: (b: boolean) => boolean) => {
-  const page = await scanX(ProcessedPageOpts.fromLast(s.rs.book));
+  const page = await scanX(ProcessedPageOpts.fromLast(s.rs));
   const rs = await s.getRS();
   if (setActive(rs.kind === kind)) {
     return s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
@@ -152,9 +153,12 @@ const downloadButtons = (s: State) => {
   );
 }
 
+
+
 export const buttons = (s: State) => [
   ...dpiButton(s),
   ...scanningButtons(s),
   downloadButtons(s),
   ...pageButtons(s),
+  <Settings s={s} key="settings"/>
 ];

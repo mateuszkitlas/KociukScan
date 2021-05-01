@@ -1,3 +1,4 @@
+import { RawState } from './state';
 import { Book, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
@@ -30,6 +31,16 @@ export const marginY = (dpi: DPI) => {
   }
 }
 
+export interface ScanOpts {
+  width: number;
+  height: number;
+  x: number;
+  y: number;
+  rotate: number;
+  dpi: DPI;
+  device?: string;
+}
+
 export interface ProcessedPageOpts {
   width: number;
   height: number;
@@ -49,15 +60,16 @@ export module ProcessedPageOpts {
     rotate: page.rotate,
     dpi: page.original.dpi,
   });
-  export const fromLast = (book: Book): Omit<ProcessedPageOpts, "hash"> => {
-    const page = last(book.pages);
+  export const fromLast = (rs: RawState): ScanOpts => {
+    const page = last(rs.book.pages);
     return {
-      width: book.width,
-      height: book.height,
+      width: rs.book.width,
+      height: rs.book.height,
       x: page?.x || 0,
       y: page?.y || 0,
       rotate: page?.rotate || 0,
-      dpi: book.dpi,
+      dpi: rs.book.dpi,
+      device: rs.device
     };
   }
 }
