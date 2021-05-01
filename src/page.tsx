@@ -36,32 +36,38 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
 
 const cropSize = 40;
 
-const dragable = (useX: boolean, useY: boolean, action: (xy: { x: number, y: number }) => void) => {
-  let offsetX = 0;
-  let offsetY = 0;
-  
-  const add: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    offsetX=e.clientX-el.getBoundingClientRect().left;
-    offsetY=e.clientY-el.getBoundingClientRect().top;
-    el.onmousemove = function(e) {
+const crop = (s: State, page: Page) => {
+  const dragable = (
+    useX: (x: number) => boolean,
+    useY: (y: number) => boolean,
+    action: (xy: { x: number, y: number }) => void
+  ) => {
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    const add: React.MouseEventHandler<HTMLDivElement> = e => {
       e.stopPropagation();
       const el = e.target as HTMLDivElement;
-      if (useX) { el.style.left = `${e.pageX - offsetX - sidebarWidth}px`; }
-      if (useY) { el.style.top = `${e.pageY - offsetY - toolbarHeight}px`; }
-      el.onmouseup = function (e) {
+      offsetX=e.clientX-el.getBoundingClientRect().left;
+      offsetY=e.clientY-el.getBoundingClientRect().top;
+      el.onmousemove = function(e) {
         e.stopPropagation();
         const el = e.target as HTMLDivElement;
-        el.onmousemove = null;
-        action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+        const x = e.pageX - offsetX - sidebarWidth;
+        const y = e.pageY - offsetY - toolbarHeight;
+        if (useX(x)) { el.style.left = `${x}px`; }
+        if (useY(y)) { el.style.top = `${y}px`; }
+        el.onmouseup = function (e) {
+          e.stopPropagation();
+          const el = e.target as HTMLDivElement;
+          el.onmousemove = null;
+          action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+        }
       }
     }
+    return add;
   }
-  return add;
-}
-
-const crop = (s: State, page: Page) => {
+  
   const style = {
     position: "absolute" as const,
     left: page.x,
@@ -69,7 +75,11 @@ const crop = (s: State, page: Page) => {
     width: s.rs.book.width,
     height: s.rs.book.height,
   }
-  const add = dragable(true, true, xy => s.setPage({ ...page, ...xy }));
+  const add = dragable(
+    x => -cropSize < x,
+    y => -cropSize < y,
+    xy => s.setPage({ ...page, ...xy })
+  );
 
   const styleRight = {
     position: "absolute" as const,
@@ -78,7 +88,11 @@ const crop = (s: State, page: Page) => {
     width: cropSize,
     height: s.rs.book.height - 2 * cropSize,
   }
-  const addRight = dragable(true, false, ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }));
+  const addRight = dragable(
+    x => page.x + cropSize * 2 < x,
+    () => false,
+    ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
+  );
   const styleLeft = {
     position: "absolute" as const,
     left: page.x,
@@ -86,8 +100,10 @@ const crop = (s: State, page: Page) => {
     width: cropSize,
     height: s.rs.book.height - 2 * cropSize,
   }
-  const addLeft = dragable(true, false, ({x}) =>
-    s.setBook({
+  const addLeft = dragable(
+    x => x < page.x + s.rs.book.width - 3 * cropSize,
+    () => false,
+    ({x}) => s.setBook({
       ...s.rs.book,
       width: (s.rs.book.width - x) + page.x,
       pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, x } : p),
@@ -101,7 +117,11 @@ const crop = (s: State, page: Page) => {
     width: s.rs.book.width - 2 * cropSize,
     height: cropSize,
   }
-  const addDown = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
+  const addDown = dragable(
+    () => false,
+    y => page.y + cropSize*2 < y,
+    ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize })
+  );
   const styleUp = {
     position: "absolute" as const,
     left: page.x + cropSize,
@@ -109,8 +129,10 @@ const crop = (s: State, page: Page) => {
     width: s.rs.book.width - 2 * cropSize,
     height: cropSize,
   }
-  const addUp = dragable(false, true, ({y}) =>
-    s.setBook({
+  const addUp = dragable(
+    () => false,
+    y => y < page.y + s.rs.book.height - 3 * cropSize,
+    ({y}) => s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
       pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
