@@ -1,8 +1,9 @@
 import React from 'react';
 import { State, emptyRawState } from './state';
 import { ModalWithClose, ModalYesNo } from './modal';
-import { FaCog } from 'react-icons/fa';
+import { FaCog, FaFileDownload, FaFileUpload } from 'react-icons/fa';
 import { list } from 'scanner-to-buffer';
+import { exportBook, importBook } from './exportBook';
 
 interface P {
   s: State;
@@ -35,6 +36,7 @@ export class Settings extends React.Component<P, S> {
       }
     </li>
   render = () => {
+    const s = this.props.s;
     return <div
       className="button"
       onClick={() => this.setState({ show: true })}
@@ -53,6 +55,20 @@ export class Settings extends React.Component<P, S> {
           className="button"
           onClick={e => {e.stopPropagation(); this.setState({ deleteProject: true });}}
         >Delete whole project</div>
+        <div
+          className="button"
+          onClick={() => exportBook(s)}
+          key="export"
+          title="Save"
+        ><FaFileDownload/> Save
+        </div>
+        <div
+          className="button"
+          onClick={() => importBook(s)}
+          key="import"
+          title="Load"
+        ><FaFileUpload/> Load
+        </div>
       </ModalWithClose>
       : null}
       <ModalYesNo

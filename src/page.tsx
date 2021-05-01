@@ -6,7 +6,7 @@ import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { reactSvgComponentToMarkupString } from './utils';
 
-const sidebarWidth = 170;
+const sidebarWidth = 110;
 const toolbarHeight = 60;
 
 const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {

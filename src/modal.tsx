@@ -45,8 +45,8 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
 
 export const ModalWithClose = (props: ModalWithClose.Props) =>
   <Modal>
-    <div style={{ width: 500, display: "block", textAlign: "right" }}>
-      <div className="button" onClick={e => { e.stopPropagation(); props.onClose()}}>
+    <div style={{ width: "100%", minWidth: 500, display: "block", textAlign: "right" }}>
+      <div onClick={e => { e.stopPropagation(); props.onClose()}}>
         <FaTimesCircle/>
       </div>
     </div>

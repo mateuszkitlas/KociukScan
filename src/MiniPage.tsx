@@ -46,18 +46,21 @@ export class MiniPage extends React.Component<P, S> {
     const miniature = s.rs.miniatures
       ? s.rs.miniatures.get(JSON.stringify(PageNr.get(page)))
       : undefined;
-    const style = {
-      backgroundRepeat: "no-repeat",
-      backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,
-    } as const;
     return (
       <div
         className={`page ${s.isCurrentPage(page) ? "current" : ""}`}
         onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
-        style={style}
+        style={{
+          backgroundRepeat: "no-repeat",
+          backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,
+          width: "100%",
+          backgroundSize: "contain",
+          height: 100,
+        }}
       >
         <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
         <div className="button" onClick={() => this.setState({ showDelete: true })} title="delete"><FaTrash /></div>
+        <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
         <ModalYesNo
           show={this.state.showDelete}
           onYes={() => {

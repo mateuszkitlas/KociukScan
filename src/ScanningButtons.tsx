@@ -2,12 +2,10 @@ import React from 'react';
 import './App.css';
 import { State } from './state';
 import { sleep } from './utils';
-import { FaPaw, FaStop, FaFileUpload, FaFileDownload } from 'react-icons/fa';
+import { FaPaw, FaStop } from 'react-icons/fa';
 import { ProcessedPageOpts } from './logic';
 import { scanX } from './scanner';
-import { exportBook, importBook } from './exportBook';
 import { ModalWithClose } from './modal';
-import { Page } from './types';
 
 
 interface P {
@@ -92,22 +90,6 @@ export class ScanningButtons extends React.Component<P, S> {
       <div className="button" onClick={setDelay(-1)} key="-" title="-1 second" >-</div>
       {s.rs.book.delay}sec
       <div className="button" onClick={setDelay(1)} key="+" title="+1 second" >+</div>
-    </div>,
-    <div
-      className="button"
-      onClick={() => exportBook(s)}
-      key="export"
-      title="Save"
-    >
-      <FaFileDownload/>
-    </div>,
-    <div
-      className="button"
-      onClick={() => importBook(s)}
-      key="import"
-      title="Load"
-    >
-      <FaFileUpload/>
     </div>,
     this.state.showError
       ? <ModalWithClose onClose={() => this.setState({ showError: undefined })}>

@@ -11,10 +11,11 @@ body, html, #root { height: 100%; }
 div#pages {
   overflow-y: scroll;
   height: 1000px;
+  width: 110px;
 }
 div#page {
   position: absolute;
-  left: 170px;
+  left: 110px;
   overflow: hidden;
   width: 1000px;
 }
@@ -74,21 +75,12 @@ label {
 }
 label:hover { background-color: #556; }
 
-div#pages { width: 170px; }
-
-div#pages > div.page {
-  width: 100%;
-  background-color: transparent;
-  background-size: contain;
-  height: 100px;
-}
-div#pages > div.current { background-color: #556; }
-div#pages > div.page:hover { background-color: #556; }
-div#pages > div.current:hover { background-color: #667; }
-div#pages > div.page > div.button {
-  margin: 5px 5px 0px 0px;
+.current { background-color: #556; }
+.page:hover { background-color: #556; }
+.current:hover { background-color: #667; }
+.page > div.button {
+  margin: 2px 5px 0px 0px;
   display: block;
   width: 15px;
-  float: right;
-  padding: 7px;
+  padding: 3px;
 }
