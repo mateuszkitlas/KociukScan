@@ -4,7 +4,7 @@ const url = require('url');
 
 function createWindow () {
   const mainWindow = new BrowserWindow({
-    width: 1200,
+    width: 1300,
     height: 1000,
     webPreferences: {
       nodeIntegration: true,

@@ -19,6 +19,7 @@ interface Common {
   book: Book;
   miniatures?: Map<string, string>;
   allowPageResize: boolean;
+  device?: string;
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }

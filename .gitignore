@@ -8,3 +8,4 @@ out/
 tmp/*.png
 static/*.js
 .cache
+out/*.zip

@@ -1,4 +1,5 @@
 import React from 'react';
+import { FaTimesCircle } from 'react-icons/fa';
 import './App.css';
 
 export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
@@ -7,10 +8,11 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
       style={{
         position: "fixed",
         width: "100%",
-        height: "100%",
+        height: 1600,
         backgroundColor: "#000",
         opacity: 0.5,
         top: 0,
+        left: 0,
       }}
       key="modal-background"
     ></div>
@@ -18,8 +20,9 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
       style={{
         position: "fixed",
         width: "100%",
-        height: "100%",
+        height: 1600,
         top: 0,
+        left: 0,
       }}
       key="modal-foreground"
     >
@@ -28,7 +31,7 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
           position: "fixed",
           top: "50%",
           left: "50%",
-          transform: "translate(-50%)",
+          transform: "translate(-50%) scale(1)",
           backgroundColor: "#334",
           borderRadius: 5,
           padding: 10,
@@ -40,7 +43,25 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
   </div>
 };
 
-export const ModalYesNo = (props: Props) => props.show
+export const ModalWithClose = (props: ModalWithClose.Props) =>
+  <Modal>
+    <div style={{ width: "100%", display: "block", textAlign: "right" }}>
+      <div className="button" onClick={e => { e.stopPropagation(); props.onClose()}}>
+        <FaTimesCircle/>
+      </div>
+    </div>
+    <div style={{ width: "100%", display: "block", textAlign: "left" }}>
+      {props.children}
+    </div>
+  </Modal>;
+export namespace ModalWithClose {
+  export interface Props {
+    children: React.ReactNode;
+    onClose: () => void;
+  }
+}
+
+export const ModalYesNo = (props: ModalYesNo.Props) => props.show
   ? <Modal>
     <div
       style={{
@@ -61,10 +82,12 @@ export const ModalYesNo = (props: Props) => props.show
   </Modal>
   : null;
 
-export interface Props {
-  message: string;
-  onYes: () => void;
-  onNo: () => void;
-  show: boolean;
+export namespace ModalYesNo {
+  export interface Props {
+    message: string;
+    onYes: () => void;
+    onNo: () => void;
+    show: boolean;
+  }
 };
 

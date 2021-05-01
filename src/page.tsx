@@ -4,6 +4,7 @@ import { Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
+import { reactSvgComponentToMarkupString } from './utils';
 
 const sidebarWidth = 170;
 const toolbarHeight = 60;
@@ -36,114 +37,147 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
 
 const cropSize = 40;
 
-const dragable = (useX: boolean, useY: boolean, action: (xy: { x: number, y: number }) => void) => {
-  let offsetX = 0;
-  let offsetY = 0;
-  
-  const add: React.MouseEventHandler<HTMLDivElement> = e => {
-    e.stopPropagation();
-    const el = e.target as HTMLDivElement;
-    offsetX=e.clientX-el.getBoundingClientRect().left;
-    offsetY=e.clientY-el.getBoundingClientRect().top;
-    el.onmousemove = function(e) {
+const crop = (s: State, page: Page) => {
+  const dragable = (
+    useX: (x: number) => boolean,
+    useY: (y: number) => boolean,
+    action: (xy: { x: number, y: number }) => void
+  ) => {
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    const add: React.MouseEventHandler<HTMLDivElement> = e => {
       e.stopPropagation();
       const el = e.target as HTMLDivElement;
-      if (useX) { el.style.left = `${e.pageX - offsetX - sidebarWidth}px`; }
-      if (useY) { el.style.top = `${e.pageY - offsetY - toolbarHeight}px`; }
-      el.onmouseup = function (e) {
+      offsetX=e.clientX-el.getBoundingClientRect().left;
+      offsetY=e.clientY-el.getBoundingClientRect().top;
+      el.onmousemove = function(e) {
         e.stopPropagation();
         const el = e.target as HTMLDivElement;
-        el.onmousemove = null;
-        action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+        const x = e.pageX - offsetX - sidebarWidth;
+        const y = e.pageY - offsetY - toolbarHeight;
+        if (useX(x)) { el.style.left = `${x}px`; }
+        if (useY(y)) { el.style.top = `${y}px`; }
+        el.onmouseup = function (e) {
+          e.stopPropagation();
+          const el = e.target as HTMLDivElement;
+          el.onmousemove = null;
+          action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+        }
       }
     }
+    return add;
   }
-  return add;
-}
 
-const crop = (s: State, page: Page) => {
-  const style = {
-    position: "absolute" as const,
-    left: page.x,
-    top: page.y,
-    width: s.rs.book.width,
-    height: s.rs.book.height,
-  }
-  const add = dragable(true, true, xy => s.setPage({ ...page, ...xy }));
+  const add = dragable(
+    x => -cropSize < x,
+    y => -cropSize < y,
+    xy => s.setPage({ ...page, ...xy })
+  );
 
-  const styleRight = {
-    position: "absolute" as const,
-    left: page.x + s.rs.book.width - cropSize,
-    top: page.y + cropSize,
-    width: cropSize,
-    height: s.rs.book.height - 2 * cropSize,
-  }
-  const addRight = dragable(true, false, ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }));
-  const styleLeft = {
-    position: "absolute" as const,
-    left: page.x,
-    top: page.y + cropSize,
-    width: cropSize,
-    height: s.rs.book.height - 2 * cropSize,
-  }
-  const addLeft = dragable(true, false, ({x}) =>
-    s.setBook({
+  const addRight = dragable(
+    x => page.x + cropSize * 2 < x,
+    () => false,
+    ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
+  );
+  const addLeft = dragable(
+    x => x < page.x + s.rs.book.width - 3 * cropSize,
+    () => false,
+    ({x}) => s.setBook({
       ...s.rs.book,
       width: (s.rs.book.width - x) + page.x,
       pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, x } : p),
     })
   );
 
-  const styleDown = {
-    position: "absolute" as const,
-    left: page.x + cropSize,
-    top: page.y + s.rs.book.height - cropSize,
-    width: s.rs.book.width - 2 * cropSize,
-    height: cropSize,
-  }
-  const addDown = dragable(false, true, ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }));
-  const styleUp = {
-    position: "absolute" as const,
-    left: page.x + cropSize,
-    top: page.y,
-    width: s.rs.book.width - 2 * cropSize,
-    height: cropSize,
-  }
-  const addUp = dragable(false, true, ({y}) =>
-    s.setBook({
+  const addDown = dragable(
+    () => false,
+    y => page.y + cropSize*2 < y,
+    ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize })
+  );
+
+  const addUp = dragable(
+    () => false,
+    y => y < page.y + s.rs.book.height - 3 * cropSize,
+    ({y}) => s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
       pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
     })
   );
-  
-  const arrowStyle = ({ width, height }: { width: number, height: number }) => ({
-    marginTop: height/2 - cropSize/4,
-    marginLeft: width/2 - cropSize/4,
-    height: cropSize/2,
-    width: cropSize/2,
-    color: "#000",
-  })
+  const commonStyle = {
+    position: "absolute",
+    backgroundRepeat: "no-repeat",
+    backgroundPosition: "center",
+  } as const;
   
   const resize = [
-    <div draggable={false} style={styleRight} key="cropRight" onMouseDown={addRight}>
-      <FaLongArrowAltRight style={arrowStyle(styleRight)}/>
-    </div>,
-    <div draggable={false} style={styleLeft} key="cropLeft" onMouseDown={addLeft}>
-      <FaLongArrowAltLeft style={arrowStyle(styleLeft)}/>
-    </div>,
-    <div draggable={false} style={styleDown} key="cropDown" onMouseDown={addDown}>
-      <FaLongArrowAltDown style={arrowStyle(styleDown)}/>
-    </div>,
-    <div draggable={false} style={styleUp} key="cropUp" onMouseDown={addUp}>
-      <FaLongArrowAltUp style={arrowStyle(styleUp)}/>
-    </div>
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + s.rs.book.width - cropSize,
+        top: page.y + cropSize,
+        width: cropSize,
+        height: s.rs.book.height - 2 * cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltRight),
+      }}
+      key="cropRight"
+      onMouseDown={addRight}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x,
+        top: page.y + cropSize,
+        width: cropSize,
+        height: s.rs.book.height - 2 * cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltLeft),
+      }}
+      key="cropLeft"
+      onMouseDown={addLeft}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + cropSize,
+        top: page.y + s.rs.book.height - cropSize,
+        width: s.rs.book.width - 2 * cropSize,
+        height: cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltDown),
+      }}
+      key="cropDown"
+      onMouseDown={addDown}
+    ></div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x + cropSize,
+        top: page.y,
+        width: s.rs.book.width - 2 * cropSize,
+        height: cropSize,
+        backgroundImage: reactSvgComponentToMarkupString(FaLongArrowAltUp),
+      }}
+      key="cropUp"
+      onMouseDown={addUp}
+    ></div>
   ]
 
   return [
-    <div draggable={false} style={style} key="crop" onMouseDown={add}>
-      <FaArrowsAlt style={arrowStyle(style)}/>
-    </div>,
+    <div
+      draggable={false}
+      style={{
+        ...commonStyle,
+        left: page.x,
+        top: page.y,
+        width: s.rs.book.width,
+        height: s.rs.book.height,
+        backgroundImage: reactSvgComponentToMarkupString(FaArrowsAlt),
+      }} key="crop" onMouseDown={add}
+    ></div>,
     ...(s.rs.allowPageResize ? resize : []),
   ]
 }
