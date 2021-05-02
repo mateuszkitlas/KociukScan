@@ -4,8 +4,8 @@ import { writeFileSync, createWriteStream, readFileSync } from 'fs';
 import { zoomByDpi, ProcessedPageOpts, ScanOpts } from "./logic";
 import { Sharp, OutputInfo, sharp, pdfkit, dialog } from './electronImports';
 import { scan } from 'scanner-to-buffer';
-import { State } from './state';
-import { arrayBufferToBuffer, hashToPng } from './utils';
+import { PageNr, State } from './state';
+import { arrayBufferToBuffer, dispatch, hashToPng } from './utils';
 
 const toBuffer = (s: Sharp) =>
   new Promise<{ buffer: Buffer, info: OutputInfo}>(
@@ -19,10 +19,17 @@ const toBuffer = (s: Sharp) =>
   )
 );
 const reSharp = async (s: Sharp) => sharp((await toBuffer(s)).buffer);
+const linear = (s: Sharp, contrast: number) => {
+  const brightness = 1;
+  return contrast === 1
+    ? s
+    : s.linear(brightness * contrast, brightness * (-(128 * contrast) + 128));
+}
+const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
-const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
+const processPage = async (opts: ProcessedPageOpts, withContrast: boolean): Promise<Buffer> => {
   const zoom = zoomByDpi(opts.dpi);
-  const img = await toBuffer(sharp(hashToPng(opts.hash)));
+  const img = await toBuffer(sharp(hashToPng(opts.pageNr.hash)));
   
   const sharp1 = zoom === 1
     ? sharp(img.buffer)
@@ -30,11 +37,9 @@ const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
       Math.floor(img.info.width*zoom),
       Math.floor(img.info.height*zoom)
     );
-  const sharp11 = sharp1.rotate(opts.rotate);
+  const sharp11 = sharp1.rotate(opts.rotate, { background });
   const margin = 500;
   const sharp2 = await reSharp(sharp11.extend((margin)));
-  const { contrast } = opts.color
-  const brightness = 1;
   const img3 = sharp2
     .extract({
       top: opts.y + margin,
@@ -42,9 +47,11 @@ const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
       width: opts.width,
       height: opts.height,
     })
-    .linear(brightness * contrast, brightness * (-(128 * contrast) + 128))
-    
-  return (await toBuffer(img3)).buffer
+  if (withContrast) {
+    return (await toBuffer(linear(img3, opts.color.contrast))).buffer
+  } else {
+    return (await toBuffer(img3)).buffer
+  }
 }
 
 export const loadPNG = (hash: string) => {
@@ -56,18 +63,21 @@ export const loadPNG = (hash: string) => {
   }
 }
 
-export const miniaturePNG = async (opts: ProcessedPageOpts) => {
-  const buffer = await sharp(await processPage(opts))
+const miniaturePNGRaw = async (opts: ProcessedPageOpts) => {
+  console.log("calling for miniature...")
+  const s = sharp(await processPage(opts, false))
     .resize({
       width: 400,
       height: 400,
       fit: sharp.fit.contain,
-      background: { r: 0, g: 0, b: 0, alpha: 0 },
-    })
-    .toFormat("png")
-    .toBuffer()
+      background
+    });
+  const buffer = await linear(s, opts.color.contrast).toFormat("png").toBuffer();
   return buffer.toString("base64")
 }
+
+export const miniaturePNG = (opts: ProcessedPageOpts) =>
+  dispatch(() => miniaturePNGRaw(opts), PageNr.key(opts.pageNr), 1000);
 
 const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
   sharp(buf).toBuffer((err, _buf, info) => err ? reject(err) : resolve(info))
@@ -121,7 +131,7 @@ export const pdf = async (s: State) => {
       s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i }))
       const page = book.pages[i];
       console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
-      const buffer = await processPage(ProcessedPageOpts.from(book, page));
+      const buffer = await processPage(ProcessedPageOpts.from(book, page), true);
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },

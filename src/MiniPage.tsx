@@ -4,6 +4,7 @@ import { State, PageNr } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
 import { ModalYesNo } from './modal';
+import { sidebarWidth } from './page';
 
 
 interface P {
@@ -53,9 +54,9 @@ export class MiniPage extends React.Component<P, S> {
         style={{
           backgroundRepeat: "no-repeat",
           backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,
-          width: "100%",
+          width: sidebarWidth - 10,
           backgroundSize: "contain",
-          height: 100,
+          height: sidebarWidth - 40,
         }}
       >
         <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>

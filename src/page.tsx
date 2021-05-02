@@ -6,7 +6,7 @@ import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { reactSvgComponentToMarkupString } from './utils';
 
-const sidebarWidth = 110;
+export const sidebarWidth = 142;
 const toolbarHeight = 60;
 
 const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
@@ -194,7 +194,7 @@ const somePage = (s: State) => (page: Page) => {
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
   const c = Color.merge(page, s.rs.book);
-  return <div id="page" key="page">
+  return <div id="page" key="page" style={{ left: sidebarWidth }}>
     <img
       src={'data:image/png;base64,' + loadPNG(page.hash)}
       alt=""

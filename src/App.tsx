@@ -3,7 +3,7 @@ import './App.css';
 import { MiniPage } from './MiniPage';
 import { PageNr, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
-import { page } from './page';
+import { page, sidebarWidth } from './page';
 
 const AppProvided = () => {
   const s = React.useContext(StateContext);
@@ -12,7 +12,7 @@ const AppProvided = () => {
     <div id="App">
       <div id="wrapper" key="wrapper">
         {page(s)}
-        <div id="pages" key="pages">
+        <div id="pages" key="pages" style={{ width: sidebarWidth - 10 }}>
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
       </div>
