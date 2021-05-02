@@ -38,12 +38,10 @@ const processPage = async (opts: ProcessedPageOpts, withContrast: boolean): Prom
       Math.floor(img.info.height*zoom)
     );
   const sharp11 = sharp1.rotate(opts.rotate, { background });
-  const margin = 500;
-  const sharp2 = await reSharp(sharp11.extend((margin)));
-  const img3 = sharp2
+  const img3 = sharp11
     .extract({
-      top: opts.y + margin,
-      left: opts.x + margin,
+      top: opts.y,
+      left: opts.x,
       width: opts.width,
       height: opts.height,
     })

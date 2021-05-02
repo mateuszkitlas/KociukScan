@@ -38,7 +38,7 @@ export interface State {
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
-  initMiniatures: () => Promise<void>,
+  initMiniatures: () => void,
   createMiniature: (p: Page) => Promise<void>,
   refreshMiniatures: () => Promise<void>,
 }
@@ -72,7 +72,7 @@ export const StateContext = React.createContext<State>({
   deletePage: () => {},
   getPage: () => undefined,
   setPage: () => {},
-  initMiniatures: () => Promise.resolve(),
+  initMiniatures: () => {},
   createMiniature: () => Promise.resolve(),
   refreshMiniatures: () => Promise.resolve(),
 });
@@ -110,7 +110,18 @@ export const StateProvider: React.FC = ({ children }) => {
     });
   }
   const refreshMiniatures = async () => { await Promise.all(rs.book.pages.map(createMiniature)) };
-  const initMiniatures = async () => { !rs.miniatures && (await refreshMiniatures()) };
+  const initMiniatures = () => {
+    if(!rs.miniatures) {
+      setRS(rs => {
+        if(rs.miniatures) {
+          return rs;
+        } else {
+          refreshMiniatures();
+          return { ...rs, miniatures: new Map<string, string>() };
+        } 
+      });
+    }
+  }
 
   const value = {
     rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage,

@@ -70,8 +70,8 @@ const crop = (s: State, page: Page) => {
   }
 
   const add = dragable(
-    x => -cropSize < x,
-    y => -cropSize < y,
+    x => 0 < x,
+    y => 0 < y,
     xy => s.setPage({ ...page, ...xy })
   );
 
@@ -81,7 +81,7 @@ const crop = (s: State, page: Page) => {
     ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
   );
   const addLeft = dragable(
-    x => x < page.x + s.rs.book.width - 3 * cropSize,
+    x => 0 < x && x < page.x + s.rs.book.width - 3 * cropSize,
     () => false,
     ({x}) => s.setBook({
       ...s.rs.book,
@@ -98,7 +98,7 @@ const crop = (s: State, page: Page) => {
 
   const addUp = dragable(
     () => false,
-    y => y < page.y + s.rs.book.height - 3 * cropSize,
+    y => 0 < y && y < page.y + s.rs.book.height - 3 * cropSize,
     ({y}) => s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
