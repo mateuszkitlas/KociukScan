@@ -1,10 +1,11 @@
 import React from 'react';
 import { PageNr, State } from './state';
 import { Color, Page } from "./types"
-import { marginX, marginY, zoomByDpi } from "./logic"
+import { zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { reactSvgComponentToMarkupString } from './utils';
+import { Image } from './Image';
 
 export const sidebarWidth = 142;
 const toolbarHeight = 60;
@@ -197,30 +198,14 @@ const crop = (s: State, page: Page) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
-  const zoom = zoomByDpi(page.original.dpi);
-  const newPoints = getPixelsByAngle(
-    0,
-    0,
-    page.original.width*zoom,
-    page.original.height*zoom,
-    page.rotate
-  )
-  const minX = Math.min(...newPoints.map(x => x.x));
-  const minY = Math.min(...newPoints.map(x => x.y));
-  const c = Color.merge(page, s.rs.book);
   return <div id="page" key="page" style={{ left: sidebarWidth }}>
-    <img
-      src={'data:image/png;base64,' + loadPNG(page.hash)}
-      alt=""
-      style={{
-        transform: `rotate(${page.rotate}deg) scale(${zoom})`,
-        filter: `contrast(${c.contrast})`,
-        marginLeft: -minX + marginX(page.original.dpi),
-        marginTop: -minY + marginY(page.original.dpi),
-        userSelect: "none",
-      }}
-      draggable={false}
-      key={`page-${page.hash}`}
+    <Image
+      png={loadPNG(page.hash)}
+      scale={zoomByDpi(page.original.dpi)}
+      contrast={Color.merge(page, s.rs.book).contrast}
+      rotate={page.rotate}
+      width={page.original.width}
+      height={page.original.height}
     />
     {crop(s, page)}
   </div>;
