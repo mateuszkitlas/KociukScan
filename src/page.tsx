@@ -51,17 +51,15 @@ const crop = (s: State, page: Page) => {
       const el = e.target as HTMLDivElement;
       offsetX=e.clientX-el.getBoundingClientRect().left;
       offsetY=e.clientY-el.getBoundingClientRect().top;
-      el.onmousemove = function(e) {
+      document.onmousemove = function(e) {
         e.stopPropagation();
-        const el = e.target as HTMLDivElement;
         const x = e.pageX - offsetX - sidebarWidth;
         const y = e.pageY - offsetY - toolbarHeight;
         if (useX(x)) { el.style.left = `${x}px`; }
         if (useY(y)) { el.style.top = `${y}px`; }
         el.onmouseup = function (e) {
           e.stopPropagation();
-          const el = e.target as HTMLDivElement;
-          el.onmousemove = null;
+          document.onmousemove = null;
           action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
         }
       }
