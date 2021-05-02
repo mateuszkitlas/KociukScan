@@ -1,5 +1,5 @@
 import { RawState } from './state';
-import { Book, DPI, Page } from './types';
+import { Book, Color, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
   return arr.length > 0 ? arr[arr.length - 1] : undefined;
@@ -49,6 +49,7 @@ export interface ProcessedPageOpts {
   hash: string;
   rotate: number;
   dpi: DPI;
+  color: Color;
 }
 export module ProcessedPageOpts {
   export const from = (book: Book, page: Page): ProcessedPageOpts => ({
@@ -59,6 +60,7 @@ export module ProcessedPageOpts {
     hash: page.hash,
     rotate: page.rotate,
     dpi: page.original.dpi,
+    color: Color.merge(page, book)
   });
   export const fromLast = (rs: RawState): ScanOpts => {
     const page = last(rs.book.pages);

@@ -1,10 +1,11 @@
 import React from 'react';
 import './App.css';
 import { State } from './state';
-import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaFilePdf } from 'react-icons/fa';
+import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaFilePdf, FaAdjust } from 'react-icons/fa';
 import { pdf } from './scanner';
 import { Settings } from './Settings';
 import { ScanningButtons } from './ScanningButtons';
+import { Color } from './types';
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 
@@ -23,6 +24,9 @@ const pageButtons = (s: State) => {
     const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e => {
       s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
     }
+    const setColor = (c: Partial<Color>) => s.setRS(rs =>
+      ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
+    )
     return [
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
       <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,
@@ -32,9 +36,28 @@ const pageButtons = (s: State) => {
       <div className="button" onClick={moveX(1)}  key="mr" title="Move right"><FaAngleRight /></div>,
       <div className="button" onClick={moveY(-1)} key="mu" title="Move up"   ><FaAngleUp /></div>,
       <div className="button" onClick={moveY(1)}  key="md" title="Move down" ><FaAngleDown /></div>,
+      <input
+        onChange={e => setColor(({ contrast: parseFloat(e.target.value) }))}
+        key="contrast-book"
+        title="Contrast"
+        type="range"
+        min="0.5"
+        max="4"
+        step="0.05"
+        value={s.rs.book.color.contrast}
+        style={{
+          position: "relative",
+          top: 11,
+          WebkitAppearance: "none",
+          backgroundColor: "#445",
+          padding: 5,
+          borderRadius: 5,
+          margin: 5,
+        }}
+        ></input>,
       <label key="allowPageResize">
         <input className="button" type="checkbox" checked={s.rs.allowPageResize} onChange={allowPageResize}/>
-        allow page resize
+        resize
       </label>
     ];
   } else {

@@ -40,6 +40,7 @@ export interface State {
   setPage: (page: Page) => void,
   initMiniatures: () => Promise<void>,
   createMiniature: (p: Page) => Promise<void>,
+  refreshMiniatures: () => Promise<void>,
 }
 
 export const emptyRawState: RawState = {
@@ -50,6 +51,9 @@ export const emptyRawState: RawState = {
     width: 400,
     height: 400,
     dpi: 100,
+    color: {
+      contrast: 1,
+    }
   },
   allowPageResize: false,
 };
@@ -70,6 +74,7 @@ export const StateContext = React.createContext<State>({
   setPage: () => {},
   initMiniatures: () => Promise.resolve(),
   createMiniature: () => Promise.resolve(),
+  refreshMiniatures: () => Promise.resolve(),
 });
 
 export const StateProvider: React.FC = ({ children }) => {
@@ -104,12 +109,12 @@ export const StateProvider: React.FC = ({ children }) => {
       return ({ ...rs, miniatures })
     });
   }
-  const recreateAllMiniatures = () => Promise.all(rs.book.pages.map(createMiniature));
-  const initMiniatures = async () => { !rs.miniatures && (await recreateAllMiniatures()) };
+  const refreshMiniatures = async () => { await Promise.all(rs.book.pages.map(createMiniature)) };
+  const initMiniatures = async () => { !rs.miniatures && (await refreshMiniatures()) };
 
   const value = {
     rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage,
-    initMiniatures, createMiniature,
+    initMiniatures, createMiniature, refreshMiniatures
   };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;

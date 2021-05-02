@@ -6,6 +6,16 @@ export interface Book {
   width: number;
   height: number;
   dpi: DPI;
+  color: Color;
+}
+
+export interface Color {
+  contrast: number;
+}
+export namespace Color {
+  export const merge = (c1: Page, c2: Book): Color => ({
+    contrast: c1.color.contrast + c2.color.contrast,
+  });
 }
 
 export interface Page {
@@ -14,6 +24,7 @@ export interface Page {
   x: number;
   y: number;
   rotate: number;
+  color: Color;
   original: {
     width: number;
     height: number;

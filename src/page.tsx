@@ -1,6 +1,6 @@
 import React from 'react';
 import { PageNr, State } from './state';
-import { Page } from "./types"
+import { Color, Page } from "./types"
 import { marginX, marginY, zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
@@ -193,12 +193,14 @@ const somePage = (s: State) => (page: Page) => {
   )
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
+  const c = Color.merge(page, s.rs.book);
   return <div id="page" key="page">
     <img
       src={'data:image/png;base64,' + loadPNG(page.hash)}
       alt=""
       style={{
         transform: `rotate(${page.rotate}deg) scale(${zoom})`,
+        filter: `contrast(${c.contrast})`,
         marginLeft: -minX + marginX(page.original.dpi),
         marginTop: -minY + marginY(page.original.dpi),
         userSelect: "none",

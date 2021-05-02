@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { State } from './state';
 import { sleep } from './utils';
-import { FaPaw, FaStop } from 'react-icons/fa';
+import { FaPaw, FaStop, FaSyncAlt } from 'react-icons/fa';
 import { ProcessedPageOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
@@ -75,6 +75,13 @@ export class ScanningButtons extends React.Component<P, S> {
     
   
   return [
+    <div
+      className="button"
+      key="refresh"
+      title="Refresh miniatures"
+      onClick={async e => { e.stopPropagation(); await s.refreshMiniatures();}}
+    ><FaSyncAlt/>
+    </div>,
     ["scanning one", "scanning many"].includes(s.rs.kind)
       ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
       : s.rs.kind === "generating pdf"
