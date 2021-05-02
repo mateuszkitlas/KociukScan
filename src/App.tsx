@@ -7,7 +7,6 @@ import { page, sidebarWidth } from './page';
 
 const AppProvided = () => {
   const s = React.useContext(StateContext);
-  s.initMiniatures();
   return (
     <div id="App">
       <div id="wrapper" key="wrapper">

@@ -38,9 +38,6 @@ export interface State {
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
-  initMiniatures: () => void,
-  createMiniature: (p: Page) => Promise<void>,
-  refreshMiniatures: () => Promise<void>,
 }
 
 export const emptyRawState: RawState = {
@@ -72,9 +69,6 @@ export const StateContext = React.createContext<State>({
   deletePage: () => {},
   getPage: () => undefined,
   setPage: () => {},
-  initMiniatures: () => {},
-  createMiniature: () => Promise.resolve(),
-  refreshMiniatures: () => Promise.resolve(),
 });
 
 export const StateProvider: React.FC = ({ children }) => {
@@ -99,33 +93,10 @@ export const StateProvider: React.FC = ({ children }) => {
         pages: rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...p, ...page } : p)
       }
     }));
-    await createMiniature(page);
-  }
-  const createMiniature = async (p: Page) => {
-    const b64 = await miniaturePNG(ProcessedPageOpts.from(rs.book, p));
-    setRS(rs => {
-      const miniatures = rs.miniatures || new Map<string, string>();
-      miniatures.set(JSON.stringify(PageNr.get(p)), b64);
-      return ({ ...rs, miniatures })
-    });
-  }
-  const refreshMiniatures = async () => { await Promise.all(rs.book.pages.map(createMiniature)) };
-  const initMiniatures = () => {
-    if(!rs.miniatures) {
-      setRS(rs => {
-        if(rs.miniatures) {
-          return rs;
-        } else {
-          refreshMiniatures();
-          return { ...rs, miniatures: new Map<string, string>() };
-        } 
-      });
-    }
   }
 
   const value = {
-    rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage,
-    initMiniatures, createMiniature, refreshMiniatures
+    rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage
   };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;

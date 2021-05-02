@@ -5,6 +5,10 @@ import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
 import { ModalYesNo } from './modal';
 import { sidebarWidth } from './page';
+import { ImageMiniature } from './Image';
+import { loadPNG } from './scanner';
+import { zoomByDpi } from './logic';
+import { hashToPng } from './utils';
 
 
 interface P {
@@ -42,22 +46,26 @@ export class MiniPage extends React.Component<P, S> {
           }
         }
       });
-      await s.createMiniature(newPage);
     }
-    const miniature = s.rs.miniatures
-      ? s.rs.miniatures.get(JSON.stringify(PageNr.get(page)))
-      : undefined;
     return (
-      <div
-        className={`page ${s.isCurrentPage(page) ? "current" : ""}`}
-        onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
-        style={{
-          backgroundRepeat: "no-repeat",
-          backgroundImage: miniature ? `url("data:image/png;base64,${miniature}")` : undefined,
-          width: sidebarWidth - 10,
-          backgroundSize: "contain",
-          height: sidebarWidth - 40,
+      <ImageMiniature
+        original={{
+          src: hashToPng(page.hash),
+          scale: zoomByDpi(page.original.dpi),
+          contrast: s.rs.book.color.contrast,
+          rotate: page.rotate,
+          width: page.original.width,
+          height: page.original.height,
         }}
+        crop={{
+          width: s.rs.book.width,
+          height: s.rs.book.height,
+          x: page.x,
+          y: page.y,
+        }}
+        width={100}
+        height={100}
+        onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
       >
         <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
         <div className="button" onClick={() => this.setState({ showDelete: true })} title="delete"><FaTrash /></div>
@@ -72,7 +80,7 @@ export class MiniPage extends React.Component<P, S> {
           onNo={() => this.setState({ showDelete: false })}
           message="Are you sure?"
         ></ModalYesNo>
-      </div>
+      </ImageMiniature>
     )
   }
 }

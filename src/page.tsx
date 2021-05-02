@@ -4,8 +4,8 @@ import { Color, Page } from "./types"
 import { zoomByDpi } from "./logic"
 import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
-import { reactSvgComponentToMarkupString } from './utils';
-import { Image } from './Image';
+import { hashToPng, reactSvgComponentToMarkupString } from './utils';
+import { Image, ImageMiniature } from './Image';
 
 export const sidebarWidth = 142;
 const toolbarHeight = 60;
@@ -198,10 +198,11 @@ const crop = (s: State, page: Page) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
+  const scale = zoomByDpi(page.original.dpi);
   return <div id="page" key="page" style={{ left: sidebarWidth }}>
     <Image
-      png={loadPNG(page.hash)}
-      scale={zoomByDpi(page.original.dpi)}
+      src={hashToPng(page.hash)}
+      scale={scale}
       contrast={Color.merge(page, s.rs.book).contrast}
       rotate={page.rotate}
       width={page.original.width}
