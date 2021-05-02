@@ -16,7 +16,7 @@ export const zoomByDpi = (dpi: DPI) => {
 
 export const marginX = (dpi: DPI) => {
   switch (dpi){
-    case 300: return -850; // TODO
+    case 300: return -850;
     case 200: return -425;
     case 100: return 0;
     case 75: return 105;
@@ -24,7 +24,7 @@ export const marginX = (dpi: DPI) => {
 }
 export const marginY = (dpi: DPI) => {
   switch (dpi){
-    case 300: return -1169; // TODO
+    case 300: return -1169;
     case 200: return -585;
     case 100: return 0;
     case 75: return 145;

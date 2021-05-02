@@ -95,3 +95,13 @@ input::-webkit-slider-thumb {
   cursor: pointer;
   color: #fff;
 }
+
+::-webkit-scrollbar {
+  height: 12px;
+  width: 12px;
+  background: #223;
+}
+::-webkit-scrollbar-thumb {
+  background: #334;
+  -webkit-border-radius: 1ex;
+}
