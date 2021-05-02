@@ -31,21 +31,21 @@ const processPage = async (opts: ProcessedPageOpts, withContrast: boolean): Prom
   const zoom = zoomByDpi(opts.dpi);
   const img = await toBuffer(sharp(hashToPng(opts.pageNr.hash)));
   
-  const sharp1 = zoom === 1
+  /*const sharp1 = zoom === 1
     ? sharp(img.buffer)
     : sharp(img.buffer).resize(
       Math.floor(img.info.width*zoom),
       Math.floor(img.info.height*zoom)
-    );
-  const sharp11 = sharp1.rotate(opts.rotate, { background });
+    );*/
+  const sharp11 = await toBuffer(sharp(img.buffer).rotate(opts.rotate, { background }));
   //const margin = 500;
   //const sharp2 = await reSharp(sharp11.extend({ background, top: margin, left: margin, right: margin, bottom: margin }));
-  const img3 = sharp11
+  const img3 = sharp(sharp11.buffer)
     .extract({
-      top: opts.y, // + margin,
-      left: opts.x, // + margin,
-      width: opts.width,
-      height: opts.height,
+      top: Math.floor(opts.y / zoom), // + margin,
+      left: Math.floor(opts.x / zoom), // + margin,
+      width: Math.floor(opts.width / zoom),
+      height:Math.floor(opts.height / zoom),
     })
   if (withContrast) {
     return (await toBuffer(linear(img3, opts.color.contrast))).buffer
@@ -115,6 +115,7 @@ export const scanX = async (opts: ScanOpts) =>
   scanFromBuffer(await scan({ dpi: opts.dpi, format: "png", device: opts.device }), opts);
 
 export const pdf = async (s: State) => {
+  
   const book = s.rs.book;
   const doContinue = async () => (await s.getRS()).kind === "generating pdf";
   const pdf = new pdfkit({ autoFirstPage: false });
@@ -130,12 +131,13 @@ export const pdf = async (s: State) => {
     for (let i = 0; i < book.pages.length && await doContinue(); i++) {
       s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i }))
       const page = book.pages[i];
+      const zoom = zoomByDpi(page.original.dpi);
       console.log(`generating ${i + 1} out of ${book.pages.length} pages...`);
       const buffer = await processPage(ProcessedPageOpts.from(book, page), true);
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },
-          size: [book.width, book.height]
+          size: [Math.floor(book.width / zoom), Math.floor(book.height / zoom)]
         })
         .image(buffer);
     }
