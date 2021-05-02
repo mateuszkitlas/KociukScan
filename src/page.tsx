@@ -38,6 +38,22 @@ const getPixelsByAngle = (x: number, y: number, width: number, height: number, a
 const cropSize = 40;
 
 const crop = (s: State, page: Page) => {
+  const zoom = zoomByDpi(page.original.dpi);
+  const newPoints = getPixelsByAngle(
+    0,
+    0,
+    page.original.width*zoom,
+    page.original.height*zoom,
+    page.rotate
+  )
+  const minX = Math.min(...newPoints.map(x => x.x));
+  const minY = Math.min(...newPoints.map(x => x.y));
+  const maxX = Math.max(...newPoints.map(x => x.x));
+  const maxY = Math.max(...newPoints.map(x => x.y));
+  const rawHeight = maxY-minY;
+  const rawWidth = maxX-minX;
+  
+  
   const dragable = (
     useX: (x: number) => boolean,
     useY: (y: number) => boolean,
@@ -68,13 +84,13 @@ const crop = (s: State, page: Page) => {
   }
 
   const add = dragable(
-    x => 0 < x,
-    y => 0 < y,
+    x => 0 < x && x + s.rs.book.width < rawWidth,
+    y => 0 < y && y + s.rs.book.height < rawHeight,
     xy => s.setPage({ ...page, ...xy })
   );
 
   const addRight = dragable(
-    x => page.x + cropSize * 2 < x,
+    x => page.x + cropSize * 2 < x && x + cropSize < rawWidth,
     () => false,
     ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
   );
@@ -90,7 +106,7 @@ const crop = (s: State, page: Page) => {
 
   const addDown = dragable(
     () => false,
-    y => page.y + cropSize*2 < y,
+    y => page.y + cropSize*2 < y && y + cropSize < rawHeight,
     ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize })
   );
 
