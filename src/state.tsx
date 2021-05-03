@@ -29,7 +29,7 @@ export type RawState = Common & (
 
 export interface State {
   rs: RawState,
-  isCurrentPage: (p: Page) => boolean,
+  isCurrentPage: (p: PageNr) => boolean,
   getRS: () => Promise<RawState>,
   setRS: (f: (rs: RawState) => RawState) => void,
   setBook: (book: Book) => void,

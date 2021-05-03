@@ -47,39 +47,41 @@ export class MiniPage extends React.Component<P, S> {
       });
     }
     return (
-      <ImageMiniature
-        original={{
-          src: hashToPng(page.hash),
-          scale: zoomByDpi(page.original.dpi),
-          contrast: s.rs.book.color.contrast,
-          rotate: page.rotate,
-          width: page.original.width,
-          height: page.original.height,
-        }}
-        crop={{
-          width: s.rs.book.width,
-          height: s.rs.book.height,
-          x: page.x,
-          y: page.y,
-        }}
-        width={100}
-        height={100}
-        onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
-      >
-        <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
-        <div className="button" onClick={() => this.setState({ showDelete: true })} title="delete"><FaTrash /></div>
-        <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
-        <ModalYesNo
-          show={this.state.showDelete}
-          onYes={() => {
-            s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash, currentPage } }));
-            s.deletePage(page);
-            this.setState({ showDelete: false });
+      <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
+        <ImageMiniature
+          original={{
+            src: hashToPng(page.hash),
+            scale: zoomByDpi(page.original.dpi),
+            contrast: s.rs.book.color.contrast,
+            rotate: page.rotate,
+            width: page.original.width,
+            height: page.original.height,
           }}
-          onNo={() => this.setState({ showDelete: false })}
-          message="Are you sure?"
-        ></ModalYesNo>
-      </ImageMiniature>
+          crop={{
+            width: s.rs.book.width,
+            height: s.rs.book.height,
+            x: page.x,
+            y: page.y,
+          }}
+          width={100}
+          height={100}
+          onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
+        >
+          <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
+          <div className="button" onClick={() => this.setState({ showDelete: true })} title="delete"><FaTrash /></div>
+          <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
+          <ModalYesNo
+            show={this.state.showDelete}
+            onYes={() => {
+              s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash, currentPage } }));
+              s.deletePage(page);
+              this.setState({ showDelete: false });
+            }}
+            onNo={() => this.setState({ showDelete: false })}
+            message="Are you sure?"
+          ></ModalYesNo>
+        </ImageMiniature>
+      </div>
     )
   }
 }

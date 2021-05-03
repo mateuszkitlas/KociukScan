@@ -103,6 +103,12 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
           y={-props.crop.y}/>
       </div>
     </div>
-    {props.children}
+    <div style={{
+      marginTop: -props.height,
+      //marginLeft: -props.width,
+      transform: "scale(1)",
+    }}>
+      {props.children}
+    </div>
   </div>
 }

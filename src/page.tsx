@@ -26,8 +26,7 @@ const crop = (s: State, page: Page) => {
   const maxY = Math.max(...newPoints.map(x => x.y));
   const rawHeight = maxY-minY;
   const rawWidth = maxX-minX;
-  
-  
+
   const dragable = (
     useX: (x: number) => boolean,
     useY: (y: number) => boolean,
@@ -98,7 +97,7 @@ const crop = (s: State, page: Page) => {
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center",
   } as const;
-  
+
   const resize = [
     <div
       draggable={false}
