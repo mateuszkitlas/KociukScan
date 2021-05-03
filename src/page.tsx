@@ -1,43 +1,32 @@
 import React from 'react';
 import { PageNr, State } from './state';
 import { Color, Page } from "./types"
-import { marginX, marginY, zoomByDpi } from "./logic"
-import { loadPNG } from './scanner';
+import { zoomByDpi } from "./logic"
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
-import { reactSvgComponentToMarkupString } from './utils';
+import { hashToPng, reactSvgComponentToMarkupString } from './utils';
+import { getPixelsByAngle, Image } from './Image';
 
-const sidebarWidth = 110;
+export const sidebarWidth = 142;
 const toolbarHeight = 60;
-
-const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
-  const radians = angle * Math.PI / 180;
-  return [
-    //upper left
-    {
-      x: x + width/2 + width/-2 * Math.cos(radians) - height/-2 * Math.sin(radians),
-      y: y + height/2 + width/-2 * Math.sin(radians) + height/-2 * Math.cos(radians)
-    },
-    //upper right
-    {
-      x: x + width/2 + width/2 * Math.cos(radians) - height/-2 * Math.sin(radians),
-      y: y + height/2 + width/2 * Math.sin(radians) + height/-2 * Math.cos(radians)
-    },
-    //bottom right
-    {
-      x: x + width/2 + width/2 * Math.cos(radians) - height/2 * Math.sin(radians),
-      y: y + height/2 + width/2 * Math.sin(radians) + height/2 * Math.cos(radians)
-    },
-    //bottom left
-    {
-      x: x + width/2 + width/-2 * Math.cos(radians) - height/2 * Math.sin(radians),
-      y: y + height/2 + width/-2 * Math.sin(radians) + height/2 * Math.cos(radians)
-    },
-  ];
-}
 
 const cropSize = 40;
 
 const crop = (s: State, page: Page) => {
+  const zoom = zoomByDpi(page.original.dpi);
+  const newPoints = getPixelsByAngle(
+    0,
+    0,
+    page.original.width*zoom,
+    page.original.height*zoom,
+    page.rotate
+  )
+  const minX = Math.min(...newPoints.map(x => x.x));
+  const minY = Math.min(...newPoints.map(x => x.y));
+  const maxX = Math.max(...newPoints.map(x => x.x));
+  const maxY = Math.max(...newPoints.map(x => x.y));
+  const rawHeight = maxY-minY;
+  const rawWidth = maxX-minX;
+
   const dragable = (
     useX: (x: number) => boolean,
     useY: (y: number) => boolean,
@@ -51,17 +40,15 @@ const crop = (s: State, page: Page) => {
       const el = e.target as HTMLDivElement;
       offsetX=e.clientX-el.getBoundingClientRect().left;
       offsetY=e.clientY-el.getBoundingClientRect().top;
-      el.onmousemove = function(e) {
+      document.onmousemove = function(e) {
         e.stopPropagation();
-        const el = e.target as HTMLDivElement;
         const x = e.pageX - offsetX - sidebarWidth;
         const y = e.pageY - offsetY - toolbarHeight;
         if (useX(x)) { el.style.left = `${x}px`; }
         if (useY(y)) { el.style.top = `${y}px`; }
         el.onmouseup = function (e) {
           e.stopPropagation();
-          const el = e.target as HTMLDivElement;
-          el.onmousemove = null;
+          document.onmousemove = null;
           action({x: parseInt(el.style.left), y: parseInt(el.style.top)});
         }
       }
@@ -70,18 +57,18 @@ const crop = (s: State, page: Page) => {
   }
 
   const add = dragable(
-    x => -cropSize < x,
-    y => -cropSize < y,
+    x => 0 < x && x + s.rs.book.width < rawWidth,
+    y => 0 < y && y + s.rs.book.height < rawHeight,
     xy => s.setPage({ ...page, ...xy })
   );
 
   const addRight = dragable(
-    x => page.x + cropSize * 2 < x,
+    x => page.x + cropSize * 2 < x && x + cropSize < rawWidth,
     () => false,
     ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize })
   );
   const addLeft = dragable(
-    x => x < page.x + s.rs.book.width - 3 * cropSize,
+    x => 0 < x && x < page.x + s.rs.book.width - 3 * cropSize,
     () => false,
     ({x}) => s.setBook({
       ...s.rs.book,
@@ -92,13 +79,13 @@ const crop = (s: State, page: Page) => {
 
   const addDown = dragable(
     () => false,
-    y => page.y + cropSize*2 < y,
+    y => page.y + cropSize*2 < y && y + cropSize < rawHeight,
     ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize })
   );
 
   const addUp = dragable(
     () => false,
-    y => y < page.y + s.rs.book.height - 3 * cropSize,
+    y => 0 < y && y < page.y + s.rs.book.height - 3 * cropSize,
     ({y}) => s.setBook({
       ...s.rs.book,
       height: (s.rs.book.height - y) + page.y,
@@ -110,7 +97,7 @@ const crop = (s: State, page: Page) => {
     backgroundRepeat: "no-repeat",
     backgroundPosition: "center",
   } as const;
-  
+
   const resize = [
     <div
       draggable={false}
@@ -183,30 +170,15 @@ const crop = (s: State, page: Page) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
-  const zoom = zoomByDpi(page.original.dpi);
-  const newPoints = getPixelsByAngle(
-    0,
-    0,
-    page.original.width*zoom,
-    page.original.height*zoom,
-    page.rotate
-  )
-  const minX = Math.min(...newPoints.map(x => x.x));
-  const minY = Math.min(...newPoints.map(x => x.y));
-  const c = Color.merge(page, s.rs.book);
-  return <div id="page" key="page">
-    <img
-      src={'data:image/png;base64,' + loadPNG(page.hash)}
-      alt=""
-      style={{
-        transform: `rotate(${page.rotate}deg) scale(${zoom})`,
-        filter: `contrast(${c.contrast})`,
-        marginLeft: -minX + marginX(page.original.dpi),
-        marginTop: -minY + marginY(page.original.dpi),
-        userSelect: "none",
-      }}
-      draggable={false}
-      key={`page-${page.hash}`}
+  const scale = zoomByDpi(page.original.dpi);
+  return <div id="page" key="page" style={{ left: sidebarWidth }}>
+    <Image
+      src={hashToPng(page.hash)}
+      scale={scale}
+      contrast={Color.merge(page, s.rs.book).contrast}
+      rotate={page.rotate}
+      width={page.original.width}
+      height={page.original.height}
     />
     {crop(s, page)}
   </div>;

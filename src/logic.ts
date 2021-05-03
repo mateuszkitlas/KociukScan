@@ -1,4 +1,4 @@
-import { RawState } from './state';
+import { PageNr, RawState } from './state';
 import { Book, Color, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
@@ -16,7 +16,7 @@ export const zoomByDpi = (dpi: DPI) => {
 
 export const marginX = (dpi: DPI) => {
   switch (dpi){
-    case 300: return -850; // TODO
+    case 300: return -850;
     case 200: return -425;
     case 100: return 0;
     case 75: return 105;
@@ -24,7 +24,7 @@ export const marginX = (dpi: DPI) => {
 }
 export const marginY = (dpi: DPI) => {
   switch (dpi){
-    case 300: return -1169; // TODO
+    case 300: return -1169;
     case 200: return -585;
     case 100: return 0;
     case 75: return 145;
@@ -46,10 +46,10 @@ export interface ProcessedPageOpts {
   height: number;
   x: number;
   y: number;
-  hash: string;
   rotate: number;
   dpi: DPI;
   color: Color;
+  pageNr: PageNr;
 }
 export module ProcessedPageOpts {
   export const from = (book: Book, page: Page): ProcessedPageOpts => ({
@@ -57,10 +57,10 @@ export module ProcessedPageOpts {
     height: book.height,
     x: page.x,
     y: page.y,
-    hash: page.hash,
     rotate: page.rotate,
     dpi: page.original.dpi,
-    color: Color.merge(page, book)
+    color: Color.merge(page, book),
+    pageNr: PageNr.get(page),
   });
   export const fromLast = (rs: RawState): ScanOpts => {
     const page = last(rs.book.pages);

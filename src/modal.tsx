@@ -61,15 +61,15 @@ export namespace ModalWithClose {
   }
 }
 
-export const ModalYesNo = (props: ModalYesNo.Props) => props.show
-  ? <Modal>
+export const ModalYesNo = (props: ModalYesNo.Props) =>
+  <Modal>
     <div
       style={{
         display: "block",
         margin: "20px auto",
         textAlign: "center",
       }}
-    >{props.message}</div>
+    >{props.children}</div>
     <div
       style={{
         display: "block",
@@ -79,14 +79,12 @@ export const ModalYesNo = (props: ModalYesNo.Props) => props.show
       <div className="button" onClick={e => {e.stopPropagation(); props.onYes()}}>Yes</div>
       <div className="button" onClick={e => {e.stopPropagation(); props.onNo()}}>No</div>
     </div>
-  </Modal>
-  : null;
+  </Modal>;
 
 export namespace ModalYesNo {
   export interface Props {
-    message: string;
+    children: React.ReactNode;
     onYes: () => void;
     onNo: () => void;
-    show: boolean;
   }
 };

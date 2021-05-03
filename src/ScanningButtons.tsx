@@ -34,7 +34,6 @@ export class ScanningButtons extends React.Component<P, S> {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
       const page = await this.scan();
       if (page) {
-        await this.props.s.createMiniature(page);
         s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
       } else {
         s.setRS(rs => ({ ...rs, kind: "nothing" }));
@@ -52,10 +51,7 @@ export class ScanningButtons extends React.Component<P, S> {
           o.connect(context.destination);
           o.start();
           setTimeout(() => o.stop(), 400);
-          await Promise.all([
-            this.props.s.createMiniature(page),
-            sleep((await s.getRS()).book.delay)
-          ]);
+          await sleep((await s.getRS()).book.delay);
           s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
         } else {
           s.setRS(rs => ({ ...rs, kind: "nothing" }));
@@ -75,13 +71,6 @@ export class ScanningButtons extends React.Component<P, S> {
     
   
   return [
-    <div
-      className="button"
-      key="refresh"
-      title="Refresh miniatures"
-      onClick={async e => { e.stopPropagation(); await s.refreshMiniatures();}}
-    ><FaSyncAlt/>
-    </div>,
     ["scanning one", "scanning many"].includes(s.rs.kind)
       ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
       : s.rs.kind === "generating pdf"

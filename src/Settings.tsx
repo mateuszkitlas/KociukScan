@@ -103,11 +103,12 @@ export class Settings extends React.Component<P, S> {
       {this.state.show
       ? <ModalWithClose onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
       : null}
-      <ModalYesNo
-        show={!!this.state.deleteProject}
-        message="Are you sure?"
-        onYes={this.deleteProject}
-        onNo={() => this.setState({ deleteProject: false })}
-      ></ModalYesNo>
+      {this.state.deleteProject
+        ? <ModalYesNo
+          onYes={this.deleteProject}
+          onNo={() => this.setState({ deleteProject: false })}
+        >Are you sure?
+        </ModalYesNo>
+        : null}
     </div>
 }
