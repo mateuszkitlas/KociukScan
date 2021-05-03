@@ -1,6 +1,4 @@
 import React from "react";
-import { ProcessedPageOpts } from './logic';
-import { miniaturePNG } from './scanner';
 import { Book, Page } from './types';
 
 export type PageNr = Pick<Page, "hash" | "duplicated">;

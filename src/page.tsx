@@ -2,39 +2,12 @@ import React from 'react';
 import { PageNr, State } from './state';
 import { Color, Page } from "./types"
 import { zoomByDpi } from "./logic"
-import { loadPNG } from './scanner';
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { hashToPng, reactSvgComponentToMarkupString } from './utils';
-import { Image, ImageMiniature } from './Image';
+import { getPixelsByAngle, Image } from './Image';
 
 export const sidebarWidth = 142;
 const toolbarHeight = 60;
-
-const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
-  const radians = angle * Math.PI / 180;
-  return [
-    //upper left
-    {
-      x: x + width/2 + width/-2 * Math.cos(radians) - height/-2 * Math.sin(radians),
-      y: y + height/2 + width/-2 * Math.sin(radians) + height/-2 * Math.cos(radians)
-    },
-    //upper right
-    {
-      x: x + width/2 + width/2 * Math.cos(radians) - height/-2 * Math.sin(radians),
-      y: y + height/2 + width/2 * Math.sin(radians) + height/-2 * Math.cos(radians)
-    },
-    //bottom right
-    {
-      x: x + width/2 + width/2 * Math.cos(radians) - height/2 * Math.sin(radians),
-      y: y + height/2 + width/2 * Math.sin(radians) + height/2 * Math.cos(radians)
-    },
-    //bottom left
-    {
-      x: x + width/2 + width/-2 * Math.cos(radians) - height/2 * Math.sin(radians),
-      y: y + height/2 + width/-2 * Math.sin(radians) + height/2 * Math.cos(radians)
-    },
-  ];
-}
 
 const cropSize = 40;
 

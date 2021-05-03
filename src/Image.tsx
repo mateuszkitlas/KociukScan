@@ -1,7 +1,6 @@
-import { scale } from 'pdfkit/js/mixins/vector';
 import React from 'react';
 
-const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
+export const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
   const radians = angle * Math.PI / 180;
   return [
     //upper left

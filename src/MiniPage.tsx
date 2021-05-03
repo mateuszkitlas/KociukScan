@@ -6,7 +6,6 @@ import md5 from "md5"
 import { ModalYesNo } from './modal';
 import { sidebarWidth } from './page';
 import { ImageMiniature } from './Image';
-import { loadPNG } from './scanner';
 import { zoomByDpi } from './logic';
 import { hashToPng } from './utils';
 
