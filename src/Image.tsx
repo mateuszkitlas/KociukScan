@@ -93,8 +93,8 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
         style={{
           width: props.crop.width,
           height: props.crop.height,
-          marginLeft: -props.width*(1-scale)/2,
-          marginTop: -props.height*(1-scale)/2,
+          marginLeft: -props.crop.width * (1-scale)/2,
+          marginTop: -props.crop.height * (1-scale)/2,
         }}
       >
         <Image
