@@ -84,31 +84,32 @@ interface PropsImageMiniature {
 }
 export const ImageMiniature = (props: PropsImageMiniature) => {
   const scale = Math.min(props.width/props.crop.width, props.height/props.crop.height);
-  return <div
-    style={{ width: props.width, height: props.height, overflow: "hidden" }}
-    onClick={e => { e.stopPropagation(); props.onClick() }}
-  >
-    <div style={{ transform: `scale(${scale})` }}>
-      <div
-        style={{
-          width: props.crop.width,
-          height: props.crop.height,
-          marginLeft: -props.width*(1-scale)/2,
-          marginTop: -props.height*(1-scale)/2,
-        }}
-      >
-        <Image
-          {...props.original}
-          x={-props.crop.x}
-          y={-props.crop.y}/>
+  return <div>
+    <div
+      style={{ width: props.crop.width*scale, height: props.crop.height*scale, overflow: "hidden" }}
+      onClick={e => { e.stopPropagation(); props.onClick() }}
+    >
+      <div style={{ transform: `scale(${scale})` }}>
+        <div
+          style={{
+            width: props.crop.width,
+            height: props.crop.height,
+            marginLeft: -(props.crop.width*(1-scale))/2,
+            marginTop: -props.crop.height*(1-scale)/2,
+          }}
+        >
+          <Image
+            {...props.original}
+            x={-props.crop.x}
+            y={-props.crop.y}/>
+        </div>
       </div>
     </div>
     <div style={{
-      marginTop: -props.height,
-      //marginLeft: -props.width,
-      transform: "scale(1)",
-    }}>
-      {props.children}
-    </div>
+        marginTop: -props.crop.height*scale,
+        transform: "scale(1)",
+      }}>
+        {props.children}
+      </div>
   </div>
 }
