@@ -84,11 +84,8 @@ interface PropsImageMiniature {
 }
 export const ImageMiniature = (props: PropsImageMiniature) => {
   const scale = Math.min(props.width/props.crop.width, props.height/props.crop.height);
-  return <div>
-    <div
-      style={{ width: props.crop.width*scale, height: props.crop.height*scale, overflow: "hidden" }}
-      onClick={e => { e.stopPropagation(); props.onClick() }}
-    >
+  return <div onClick={e => { e.stopPropagation(); props.onClick() }}>
+    <div style={{ width: props.crop.width*scale, height: props.crop.height*scale, overflow: "hidden" }}>
       <div style={{ transform: `scale(${scale})` }}>
         <div
           style={{
@@ -106,10 +103,12 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
       </div>
     </div>
     <div style={{
-        marginTop: -props.crop.height*scale,
-        transform: "scale(1)",
-      }}>
-        {props.children}
-      </div>
+      marginTop: -props.crop.height*scale,
+      transform: "scale(1)",
+      width: props.width,
+      height: props.height
+    }}>
+      {props.children}
+    </div>
   </div>
 }

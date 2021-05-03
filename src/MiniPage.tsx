@@ -67,25 +67,27 @@ export class MiniPage extends React.Component<P, S> {
           height={100}
           onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
         >
-          <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
-          <div
-            className="button"
-            onClick={() => s.addModal((key, dispose) =>
-              <ModalYesNo
-                key={key}
-                onYes={() => {
-                  s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash, currentPage } }));
-                  s.deletePage(page);
-                  dispose();
-                }}
-                onNo={dispose}
-              >Are you sure?
-              </ModalYesNo>
-            )}
-            title="delete"
-          ><FaTrash />
+          <div style={{ position: 'absolute', right: 0, width: 40 }}>
+            <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
+            <div
+              className="button"
+              onClick={() => s.addModal((key, dispose) =>
+                <ModalYesNo
+                  key={key}
+                  onYes={() => {
+                    s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash, currentPage } }));
+                    s.deletePage(page);
+                    dispose();
+                  }}
+                  onNo={dispose}
+                >Are you sure?
+                </ModalYesNo>
+              )}
+              title="delete"
+            ><FaTrash />
+            </div>
+            <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
           </div>
-          <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
         </ImageMiniature>
       </div>
     )
