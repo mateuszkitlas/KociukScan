@@ -83,7 +83,7 @@ interface PropsImageMiniature {
   onClick: () => void;
 }
 export const ImageMiniature = (props: PropsImageMiniature) => {
-  const scale = Math.min(props.width/props.crop.width, props.height/props.crop.height);
+  const scale = Math.max(props.width/props.crop.width, props.height/props.crop.height);
   return <div
     style={{ width: props.width, height: props.height, overflow: "hidden" }}
     onClick={e => { e.stopPropagation(); props.onClick() }}
@@ -93,8 +93,8 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
         style={{
           width: props.crop.width,
           height: props.crop.height,
-          marginLeft: -props.crop.width * (1-scale)/2,
-          marginTop: -props.crop.height * (1-scale)/2,
+          marginLeft: -(props.crop.width - props.width)/2,
+          marginTop: -(props.crop.height - props.height)/2,
         }}
       >
         <Image
