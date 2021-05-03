@@ -1,5 +1,6 @@
 import React from "react";
 import { Book, Page } from './types';
+import { randomMd5 } from './utils';
 
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {
@@ -18,6 +19,7 @@ interface Common {
   miniatures?: Map<string, string>;
   allowPageResize: boolean;
   device?: string;
+  modals: { node: React.ReactNode; hash: string }[];
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -36,6 +38,7 @@ export interface State {
   deletePage: (page: PageNr) => void,
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
+  addModal: (f: (key: string, dispose: () => void) => React.ReactNode) => void,
 }
 
 export const emptyRawState: RawState = {
@@ -51,6 +54,7 @@ export const emptyRawState: RawState = {
     }
   },
   allowPageResize: false,
+  modals: [],
 };
 
 const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));
@@ -67,6 +71,7 @@ export const StateContext = React.createContext<State>({
   deletePage: () => {},
   getPage: () => undefined,
   setPage: () => {},
+  addModal: () => {},
 });
 
 export const StateProvider: React.FC = ({ children }) => {
@@ -92,9 +97,19 @@ export const StateProvider: React.FC = ({ children }) => {
       }
     }));
   }
+  
+  const addModal = (f: (key: string, dispose: () => void) => React.ReactNode) => {
+    const hash = randomMd5();
+    const dispose = () =>
+      setRS(rs => ({ ...rs, modals: rs.modals.filter(m => m.hash !== hash) }));
+    const node = f(hash, dispose);
+    setRS(rs => ({ ...rs, modals: [...rs.modals, { hash, node }] }));
+    return ;
+  }
 
   const value = {
-    rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage
+    rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage,
+    addModal
   };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;

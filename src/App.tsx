@@ -18,6 +18,7 @@ const AppProvided = () => {
       <div id="toolbar" key="toolbar" style={{transform: "scale(1)"}}>
         {buttons(s)}
       </div>
+      {s.rs.modals.map(m => m.node)}
     </div>
   )
 };

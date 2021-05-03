@@ -4,6 +4,7 @@ import { electron } from './electronImports';
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { IconType } from 'react-icons/lib';
+import md5 from "md5";
 
 export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000*seconds));
 
@@ -49,3 +50,5 @@ export function dispatch<T>(f: () => Promise<T>, hash: string, timeout: number):
     queue.set(hash, { handler, reject: () => reject("cancelled") });
   });
 }
+
+export const randomMd5 = () => md5(Math.random().toString());
