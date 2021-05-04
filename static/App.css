@@ -10,13 +10,9 @@
 body, html, #root { height: 100%; }
 div#pages {
   overflow-y: scroll;
-  height: 1000px;
 }
 div#page {
   position: absolute;
-  overflow: hidden;
-  width: 1000px;
-  height: 1200px;
 }
 /*----------*/
 div#page > div { border: 1px dashed #000; outline: 1px dashed #fff; }

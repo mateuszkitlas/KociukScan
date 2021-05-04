@@ -13,9 +13,10 @@ interface Props {
   svg: IconType;
   filterX: (x: number) => boolean;
   filterY: (y: number) => boolean;
-  onMouseUp: (xy: { x: number; y: number }) => void; 
+  onMouseUp: (xy: { x: number; y: number }) => void;
+  zoom: number;
 }
-export const Dragger = ({ svg, filterX, filterY, onMouseUp, ...css }: Props) => {
+export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Props) => {
   let offsetX = 0;
   let offsetY = 0;
   return <div
@@ -24,7 +25,10 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, ...css }: Props) => 
       position: "absolute",
       backgroundRepeat: "no-repeat",
       backgroundPosition: "center",
-      ...css,
+      left: css.left*zoom,
+      top: css.top*zoom,
+      width: css.width*zoom,
+      height: css.height*zoom,
       backgroundImage: reactSvgComponentToMarkupString(svg),
     }}
     onMouseDown={e => {
@@ -36,12 +40,12 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, ...css }: Props) => 
         e.stopPropagation();
         const x = e.pageX - offsetX - sidebarWidth;
         const y = e.pageY - offsetY - toolbarHeight;
-        if (filterX(x)) { el.style.left = `${x}px`; }
-        if (filterY(y)) { el.style.top = `${y}px`; }
+        if (filterX(x/zoom)) { el.style.left = `${x}px`; }
+        if (filterY(y/zoom)) { el.style.top = `${y}px`; }
         el.onmouseup = function (e) {
           e.stopPropagation();
           document.onmousemove = null;
-          onMouseUp({x: parseInt(el.style.left), y: parseInt(el.style.top)});
+          onMouseUp({x: parseInt(el.style.left)/zoom, y: parseInt(el.style.top)/zoom});
         }
       }
     }}

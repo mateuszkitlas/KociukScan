@@ -12,12 +12,12 @@ export const sidebarWidth = 142;
 const cropSize = 40;
 
 const crop = (s: State, page: Page) => {
-  const zoom = zoomByDpi(page.original.dpi);
+  const zoom = s.rs.zoom;
   const newPoints = getPixelsByAngle(
     0,
     0,
-    page.original.width*zoom,
-    page.original.height*zoom,
+    page.original.width*zoomByDpi(page.original.dpi),
+    page.original.height*zoomByDpi(page.original.dpi),
     page.rotate
   )
   const minX = Math.min(...newPoints.map(x => x.x));
@@ -37,6 +37,7 @@ const crop = (s: State, page: Page) => {
       filterX: x => page.x + cropSize * 2 < x && x + cropSize < rawWidth,
       filterY: () => false,
       onMouseUp: ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }),
+      zoom,
     }}/>,
     <Dragger key="left" {...{
       left: page.x,
@@ -51,6 +52,7 @@ const crop = (s: State, page: Page) => {
         width: (s.rs.book.width - x) + page.x,
         pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, x } : p),
       }),
+      zoom,
     }}/>,
     <Dragger key="down"{...{
       left: page.x + cropSize,
@@ -61,6 +63,7 @@ const crop = (s: State, page: Page) => {
       filterX: () => false,
       filterY: y => page.y + cropSize*2 < y && y + cropSize < rawHeight,
       onMouseUp: ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }),
+      zoom,
     }}/>,
     <Dragger key="up" {...{
       left: page.x + cropSize,
@@ -75,6 +78,7 @@ const crop = (s: State, page: Page) => {
         height: (s.rs.book.height - y) + page.y,
         pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
       }),
+      zoom,
     }}/>
   ]
 
@@ -87,7 +91,8 @@ const crop = (s: State, page: Page) => {
       svg: FaArrowsAlt,
       filterX: () => true,
       filterY: () => true,
-      onMouseUp: (xy) => s.setPage({ ...page, ...xy })
+      onMouseUp: (xy) => s.setPage({ ...page, ...xy }),
+      zoom,
       }} />,
     ...(s.rs.allowPageResize ? resize : []),
   ]
@@ -95,10 +100,19 @@ const crop = (s: State, page: Page) => {
 
 const somePage = (s: State) => (page: Page) => {
   const scale = zoomByDpi(page.original.dpi);
-  return <div id="page" key="page" style={{ left: sidebarWidth }}>
+  return <div
+    id="page"
+    key="page"
+    style={{ left: sidebarWidth }}
+    onWheel={e => {
+      e.preventDefault();
+      e.stopPropagation();
+      s.setRS(rs => ({ ...rs, zoom: rs.zoom + e.deltaY * -0.001 }));
+    }}
+  >
     <Image
       src={hashToPng(page.hash)}
-      scale={scale}
+      scale={scale * s.rs.zoom}
       contrast={Color.merge(page, s.rs.book).contrast}
       rotate={page.rotate}
       width={page.original.width}
