@@ -11,7 +11,7 @@ const AppProvided = () => {
     <div id="App">
       <div id="wrapper" key="wrapper">
         {page(s)}
-        <div id="pages" key="pages" style={{ width: 400 }}>
+        <div id="pages" key="pages" style={{ width: sidebarWidth }}>
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
       </div>

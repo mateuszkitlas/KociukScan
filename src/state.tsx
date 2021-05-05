@@ -20,6 +20,7 @@ interface Common {
   allowPageResize: boolean;
   device?: string;
   modals: { node: React.ReactNode; hash: string }[];
+  zoom: number;
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -55,6 +56,7 @@ export const emptyRawState: RawState = {
   },
   allowPageResize: false,
   modals: [],
+  zoom: 1,
 };
 
 const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));

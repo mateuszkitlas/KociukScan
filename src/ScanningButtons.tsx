@@ -2,7 +2,7 @@ import React from 'react';
 import './App.css';
 import { State } from './state';
 import { sleep } from './utils';
-import { FaPaw, FaStop, FaSyncAlt } from 'react-icons/fa';
+import { FaPaw, FaStop } from 'react-icons/fa';
 import { ProcessedPageOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
@@ -33,11 +33,8 @@ export class ScanningButtons extends React.Component<P, S> {
     const one: B = async _e => {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
       const page = await this.scan();
-      console.log("got the page!", page)
       if (page) {
         s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
-        const pages = await s.getRS();
-        console.log(pages);
       } else {
         s.setRS(rs => ({ ...rs, kind: "nothing" }));
       }
