@@ -5,9 +5,7 @@ import { zoomByDpi } from "./logic"
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { hashToPng } from './utils';
 import { getPixelsByAngle, Image } from './Image';
-import { Dragger } from './Dragger';
-
-export const sidebarWidth = 142;
+import { Dragger, sidebarWidth } from './Dragger';
 
 const cropSize = 40;
 
@@ -104,11 +102,6 @@ const somePage = (s: State) => (page: Page) => {
     id="page"
     key="page"
     style={{ left: sidebarWidth }}
-    onWheel={e => {
-      e.preventDefault();
-      e.stopPropagation();
-      s.setRS(rs => ({ ...rs, zoom: rs.zoom + e.deltaY * -0.001 }));
-    }}
   >
     <Image
       src={hashToPng(page.hash)}

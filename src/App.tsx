@@ -1,17 +1,22 @@
 import React from 'react';
 import './App.css';
 import { MiniPage } from './MiniPage';
-import { PageNr, StateContext, StateProvider } from './state';
+import { PageNr, State, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
-import { page, sidebarWidth } from './page';
+import { page } from './page';
+import { sidebarWidth, toolbarHeight } from "./Dragger";
 
-const AppProvided = () => {
-  const s = React.useContext(StateContext);
-  return (
-    <div id="App">
+class X extends React.Component<{ s: State }, { dnd?: boolean }> {
+  constructor(props: { s: State }) {
+    super(props)
+    this.state = {};
+  }
+  render = () => {
+    const s = this.props.s;
+    return <div>
       <div id="wrapper" key="wrapper">
         {page(s)}
-        <div id="pages" key="pages" style={{ width: sidebarWidth }}>
+        <div id="pages" key="pages" style={{ width: sidebarWidth, height: window.innerHeight - toolbarHeight }}>
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
       </div>
@@ -20,9 +25,10 @@ const AppProvided = () => {
       </div>
       {s.rs.modals.map(m => m.node)}
     </div>
-  )
-};
+  }
+}
 
+const AppProvided = () => <div id="App"><X s={React.useContext(StateContext)}/></div>
 const App = () => (<StateProvider><AppProvided /></StateProvider>);
 
 export default App;

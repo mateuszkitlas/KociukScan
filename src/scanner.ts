@@ -1,7 +1,7 @@
 import { Page } from "./types";
 import md5 from "md5";
 import { writeFileSync, createWriteStream } from 'fs';
-import { zoomByDpi, ProcessedPageOpts, ScanOpts } from "./logic";
+import { zoomByDpi, ProcessedPageOpts, ScanOpts, dpiByWidth } from "./logic";
 import { Sharp, OutputInfo, sharp, pdfkit, dialog } from './electronImports';
 import { scan } from 'scanner-to-buffer';
 import { State } from './state';
@@ -39,8 +39,6 @@ const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
   return (await toBuffer(img3)).buffer
 }
 
-
-
 const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
   sharp(buf).toBuffer((err, _buf, info) => err ? reject(err) : resolve(info))
 );
@@ -56,7 +54,7 @@ const scanFromBuffer = async (buffer: Buffer, opts: ScanOpts) => {
     y: opts.y,
     rotate: opts.rotate,
     original: {
-      dpi: opts.dpi,
+      dpi: dpiByWidth(info.width),
       width: info.width,
       height: info.height,
     },
@@ -67,10 +65,10 @@ const scanFromBuffer = async (buffer: Buffer, opts: ScanOpts) => {
   return page;
 }
 
-export const scanFromFile = async (buffer: ArrayBuffer, opts: Omit<ProcessedPageOpts, "hash" | "dpi">) =>
+export const scanFromFile = async (buffer: ArrayBuffer, opts: Omit<ScanOpts, "dpi">) =>
   scanFromBuffer(
     arrayBufferToBuffer(buffer),
-    { ...opts, dpi: 300 }
+    { ...opts, dpi: dpiByWidth(opts.width) }
   );
 
 export const scanX = async (opts: ScanOpts) =>
