@@ -4,7 +4,6 @@ import { State, PageNr } from './state';
 import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
 import { ModalYesNo } from './modal';
-import { sidebarWidth } from './page';
 import { ImageMiniature } from './Image';
 import { zoomByDpi } from './logic';
 import { hashToPng } from './utils';

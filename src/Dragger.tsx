@@ -3,7 +3,7 @@ import { reactSvgComponentToMarkupString } from './utils';
 import { IconType } from 'react-icons';
 
 export const sidebarWidth = 142;
-const toolbarHeight = 60;
+export const toolbarHeight = 60;
 
 interface Props {
   left: number;

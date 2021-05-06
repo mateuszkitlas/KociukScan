@@ -7,7 +7,6 @@ import { ProcessedPageOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
 
-
 interface P {
   s: State;
 }

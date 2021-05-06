@@ -1,11 +1,11 @@
 import React from 'react';
 import { State, emptyRawState } from './state';
 import { ModalWithClose, ModalYesNo } from './modal';
-import { FaCog, FaFileDownload, FaFileUpload } from 'react-icons/fa';
+import { FaCog, FaFileDownload, FaFileUpload, FaImage } from 'react-icons/fa';
 import { list } from 'scanner-to-buffer';
 import { exportBook, importBook } from './exportBook';
 import { DPI } from './types';
-
+import { importPages } from './importPages';
 
 interface P {
   s: State;
@@ -15,6 +15,7 @@ interface S {
   devices?: string[] | null;
   deleteProject?: boolean;
 }
+
 export class Settings extends React.Component<P, S> {
   constructor(props: P) {
     super(props);
@@ -88,6 +89,15 @@ export class Settings extends React.Component<P, S> {
           key="import"
           title="Load"
         ><FaFileUpload/> Load
+        </div>
+      </li>
+      <li>
+        Raw images <div
+          className="button"
+          onClick={() => importPages(s)}
+          key="import"
+          title="Load"
+        ><FaImage/> Import
         </div>
       </li>
     </ul>
