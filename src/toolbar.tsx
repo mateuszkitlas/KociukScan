@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { State } from './state';
-import { FaUndo, FaRedo, FaAngleDown, FaAngleUp, FaAngleRight, FaAngleLeft, FaFilePdf, FaAdjust } from 'react-icons/fa';
+import { FaUndo, FaRedo, FaFilePdf } from 'react-icons/fa';
 import { pdf } from './scanner';
 import { Settings } from './Settings';
 import { ScanningButtons } from './ScanningButtons';

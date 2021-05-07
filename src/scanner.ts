@@ -8,35 +8,32 @@ import { State } from './state';
 import { arrayBufferToBuffer, hashToPng } from './utils';
 
 const toBuffer = (s: Sharp) =>
-  new Promise<{ buffer: Buffer, info: OutputInfo}>(
-    (resolve, reject) => s.toBuffer((err, buffer, info) => {
+  new Promise<Buffer>(
+    (resolve, reject) => s.toBuffer((err, buffer, _info) => {
       if (err) {
         reject(err);
       } else {
-        resolve({ buffer, info });
+        resolve(buffer);
       }
     }
   )
 );
-const reSharp = async (s: Sharp) => sharp((await toBuffer(s)).buffer);
 const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
 const processPage = async (opts: ProcessedPageOpts): Promise<Buffer> => {
   const zoom = zoomByDpi(opts.dpi);
   const rotatedBuffer = await toBuffer(sharp(hashToPng(opts.pageNr.hash)).rotate(opts.rotate, { background }));
-  //const margin = 500;
-  //const sharp2 = await reSharp(sharp11.extend({ background, top: margin, left: margin, right: margin, bottom: margin }));
   const brightness = 1;
   const contrast = opts.color.contrast;
-  const img3 = sharp(rotatedBuffer.buffer)
+  const img3 = sharp(rotatedBuffer)
     .extract({
-      top: Math.floor(opts.y / zoom), // + margin,
-      left: Math.floor(opts.x / zoom), // + margin,
+      top: Math.floor(opts.y / zoom),
+      left: Math.floor(opts.x / zoom),
       width: Math.floor(opts.width / zoom),
       height:Math.floor(opts.height / zoom),
     })
     .linear(brightness * contrast, brightness * (-(128 * contrast) + 128))
-  return (await toBuffer(img3)).buffer
+  return await toBuffer(img3)
 }
 
 const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
