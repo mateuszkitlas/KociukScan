@@ -39,6 +39,9 @@ body {
 .button.inactive { color: #667; }
 .button:hover { background-color: #556; }
 .button.inactive:hover { background-color: #445; }
+.sm {
+  padding: 5px;
+}
 
 .button > .button {
   margin: 0 10px 0 10px;

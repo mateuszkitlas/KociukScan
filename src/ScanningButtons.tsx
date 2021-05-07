@@ -3,7 +3,7 @@ import './App.css';
 import { State } from './state';
 import { sleep } from './utils';
 import { FaPaw, FaStop } from 'react-icons/fa';
-import { ProcessedPageOpts } from './logic';
+import { ScanOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
 
@@ -22,7 +22,7 @@ export class ScanningButtons extends React.Component<P, S> {
   scan = async () => {
     const s = this.props.s;
     try {
-      return await scanX(ProcessedPageOpts.fromLast(s.rs));
+      return await scanX(ScanOpts.from(s.rs));
     } catch (err) {
       this.setState({ showError: err.message });
     }
@@ -87,7 +87,7 @@ export class ScanningButtons extends React.Component<P, S> {
       <div className="button" onClick={setDelay(1)} key="+" title="+1 second" >+</div>
     </div>,
     this.state.showError
-      ? <ModalWithClose onClose={() => this.setState({ showError: undefined })}>
+      ? <ModalWithClose title="Error" onClose={() => this.setState({ showError: undefined })}>
         {this.state.showError}
       </ModalWithClose>
       : null

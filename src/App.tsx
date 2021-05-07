@@ -20,7 +20,7 @@ class X extends React.Component<{ s: State }, { dnd?: boolean }> {
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
       </div>
-      <div id="toolbar" key="toolbar" style={{transform: "scale(1)"}}>
+      <div id="toolbar" key="toolbar" style={{ transform: "scale(1)", paddingLeft: 5 }}>
         {buttons(s)}
       </div>
       {s.rs.modals.map(m => m.node)}

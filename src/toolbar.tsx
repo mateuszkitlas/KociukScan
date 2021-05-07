@@ -12,30 +12,17 @@ type B = React.MouseEventHandler<HTMLDivElement>;
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
   if (page) {
-    const rotate = (deg: number): B => (_event) => {
-      s.setPage({ ...page, rotate: page.rotate + deg });
-    }
-    const moveX = (x: number): B => (_event) => {
-      s.setPage({ ...page, x: page.x + x });
-    }
-    const moveY = (y: number): B => (_event) => {
-      s.setPage({ ...page, y: page.y + y });
-    }
-    const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e => {
+    const rotate = (deg: number): B => () => s.setPage({ ...page, rotate: page.rotate + deg });
+    const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e =>
       s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
-    }
     const setColor = (c: Partial<Color>) => s.setRS(rs =>
       ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
     )
     return [
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
       <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,
-      <div className="button" onClick={rotate(90)}   key="90*" title="Rotate by 90º" >90º</div>,
+      <div className="button" onClick={rotate(90)}   key="90*" title="Rotate by 90º">90º</div>,
       <div className="button" onClick={rotate(180)}  key="180*" title="Rotate by 180º">180º</div>,
-      <div className="button" onClick={moveX(-1)} key="ml" title="Move left" ><FaAngleLeft /></div>,
-      <div className="button" onClick={moveX(1)}  key="mr" title="Move right"><FaAngleRight /></div>,
-      <div className="button" onClick={moveY(-1)} key="mu" title="Move up"   ><FaAngleUp /></div>,
-      <div className="button" onClick={moveY(1)}  key="md" title="Move down" ><FaAngleDown /></div>,
       <input
         onChange={e => setColor(({ contrast: parseFloat(e.target.value) }))}
         key="contrast-book"
@@ -52,7 +39,7 @@ const pageButtons = (s: State) => {
           backgroundColor: "#445",
           padding: 5,
           borderRadius: 5,
-          margin: 5,
+          margin: "0 5px 0 5px",
         }}
         ></input>,
       <label key="allowPageResize">

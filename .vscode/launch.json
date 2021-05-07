@@ -9,6 +9,7 @@
       "request": "launch",
       "command": "npm run build && npm run start",
       "name": "run",
+      "trace": false
     }
   ]
 }

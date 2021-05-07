@@ -45,8 +45,16 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
 
 export const ModalWithClose = (props: ModalWithClose.Props) =>
   <Modal>
-    <div style={{ width: "100%", minWidth: 500, display: "block", textAlign: "right" }}>
-      <div onClick={e => { e.stopPropagation(); props.onClose()}}>
+    <div style={{
+      display: "block",
+      fontSize: 20,
+      backgroundColor: "#445",
+      padding: 5,
+      margin: "-10px -10px 10px -10px",
+      borderRadius: "5px 5px 0 0",
+    }}>
+      {props.title}
+      <div onClick={e => { e.stopPropagation(); props.onClose()}} style={{ float: "right" }}>
         <FaTimesCircle/>
       </div>
     </div>
@@ -58,6 +66,7 @@ export namespace ModalWithClose {
   export interface Props {
     children: React.ReactNode;
     onClose: () => void;
+    title: string;
   }
 }
 

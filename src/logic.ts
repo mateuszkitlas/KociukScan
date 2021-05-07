@@ -32,6 +32,20 @@ export interface ScanOpts {
   dpi: DPI;
   device?: string;
 }
+export namespace ScanOpts {
+  export const from = (rs: RawState): ScanOpts => {
+    const page = last(rs.book.pages);
+    return {
+      width: rs.book.width,
+      height: rs.book.height,
+      x: page?.x || 0,
+      y: page?.y || 0,
+      rotate: page?.rotate || 0,
+      dpi: rs.book.dpi,
+      device: rs.device
+    };
+  }
+}
 
 export interface ProcessedPageOpts {
   width: number;
@@ -54,16 +68,5 @@ export module ProcessedPageOpts {
     color: Color.merge(page, book),
     pageNr: PageNr.get(page),
   });
-  export const fromLast = (rs: RawState): ScanOpts => {
-    const page = last(rs.book.pages);
-    return {
-      width: rs.book.width,
-      height: rs.book.height,
-      x: page?.x || 0,
-      y: page?.y || 0,
-      rotate: page?.rotate || 0,
-      dpi: rs.book.dpi,
-      device: rs.device
-    };
-  }
+  
 }

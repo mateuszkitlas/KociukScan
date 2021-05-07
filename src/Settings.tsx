@@ -1,7 +1,7 @@
 import React from 'react';
 import { State, emptyRawState } from './state';
 import { ModalWithClose, ModalYesNo } from './modal';
-import { FaCog, FaFileDownload, FaFileUpload, FaImage } from 'react-icons/fa';
+import { FaCog, FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from 'react-icons/fa';
 import { list } from 'scanner-to-buffer';
 import { exportBook, importBook } from './exportBook';
 import { DPI } from './types';
@@ -51,14 +51,15 @@ export class Settings extends React.Component<P, S> {
       <li>
         Scanning devices
         {this.state.devices === undefined
-          ? <div className="button" onClick={this.detect}>detect</div>
+          ? <div className="button sm" onClick={this.detect}><FaSearch/> Detect</div>
           : this.state.devices === null
-            ? <div className="button inactive">detecting...</div>
+            ? <div className="button sm inactive"><FaSearch/> Detecting...</div>
             : this.renderDevices(this.state.devices)}
       </li>
       <li>
         DPI
         <select
+          className="sm"
           onChange={e => {
             const dpi = parseFloat(e.target.value) as DPI;
             s.setBook({ ...s.rs.book, dpi });
@@ -70,30 +71,27 @@ export class Settings extends React.Component<P, S> {
         The higher DPI, the better quality of picture, but it's also more time consuming.
       </li>
       <li>
+        Project
         <div
-          className="button"
+          className="button sm"
           onClick={e => {e.stopPropagation(); this.setState({ deleteProject: true });}}
-        >Delete whole project</div><br/>
-      </li>
-      <li>
+        ><FaTrash/> Delete</div>
         <div
-          className="button"
+          className="button sm"
           onClick={() => exportBook(s)}
           key="export"
           title="Save"
-        ><FaFileDownload/> Save
-        </div>
+        ><FaFileDownload/> Save</div>
         <div
-          className="button"
+          className="button sm"
           onClick={() => importBook(s)}
           key="import"
           title="Load"
-        ><FaFileUpload/> Load
-        </div>
+        ><FaFileUpload/> Load</div>
       </li>
       <li>
         Raw images <div
-          className="button"
+          className="button sm"
           onClick={() => importPages(s)}
           key="import"
           title="Load"
@@ -111,7 +109,7 @@ export class Settings extends React.Component<P, S> {
     >
       <FaCog/>
       {this.state.show
-      ? <ModalWithClose onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
+      ? <ModalWithClose title="Settings" onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
       : null}
       {this.state.deleteProject
         ? <ModalYesNo
