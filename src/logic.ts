@@ -1,8 +1,12 @@
 import { PageNr, RawState } from './state';
-import { Book, Color, DPI, Page } from './types';
+import { Book, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
   return arr.length > 0 ? arr[arr.length - 1] : undefined;
+}
+
+export function oneBeforeLast<T>(arr: T[]) {
+  return arr.length > 1 ? arr[arr.length - 2] : undefined;
 }
 
 export const zoomByDpi = (dpi: DPI) => {
@@ -24,49 +28,27 @@ export const dpiByWidth = (width: number) =>
         : 300
 
 export interface ScanOpts {
-  width: number;
-  height: number;
-  x: number;
-  y: number;
-  rotate: number;
   dpi: DPI;
   device?: string;
 }
 export namespace ScanOpts {
-  export const from = (rs: RawState): ScanOpts => {
-    const page = last(rs.book.pages);
-    return {
-      width: rs.book.width,
-      height: rs.book.height,
-      x: page?.x || 0,
-      y: page?.y || 0,
-      rotate: page?.rotate || 0,
-      dpi: rs.book.dpi,
-      device: rs.device
-    };
-  }
+  export const from = (rs: RawState): ScanOpts => ({ dpi: rs.book.dpi, device: rs.device });
 }
 
-export interface ProcessedPageOpts {
+export interface ProcessPage {
   width: number;
   height: number;
-  x: number;
-  y: number;
-  rotate: number;
+  pageProperties: Page.Properties;
   dpi: DPI;
-  color: Color;
   pageNr: PageNr;
 }
-export module ProcessedPageOpts {
-  export const from = (book: Book, page: Page): ProcessedPageOpts => ({
+export module ProcessPage {
+  export const from = (book: Book, page: Page): ProcessPage => ({
     width: book.width,
     height: book.height,
-    x: page.x,
-    y: page.y,
-    rotate: page.rotate,
     dpi: page.original.dpi,
-    color: Color.merge(page, book),
     pageNr: PageNr.get(page),
+    pageProperties: Page.properties(book, page)
   });
   
 }

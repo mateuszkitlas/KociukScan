@@ -5,14 +5,19 @@ import { FaUndo, FaRedo, FaFilePdf } from 'react-icons/fa';
 import { pdf } from './scanner';
 import { Settings } from './Settings';
 import { ScanningButtons } from './ScanningButtons';
-import { Color } from './types';
+import { Color, Page } from './types';
+
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
   if (page) {
-    const rotate = (deg: number): B => () => s.setPage({ ...page, rotate: page.rotate + deg });
+    const rotate = (deg: number): B => () => {
+      const properties = Page.properties(s.rs.book, page);
+      const rotate = properties.rotate + deg;
+      s.setPage({ ...page, properties: { ...properties, rotate } });
+    }
     const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e =>
       s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
     const setColor = (c: Partial<Color>) => s.setRS(rs =>
