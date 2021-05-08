@@ -74,9 +74,11 @@ export const pdf = async (s: State) => {
     }],
   });
   if (filename) {
+    const startedAt = Date.now();
+    s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: 0, startedAt }));
     pdf.pipe(createWriteStream(filename));
     for (let i = 0; i < book.pages.length && await doContinue(); i++) {
-      s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i }));
+      s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i, startedAt }));
       const page = book.pages[i];
       const scale = scaleByPage(page);
       const buffer = await processPage(ProcessPage.from(book, page));

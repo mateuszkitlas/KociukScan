@@ -104,21 +104,30 @@ const pageButtons = (s: State) => {
 
 const downloadButtons = (s: State) => {
   const download: B = async () => {
-    s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: 0 }));
     await pdf(s);
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
+  };
+  const f = (processed: number, all: number, startedAt: number) => {
+    const elapsed = (Date.now() - startedAt) / 1000;
+    const v = Math.round(elapsed / processed);
+    if (elapsed > 0 && processed > 0) {
+      const seconds = Math.round((all - processed)/processed*elapsed);
+      return `${processed}/${all}, ${seconds} seconds remaining (${v} seconds per page)`;
+    } else {
+      return `${processed}/${all}`;
+    }
   };
   return (
     <div
       className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
-      onClick={download}
+      onClick={s.rs.kind === "nothing" ? download : undefined}
       key="pdf"
       title="Generate PDF"
     >
       <FaFilePdf />
       {
         s.rs.kind === "generating pdf"
-          ? `${s.rs.processedPages}/${s.rs.book.pages.length}`
+          ? f(s.rs.processedPages, s.rs.book.pages.length, s.rs.startedAt)
           : undefined
       }
     </div>

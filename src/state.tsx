@@ -27,6 +27,7 @@ export type RawState = Common & (
   | {
     kind: "generating pdf";
     processedPages: number;
+    startedAt: number;
   }
 )
 
