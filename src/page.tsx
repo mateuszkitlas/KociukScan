@@ -10,13 +10,14 @@ import { Dragger, sidebarWidth } from './Dragger';
 const cropSize = 40;
 
 const crop = (s: State, page: Page) => {
+  const properties = Page.properties(s.rs.book, page);
   const zoom = s.rs.zoom;
   const newPoints = getPixelsByAngle(
     0,
     0,
     page.original.width*zoomByDpi(page.original.dpi),
     page.original.height*zoomByDpi(page.original.dpi),
-    page.rotate
+    properties.rotate
   )
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
@@ -27,54 +28,54 @@ const crop = (s: State, page: Page) => {
 
   const resize = [
     <Dragger key="right" {...{
-      left: page.x + s.rs.book.width - cropSize,
-      top: page.y + cropSize,
+      left: properties.x + s.rs.book.width - cropSize,
+      top: properties.y + cropSize,
       width: cropSize,
       height: s.rs.book.height - 2 * cropSize,
       svg: FaLongArrowAltRight,
-      filterX: x => page.x + cropSize * 2 < x && x + cropSize < rawWidth,
+      filterX: x => properties.x + cropSize * 2 < x && x + cropSize < rawWidth,
       filterY: () => false,
-      onMouseUp: ({x}) => s.setBook({ ...s.rs.book, width: x - page.x + cropSize }),
+      onMouseUp: ({x}) => s.setBook({ ...s.rs.book, width: x - properties.x + cropSize }),
       zoom,
     }}/>,
     <Dragger key="left" {...{
-      left: page.x,
-      top: page.y + cropSize,
+      left: properties.x,
+      top: properties.y + cropSize,
       width: cropSize,
       height: s.rs.book.height - 2 * cropSize,
       svg: FaLongArrowAltLeft,
-      filterX: x => 0 < x && x < page.x + s.rs.book.width - 3 * cropSize,
+      filterX: x => 0 < x && x < properties.x + s.rs.book.width - 3 * cropSize,
       filterY: () => false,
       onMouseUp: ({x}) => s.setBook({
         ...s.rs.book,
-        width: (s.rs.book.width - x) + page.x,
-        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, x } : p),
+        width: (s.rs.book.width - x) + properties.x,
+        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, x } } : p),
       }),
       zoom,
     }}/>,
     <Dragger key="down"{...{
-      left: page.x + cropSize,
-      top: page.y + s.rs.book.height - cropSize,
+      left: properties.x + cropSize,
+      top: properties.y + s.rs.book.height - cropSize,
       width: s.rs.book.width - 2 * cropSize,
       height: cropSize,
       svg: FaLongArrowAltDown,
       filterX: () => false,
-      filterY: y => page.y + cropSize*2 < y && y + cropSize < rawHeight,
-      onMouseUp: ({y}) => s.setBook({ ...s.rs.book, height: y - page.y + cropSize }),
+      filterY: y => properties.y + cropSize*2 < y && y + cropSize < rawHeight,
+      onMouseUp: ({y}) => s.setBook({ ...s.rs.book, height: y - properties.y + cropSize }),
       zoom,
     }}/>,
     <Dragger key="up" {...{
-      left: page.x + cropSize,
-      top: page.y,
+      left: properties.x + cropSize,
+      top: properties.y,
       width: s.rs.book.width - 2 * cropSize,
       height: cropSize,
       svg: FaLongArrowAltUp,
       filterX: () => false,
-      filterY: y => 0 < y && y < page.y + s.rs.book.height - 3 * cropSize,
+      filterY: y => 0 < y && y < properties.y + s.rs.book.height - 3 * cropSize,
       onMouseUp: ({y}) => s.setBook({
         ...s.rs.book,
-        height: (s.rs.book.height - y) + page.y,
-        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
+        height: (s.rs.book.height - y) + properties.y,
+        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, y } } : p),
       }),
       zoom,
     }}/>
@@ -82,14 +83,14 @@ const crop = (s: State, page: Page) => {
 
   return [
     <Dragger key="crop" {...{
-      left: page.x,
-      top: page.y,
+      left: properties.x,
+      top: properties.y,
       width: s.rs.book.width,
       height: s.rs.book.height,
       svg: FaArrowsAlt,
       filterX: () => true,
       filterY: () => true,
-      onMouseUp: (xy) => s.setPage({ ...page, ...xy }),
+      onMouseUp: (xy) => s.setPage({ ...page, properties: { ...properties, ...xy } }),
       zoom,
       }} />,
     ...(s.rs.allowPageResize ? resize : []),
@@ -97,6 +98,7 @@ const crop = (s: State, page: Page) => {
 }
 
 const somePage = (s: State) => (page: Page) => {
+  const properties = Page.properties(s.rs.book, page);
   const scale = zoomByDpi(page.original.dpi);
   return <div
     id="page"
@@ -107,7 +109,7 @@ const somePage = (s: State) => (page: Page) => {
       src={hashToPng(page.hash)}
       scale={scale * s.rs.zoom}
       contrast={Color.merge(page, s.rs.book).contrast}
-      rotate={page.rotate}
+      rotate={properties.rotate}
       width={page.original.width}
       height={page.original.height}
     />

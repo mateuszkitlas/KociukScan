@@ -3,17 +3,10 @@ import { FileDrop } from 'react-file-drop'
 import { ModalWithClose } from './modal'
 import { scanFromFile } from './scanner';
 import { State } from './state'
-import { ScanOpts } from "./logic";
 
 export const importPages = async (s: State) => {
   const addFiles = async (fl: FileList) => {
-    const newPages = await Promise.all(Array.from(fl).map(async f =>
-        scanFromFile(
-          await f.arrayBuffer(),
-          ScanOpts.from(s.rs)
-        )
-      )
-    );
+    const newPages = await Promise.all(Array.from(fl).map(async f => scanFromFile(await f.arrayBuffer())));
     s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, ...newPages] } }));
   }
 
@@ -34,4 +27,4 @@ export const importPages = async (s: State) => {
     </ModalWithClose>
     )
   });
-}
+};

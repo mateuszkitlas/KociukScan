@@ -24,6 +24,7 @@ export class MiniPage extends React.Component<P, S> {
   render = () => {
     const page = this.props.page;
     const s = this.props.s;
+    const properties = Page.properties(s.rs.book, page);
     const currentPage = { hash: page.hash, duplicated: page.duplicated };
     const duplicate: React.MouseEventHandler<HTMLDivElement> = async e => {
       e.stopPropagation();
@@ -52,15 +53,15 @@ export class MiniPage extends React.Component<P, S> {
             src: hashToPng(page.hash),
             scale: zoomByDpi(page.original.dpi),
             contrast: s.rs.book.color.contrast,
-            rotate: page.rotate,
+            rotate: properties.rotate,
             width: page.original.width,
             height: page.original.height,
           }}
           crop={{
             width: s.rs.book.width,
             height: s.rs.book.height,
-            x: page.x,
-            y: page.y,
+            x: properties.x,
+            y: properties.y,
           }}
           width={100}
           height={100}
@@ -85,7 +86,10 @@ export class MiniPage extends React.Component<P, S> {
               title="delete"
             ><FaTrash />
             </div>
-            <div className="button">{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
+            <div
+              className="button"
+              style={{backgroundColor: page.properties ? undefined : "#F00" }}
+            >{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
           </div>
         </ImageMiniature>
       </div>
