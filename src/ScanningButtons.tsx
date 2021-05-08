@@ -6,12 +6,22 @@ import { FaPaw, FaStop } from 'react-icons/fa';
 import { ScanOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
+import { Page } from './types';
+
+
+const beep = () => {
+  const context = new AudioContext();
+  const o = context.createOscillator();
+  o.type = "sine";
+  o.connect(context.destination);
+  o.start();
+  setTimeout(() => o.stop(), 300);
+}
 
 interface P {
   s: State;
 }
 interface S {
-  showError?: string;
 }
 type B = React.MouseEventHandler<HTMLDivElement>;
 export class ScanningButtons extends React.Component<P, S> {
@@ -24,7 +34,11 @@ export class ScanningButtons extends React.Component<P, S> {
     try {
       return await scanX(ScanOpts.from(s.rs));
     } catch (err) {
-      this.setState({ showError: err.message });
+      this.props.s.addModal((key, dispose) =>
+        <ModalWithClose key={key} title="Error" onClose={dispose}>
+          {err.message}
+        </ModalWithClose>
+      )
     }
   }
   render = () => {
@@ -45,16 +59,13 @@ export class ScanningButtons extends React.Component<P, S> {
       while(await doScan()) {
         const pageGetter = await this.scan();
         if (pageGetter && (await doScan())) {
-          const pagePromise = pageGetter();
-          const context = new AudioContext();
-          const o = context.createOscillator();
-          o.type = "sine";
-          o.connect(context.destination);
-          o.start();
-          setTimeout(() => o.stop(), 400);
+          beep();
+          const processPage = async () => {
+            const page = await pageGetter();
+            s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
+          }
+          processPage() // TODO
           await sleep((await s.getRS()).book.delay);
-          const page = await pagePromise;
-          s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
         } else {
           s.setRS(rs => ({ ...rs, kind: "nothing" }));
         }
@@ -89,10 +100,5 @@ export class ScanningButtons extends React.Component<P, S> {
       {s.rs.book.delay}sec
       <div className="button" onClick={setDelay(1)} key="+" title="+1 second" >+</div>
     </div>,
-    this.state.showError
-      ? <ModalWithClose title="Error" onClose={() => this.setState({ showError: undefined })}>
-        {this.state.showError}
-      </ModalWithClose>
-      : null
   ]}
 }
