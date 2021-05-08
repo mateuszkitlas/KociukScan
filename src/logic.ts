@@ -1,26 +1,7 @@
 import { PageNr, RawState } from './state';
 import { Book, Color, DPI, Page } from './types';
 
-export const scaleByPage = (page: Page) =>
-  zoomByDpi(dpiByWidth(page.original.width))
-
-const zoomByDpi = (dpi: DPI) => {
-  switch (dpi) {
-    case 75: return 1.33333;
-    case 100: return 1;
-    case 200: return 0.5;
-    case 300: return 0.33333;
-  }
-}
-
-const dpiByWidth = (width: number) =>
-  width <= 637
-    ? 75
-    : width <= 850
-      ? 100
-      : width <= 1700
-        ? 200
-        : 300
+export const scaleByPage = (page: Page) => 850 / page.original.width
 
 export interface ScanOpts {
   dpi: DPI;
@@ -46,7 +27,7 @@ export module ProcessPage {
       ...Page.properties(book, page),
       color: Color.merge(page, book),
     },
-    scale: zoomByDpi(dpiByWidth(page.original.width)),
+    scale: scaleByPage(page),
   });
   
 }

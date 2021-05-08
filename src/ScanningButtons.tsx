@@ -6,8 +6,6 @@ import { FaPaw, FaStop } from 'react-icons/fa';
 import { ScanOpts } from './logic';
 import { scanX } from './scanner';
 import { ModalWithClose } from './modal';
-import { Page } from './types';
-
 
 const beep = () => {
   const context = new AudioContext();
