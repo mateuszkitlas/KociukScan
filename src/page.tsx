@@ -4,14 +4,14 @@ import { Color, Page } from "./types"
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { hashToPng } from './utils';
 import { getPixelsByAngle, Image } from './Image';
-import { Dragger, sidebarWidth } from './Dragger';
+import { Dragger } from './Dragger';
 import { scaleByPage } from './logic';
+import { offset } from './offset';
 
 const cropSize = 40;
 
-const crop = (s: State, page: Page) => {
+const crop = (s: State, page: Page, zoom: number) => {
   const properties = Page.properties(s.rs.book, page);
-  const zoom = s.rs.zoom;
   const newPoints = getPixelsByAngle(
     0,
     0,
@@ -102,7 +102,7 @@ const somePage = (s: State) => (page: Page) => {
   return <div
     id="page"
     key="page"
-    style={{ left: sidebarWidth }}
+    style={{ left: offset.x }}
   >
     <Image
       src={hashToPng(page.hash)}
@@ -112,7 +112,7 @@ const somePage = (s: State) => (page: Page) => {
       width={page.original.width}
       height={page.original.height}
     />
-    {crop(s, page)}
+    {crop(s, page, s.rs.zoom)}
   </div>;
 }
 

@@ -1,9 +1,7 @@
 import React from 'react';
 import { reactSvgComponentToMarkupString } from './utils';
 import { IconType } from 'react-icons';
-
-export const sidebarWidth = 142;
-export const toolbarHeight = 60;
+import { offset } from './offset';
 
 interface Props {
   left: number;
@@ -38,8 +36,8 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Prop
       offsetY=e.clientY-el.getBoundingClientRect().top;
       document.onmousemove = function(e) {
         e.stopPropagation();
-        const x = e.pageX - offsetX - sidebarWidth;
-        const y = e.pageY - offsetY - toolbarHeight;
+        const x = e.pageX - offsetX - offset.x;
+        const y = e.pageY - offsetY - offset.y;
         if (filterX(x/zoom)) { el.style.left = `${x}px`; }
         if (filterY(y/zoom)) { el.style.top = `${y}px`; }
         el.onmouseup = function (e) {

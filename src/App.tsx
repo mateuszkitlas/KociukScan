@@ -4,7 +4,7 @@ import { MiniPage } from './MiniPage';
 import { PageNr, State, StateContext, StateProvider } from './state';
 import { buttons } from './toolbar';
 import { page } from './page';
-import { sidebarWidth, toolbarHeight } from "./Dragger";
+import { mainPageSize, offset } from './offset';
 
 class X extends React.Component<{ s: State }, { dnd?: boolean }> {
   constructor(props: { s: State }) {
@@ -16,7 +16,7 @@ class X extends React.Component<{ s: State }, { dnd?: boolean }> {
     return <div>
       <div id="wrapper" key="wrapper">
         {page(s)}
-        <div id="pages" key="pages" style={{ width: sidebarWidth, height: window.innerHeight - toolbarHeight }}>
+        <div id="pages" key="pages" style={{ width: offset.x, height: mainPageSize().height }}>
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>
       </div>
