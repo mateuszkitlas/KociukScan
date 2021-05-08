@@ -1,7 +1,10 @@
 import { PageNr, RawState } from './state';
 import { Book, Color, DPI, Page } from './types';
 
-export const zoomByDpi = (dpi: DPI) => {
+export const scaleByPage = (page: Page) =>
+  zoomByDpi(dpiByWidth(page.original.width))
+
+const zoomByDpi = (dpi: DPI) => {
   switch (dpi) {
     case 75: return 1.33333;
     case 100: return 1;
@@ -10,7 +13,7 @@ export const zoomByDpi = (dpi: DPI) => {
   }
 }
 
-export const dpiByWidth = (width: number) =>
+const dpiByWidth = (width: number) =>
   width <= 637
     ? 75
     : width <= 850

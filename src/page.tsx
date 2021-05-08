@@ -1,11 +1,11 @@
 import React from 'react';
 import { PageNr, State } from './state';
 import { Color, Page } from "./types"
-import { dpiByWidth, zoomByDpi } from "./logic"
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { hashToPng } from './utils';
 import { getPixelsByAngle, Image } from './Image';
 import { Dragger, sidebarWidth } from './Dragger';
+import { scaleByPage } from './logic';
 
 const cropSize = 40;
 
@@ -15,8 +15,8 @@ const crop = (s: State, page: Page) => {
   const newPoints = getPixelsByAngle(
     0,
     0,
-    page.original.width*zoomByDpi(dpiByWidth(page.original.width)),
-    page.original.height*zoomByDpi(dpiByWidth(page.original.width)),
+    page.original.width * scaleByPage(page),
+    page.original.height * scaleByPage(page),
     properties.rotate
   )
   const minX = Math.min(...newPoints.map(x => x.x));
@@ -99,7 +99,6 @@ const crop = (s: State, page: Page) => {
 
 const somePage = (s: State) => (page: Page) => {
   const properties = Page.properties(s.rs.book, page);
-  const scale = zoomByDpi(dpiByWidth(page.original.width));
   return <div
     id="page"
     key="page"
@@ -107,7 +106,7 @@ const somePage = (s: State) => (page: Page) => {
   >
     <Image
       src={hashToPng(page.hash)}
-      scale={scale * s.rs.zoom}
+      scale={scaleByPage(page) * s.rs.zoom}
       contrast={Color.merge(page, s.rs.book).contrast}
       rotate={properties.rotate}
       width={page.original.width}

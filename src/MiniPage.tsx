@@ -5,8 +5,8 @@ import { FaTrash, FaCopy } from 'react-icons/fa';
 import md5 from "md5"
 import { ModalYesNo } from './modal';
 import { ImageMiniature } from './Image';
-import { dpiByWidth, zoomByDpi } from './logic';
 import { hashToPng } from './utils';
+import { scaleByPage } from './logic';
 
 
 interface P {
@@ -51,7 +51,7 @@ export class MiniPage extends React.Component<P, S> {
         <ImageMiniature
           original={{
             src: hashToPng(page.hash),
-            scale: zoomByDpi(dpiByWidth(page.original.width)),
+            scale: scaleByPage(page),
             contrast: s.rs.book.color.contrast,
             rotate: properties.rotate,
             width: page.original.width,
