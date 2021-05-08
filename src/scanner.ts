@@ -47,8 +47,10 @@ const scanFromBuffer = async (buffer: Buffer) => {
 
 export const scanFromFile = async (buffer: ArrayBuffer) => scanFromBuffer(arrayBufferToBuffer(buffer));
 
-export const scanX = async (opts: ScanOpts) =>
-  scanFromBuffer(await scan({ dpi: opts.dpi, format: "png", device: opts.device }));
+export const scanX = async (opts: ScanOpts) => {
+  const buffer = await scan({ dpi: opts.dpi, format: "png", device: opts.device });
+  return () => scanFromBuffer(buffer);
+}
 
 export const pdf = async (s: State) => {
   const book = s.rs.book;

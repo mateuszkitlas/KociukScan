@@ -31,8 +31,9 @@ export class ScanningButtons extends React.Component<P, S> {
     const s = this.props.s;
     const one: B = async _e => {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-      const page = await this.scan();
-      if (page) {
+      const pageGetter = await this.scan();
+      if (pageGetter) {
+        const page = await pageGetter();
         s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
       } else {
         s.setRS(rs => ({ ...rs, kind: "nothing" }));
@@ -42,8 +43,9 @@ export class ScanningButtons extends React.Component<P, S> {
       s.setRS(rs => ({ ...rs, kind: "scanning many" }));
       const doScan = async () => (await s.getRS()).kind === "scanning many"
       while(await doScan()) {
-        const page = await this.scan();
-        if(page && (await doScan())) {
+        const pageGetter = await this.scan();
+        if (pageGetter && (await doScan())) {
+          const pagePromise = pageGetter();
           const context = new AudioContext();
           const o = context.createOscillator();
           o.type = "sine";
@@ -51,6 +53,7 @@ export class ScanningButtons extends React.Component<P, S> {
           o.start();
           setTimeout(() => o.stop(), 400);
           await sleep((await s.getRS()).book.delay);
+          const page = await pagePromise;
           s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, page] } }));
         } else {
           s.setRS(rs => ({ ...rs, kind: "nothing" }));
