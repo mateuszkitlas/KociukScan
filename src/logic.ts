@@ -1,15 +1,7 @@
-import { PageNr, RawState } from "./state";
-import { Book, Color, DPI, Page } from "./types";
+import { PageNr } from "./state";
+import { Book, Color, Page } from "./types";
 
 export const scaleByPage = (page: Page) => 850 / page.original.width;
-
-export interface ScanOpts {
-  dpi: DPI;
-  device?: string;
-}
-export namespace ScanOpts {
-  export const from = (rs: RawState): ScanOpts => ({ dpi: rs.book.dpi, device: rs.device });
-}
 
 export interface ProcessPage {
   width: number;

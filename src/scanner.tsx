@@ -1,11 +1,13 @@
+import React from "react";
 import { Page } from "./types";
 import md5 from "md5";
 import { writeFileSync, createWriteStream } from "fs";
-import { ProcessPage, scaleByPage, ScanOpts } from "./logic";
+import { ProcessPage, scaleByPage } from "./logic";
 import { Sharp, OutputInfo, sharp, pdfkit, dialog } from "./electronImports";
-import { scan } from "scanner-to-buffer";
+import * as ScannerToBuffer from "scanner-to-buffer";
 import { State } from "./state";
 import { arrayBufferToBuffer, hashToPng } from "./utils";
+import { ModalWithClose } from "./modal";
 
 const toBuffer = (s: Sharp) => new Promise<Buffer>((resolve, reject) =>
   s.toBuffer((err, buffer) => err ? reject(err) : resolve(buffer))
@@ -47,9 +49,17 @@ const scanFromBuffer = async (buffer: Buffer) => {
 
 export const scanFromFile = async (buffer: ArrayBuffer) => scanFromBuffer(arrayBufferToBuffer(buffer));
 
-export const scanX = async (opts: ScanOpts) => {
-  const buffer = await scan({ dpi: opts.dpi, format: "png", device: opts.device });
-  return () => scanFromBuffer(buffer);
+export const scan = async (s: State) => {
+  try {
+    const buffer = await ScannerToBuffer.scan({ dpi: s.rs.book.dpi, format: "png", device: s.rs.device });
+    return () => scanFromBuffer(buffer);
+  } catch (err) {
+    s.addModal((key, dispose) =>
+      <ModalWithClose key={key} title="Error" onClose={dispose}>
+        {err.message}
+      </ModalWithClose>
+    );
+  }
 };
 
 export const pdf = async (s: State) => {

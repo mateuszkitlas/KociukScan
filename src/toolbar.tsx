@@ -9,7 +9,6 @@ import { Color, Page } from "./types";
 import { ModalYesNo } from "./modal";
 import md5 from "md5";
 
-
 type B = React.MouseEventHandler<HTMLDivElement>;
 
 const pageButtons = (s: State) => {
@@ -20,8 +19,6 @@ const pageButtons = (s: State) => {
       const rotate = properties.rotate + deg;
       s.setPage({ ...page, properties: { ...properties, rotate } });
     };
-    const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e =>
-      s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
     const setColor = (c: Partial<Color>) => s.setRS(rs =>
       ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
     );
@@ -48,7 +45,7 @@ const pageButtons = (s: State) => {
             };
           });
         }}
-        title="duplicate"
+        title="Duplicate"
       ><FaCopy /></div>,
       <div
         key="delete"
@@ -65,7 +62,7 @@ const pageButtons = (s: State) => {
           >Are you sure?
           </ModalYesNo>
         )}
-        title="delete"
+        title="Delete"
       ><FaTrash />
       </div>,
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
@@ -92,8 +89,12 @@ const pageButtons = (s: State) => {
         }}
       ></input>,
       <label key="allowPageResize">
-        <input className="button" type="checkbox" checked={s.rs.allowPageResize} onChange={allowPageResize}/>
-        resize
+        <input
+          className="button"
+          type="checkbox"
+          checked={s.rs.allowPageResize}
+          onChange={e => s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }))}
+        />resize
       </label>
     ];
   } else {

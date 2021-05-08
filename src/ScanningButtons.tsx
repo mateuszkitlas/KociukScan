@@ -3,9 +3,7 @@ import "./App.css";
 import { State } from "./state";
 import { sleep } from "./utils";
 import { FaPaw, FaStop } from "react-icons/fa";
-import { ScanOpts } from "./logic";
-import { scanX } from "./scanner";
-import { ModalWithClose } from "./modal";
+import { scan } from "./scanner";
 
 const beep = () => {
   const context = new AudioContext();
@@ -25,23 +23,11 @@ export class ScanningButtons extends React.Component<P> {
     super(props);
     this.state = {};
   }
-  scan = async () => {
-    const s = this.props.s;
-    try {
-      return await scanX(ScanOpts.from(s.rs));
-    } catch (err) {
-      this.props.s.addModal((key, dispose) =>
-        <ModalWithClose key={key} title="Error" onClose={dispose}>
-          {err.message}
-        </ModalWithClose>
-      );
-    }
-  }
   render = () => {
     const s = this.props.s;
     const one: B = async () => {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-      const pageGetter = await this.scan();
+      const pageGetter = await scan(s);
       if (pageGetter) {
         const page = await pageGetter();
         s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
@@ -53,7 +39,7 @@ export class ScanningButtons extends React.Component<P> {
       s.setRS(rs => ({ ...rs, kind: "scanning many" }));
       const doScan = async () => (await s.getRS()).kind === "scanning many";
       while(await doScan()) {
-        const pageGetter = await this.scan();
+        const pageGetter = await scan(s);
         if (pageGetter && (await doScan())) {
           beep();
           const processPage = async () => {
@@ -79,11 +65,9 @@ export class ScanningButtons extends React.Component<P> {
     };
 
     return [
-      ["scanning one", "scanning many"].includes(s.rs.kind)
+      ["scanning one", "scanning many", "generating pdf"].includes(s.rs.kind)
         ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
-        : s.rs.kind === "generating pdf"
-          ? <div className="button inactive" key="one" title="Scan"><FaPaw /></div>
-          : <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>,
+        : <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>,
       <div
         className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
         onClick={s.rs.kind === "nothing" ? many : undefined}
