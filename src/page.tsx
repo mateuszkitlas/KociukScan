@@ -1,7 +1,7 @@
 import React from 'react';
 import { PageNr, State } from './state';
 import { Color, Page } from "./types"
-import { zoomByDpi } from "./logic"
+import { dpiByWidth, zoomByDpi } from "./logic"
 import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
 import { hashToPng } from './utils';
 import { getPixelsByAngle, Image } from './Image';
@@ -15,8 +15,8 @@ const crop = (s: State, page: Page) => {
   const newPoints = getPixelsByAngle(
     0,
     0,
-    page.original.width*zoomByDpi(page.original.dpi),
-    page.original.height*zoomByDpi(page.original.dpi),
+    page.original.width*zoomByDpi(dpiByWidth(page.original.width)),
+    page.original.height*zoomByDpi(dpiByWidth(page.original.width)),
     properties.rotate
   )
   const minX = Math.min(...newPoints.map(x => x.x));
@@ -99,7 +99,7 @@ const crop = (s: State, page: Page) => {
 
 const somePage = (s: State) => (page: Page) => {
   const properties = Page.properties(s.rs.book, page);
-  const scale = zoomByDpi(page.original.dpi);
+  const scale = zoomByDpi(dpiByWidth(page.original.width));
   return <div
     id="page"
     key="page"

@@ -1,4 +1,3 @@
-import { oneBeforeLast } from './logic';
 import { PageNr } from './state';
 
 export type DPI = 75 | 100 | 200 | 300;
@@ -25,11 +24,7 @@ export interface Page {
   hash: string;
   duplicated?: string;
   properties?: Page.Properties;
-  original: {
-    width: number;
-    height: number;
-    dpi: DPI;
-  };
+  original: { width: number; height: number; };
 }
 
 export namespace Page {

@@ -16,16 +16,16 @@ const getInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
 const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
 const processPage = async (opts: ProcessPage): Promise<Buffer> => {
-  const zoom = zoomByDpi(opts.dpi);
+  const scale = opts.scale;
   const rotatedBuffer = await toBuffer(sharp(hashToPng(opts.pageNr.hash)).rotate(opts.pageProperties.rotate, { background }));
   const brightness = 1;
   const contrast = opts.pageProperties.color.contrast;
   const img3 = sharp(rotatedBuffer)
     .extract({
-      top: Math.floor(opts.pageProperties.y / zoom),
-      left: Math.floor(opts.pageProperties.x / zoom),
-      width: Math.floor(opts.width / zoom),
-      height:Math.floor(opts.height / zoom),
+      top: Math.floor(opts.pageProperties.y / scale),
+      left: Math.floor(opts.pageProperties.x / scale),
+      width: Math.floor(opts.width / scale),
+      height:Math.floor(opts.height / scale),
     })
     .linear(brightness * contrast, brightness * (-(128 * contrast) + 128))
   return await toBuffer(img3)
@@ -39,7 +39,6 @@ const scanFromBuffer = async (buffer: Buffer) => {
   const page: Page = {
     hash,
     original: {
-      dpi: dpiByWidth(info.width),
       width: info.width,
       height: info.height,
     },
@@ -71,9 +70,8 @@ export const pdf = async (s: State) => {
     for (let i = 0; i < book.pages.length && await doContinue(); i++) {
       s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i }))
       const page = book.pages[i];
-      const zoom = zoomByDpi(page.original.dpi);
+      const zoom = zoomByDpi(dpiByWidth(page.original.width));
       const buffer = await processPage(ProcessPage.from(book, page));
-      writeFileSync(`/home/mati/Desktop/${page.hash}`, buffer);
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },
