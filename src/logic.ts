@@ -1,5 +1,5 @@
 import { PageNr, RawState } from './state';
-import { Book, DPI, Page } from './types';
+import { Book, Color, DPI, Page } from './types';
 
 export function last<T>(arr: T[]) {
   return arr.length > 0 ? arr[arr.length - 1] : undefined;
@@ -48,7 +48,10 @@ export module ProcessPage {
     height: book.height,
     dpi: page.original.dpi,
     pageNr: PageNr.get(page),
-    pageProperties: Page.properties(book, page)
+    pageProperties: {
+      ...Page.properties(book, page),
+      color: Color.merge(page, book),
+    }
   });
   
 }

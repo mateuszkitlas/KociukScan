@@ -27,4 +27,4 @@ export const importPages = async (s: State) => {
     </ModalWithClose>
     )
   });
-}
+};

@@ -49,7 +49,7 @@ const crop = (s: State, page: Page) => {
       onMouseUp: ({x}) => s.setBook({
         ...s.rs.book,
         width: (s.rs.book.width - x) + properties.x,
-        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, x } : p),
+        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, x } } : p),
       }),
       zoom,
     }}/>,
@@ -75,7 +75,7 @@ const crop = (s: State, page: Page) => {
       onMouseUp: ({y}) => s.setBook({
         ...s.rs.book,
         height: (s.rs.book.height - y) + properties.y,
-        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, y } : p),
+        pages: s.rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, y } } : p),
       }),
       zoom,
     }}/>
@@ -90,7 +90,7 @@ const crop = (s: State, page: Page) => {
       svg: FaArrowsAlt,
       filterX: () => true,
       filterY: () => true,
-      onMouseUp: (xy) => s.setPage({ ...page, ...xy }),
+      onMouseUp: (xy) => s.setPage({ ...page, properties: { ...properties, ...xy } }),
       zoom,
       }} />,
     ...(s.rs.allowPageResize ? resize : []),

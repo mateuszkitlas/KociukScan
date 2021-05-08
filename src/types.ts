@@ -1,4 +1,5 @@
 import { oneBeforeLast } from './logic';
+import { PageNr } from './state';
 
 export type DPI = 75 | 100 | 200 | 300;
 
@@ -32,9 +33,13 @@ export interface Page {
 }
 
 export namespace Page {
+  const prevPrev = (book: Book, page: Page) => {
+    const nr = book.pages.findIndex(PageNr.eq(page));
+    return 2 <= nr ? book.pages[nr - 2] : undefined;
+  }
   export const defaultProperties: Properties = { x: 0, y: 0, rotate: 0, color: { contrast: 0 } };
   export const properties = (book: Book, page: Page): Page.Properties =>
-    page.properties ?? oneBeforeLast(book.pages)?.properties ?? Page.defaultProperties;
+    page.properties ?? prevPrev(book, page)?.properties ?? Page.defaultProperties;
   export interface Properties {
     x: number;
     y: number;
