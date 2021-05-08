@@ -8,96 +8,43 @@ import { ImageMiniature } from './Image';
 import { hashToPng } from './utils';
 import { scaleByPage } from './logic';
 
-
-interface P {
-  s: State;
-  page: Page;
-}
-interface S {
-  showDelete: boolean;
-}
-export class MiniPage extends React.Component<P, S> {
-  constructor(props: P) {
-    super(props);
-    this.state = { showDelete: false };
-  }
-  render = () => {
-    const page = this.props.page;
-    const s = this.props.s;
-    const properties = Page.properties(s.rs.book, page);
-    const currentPage = { hash: page.hash, duplicated: page.duplicated };
-    const duplicate: React.MouseEventHandler<HTMLDivElement> = async e => {
-      e.stopPropagation();
-      const duplicated = md5(Date.now().toString());
-      const newPage = { ...page, duplicated };
-      s.setRS(rs => {
-        const pageNr = rs.book.pages.findIndex(PageNr.eq(page))
-        return {
-          ...rs,
-          currentPage: { ...currentPage, duplicated },
-          book: {
-            ...rs.book,
-            pages: [
-              ...rs.book.pages.slice(0, pageNr + 1),
-              newPage,
-              ...rs.book.pages.slice(pageNr + 1),
-            ]
-          }
-        }
-      });
-    }
-    return (
-      <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
-        <ImageMiniature
-          original={{
-            src: hashToPng(page.hash),
-            scale: scaleByPage(page),
-            contrast: s.rs.book.color.contrast,
-            rotate: properties.rotate,
-            width: page.original.width,
-            height: page.original.height,
-          }}
-          crop={{
-            width: s.rs.book.width,
-            height: s.rs.book.height,
-            x: properties.x,
-            y: properties.y,
-          }}
-          width={100}
-          height={100}
-          onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
-        >
-          <div style={{ position: 'absolute', right: 0, width: 40 }}>
-            <div className="button" onClick={duplicate} title="duplicate"><FaCopy /></div>
-            <div
-              className="button"
-              onClick={() => s.addModal((key, dispose) =>
-                <ModalYesNo
-                  key={key}
-                  onYes={() => {
-                    s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash, currentPage } }));
-                    s.deletePage(page);
-                    dispose();
-                  }}
-                  onNo={dispose}
-                >Are you sure?
-                </ModalYesNo>
-              )}
-              title="delete"
-            ><FaTrash />
-            </div>
-            <div style={{
-              backgroundColor: page.properties ? "#445" : "#F00",
-              borderRadius: "50%",
-              width: 32,
-              height: 24,
-              textAlign: "center",
-              paddingTop: 6,
-            }}>{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
-          </div>
-        </ImageMiniature>
-      </div>
-    )
-  }
-}
-
+export const MiniPage = (props: { s: State; page: Page }) => {
+  const page = props.page;
+  const s = props.s;
+  const properties = Page.properties(s.rs.book, page);
+  const currentPage = { hash: page.hash, duplicated: page.duplicated };
+  return (
+    <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
+      <ImageMiniature
+        original={{
+          src: hashToPng(page.hash),
+          scale: scaleByPage(page),
+          contrast: s.rs.book.color.contrast,
+          rotate: properties.rotate,
+          width: page.original.width,
+          height: page.original.height,
+        }}
+        crop={{
+          width: s.rs.book.width,
+          height: s.rs.book.height,
+          x: properties.x,
+          y: properties.y,
+        }}
+        width={100}
+        height={100}
+        onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
+      >
+        <div style={{ position: 'absolute', right: 0, width: 40 }}>
+          <div style={{
+            backgroundColor: page.properties ? "#445" : "#F00",
+            borderRadius: "50%",
+            width: 32,
+            height: 24,
+            textAlign: "center",
+            paddingTop: 6,
+          }}>{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
+        </div>
+      </ImageMiniature>
+    </div>
+  )
+};

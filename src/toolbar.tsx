@@ -1,11 +1,13 @@
 import React from 'react';
 import './App.css';
-import { State } from './state';
-import { FaUndo, FaRedo, FaFilePdf } from 'react-icons/fa';
+import { PageNr, State } from './state';
+import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash } from 'react-icons/fa';
 import { pdf } from './scanner';
 import { Settings } from './Settings';
 import { ScanningButtons } from './ScanningButtons';
 import { Color, Page } from './types';
+import { ModalYesNo } from './modal';
+import md5 from 'md5';
 
 
 type B = React.MouseEventHandler<HTMLDivElement>;
@@ -24,6 +26,46 @@ const pageButtons = (s: State) => {
       ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
     )
     return [
+      <div
+        className="button"
+        onClick={async () => {
+          const duplicated = md5(Date.now().toString());
+          const newPage = { ...page, duplicated };
+          s.setRS(rs => {
+            const pageNr = rs.book.pages.findIndex(PageNr.eq(page))
+            return {
+              ...rs,
+              currentPage: { hash: page.hash, duplicated },
+              book: {
+                ...rs.book,
+                pages: [
+                  ...rs.book.pages.slice(0, pageNr + 1),
+                  newPage,
+                  ...rs.book.pages.slice(pageNr + 1),
+                ]
+              }
+            }
+          });
+        }}
+        title="duplicate"
+      ><FaCopy /></div>,
+      <div
+        className="button"
+        onClick={() => s.addModal((key, dispose) =>
+          <ModalYesNo
+            key={key}
+            onYes={() => {
+              s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash } }));
+              s.deletePage(page);
+              dispose();
+            }}
+            onNo={dispose}
+          >Are you sure?
+          </ModalYesNo>
+        )}
+        title="delete"
+      ><FaTrash />
+      </div>,
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
       <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,
       <div className="button" onClick={rotate(90)}   key="90*" title="Rotate by 90º">90º</div>,
