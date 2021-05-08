@@ -1,9 +1,9 @@
-import { loadRSFromBook, State } from './state';
+import { loadRSFromBook, State } from "./state";
 import AdmZip from "adm-zip";
-import { hashToPng } from './utils';
-import { dialog } from './electronImports';
-import { Book } from './types';
-import { dirname } from 'path';
+import { hashToPng } from "./utils";
+import { dialog } from "./electronImports";
+import { Book } from "./types";
+import { dirname } from "path";
 
 export const exportBook = async (s: State) => {
   const filename = dialog.showSaveDialogSync({

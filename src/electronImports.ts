@@ -8,5 +8,6 @@ export const sharp: {
   fit: FitEnum
 } = window.require("sharp");
 export const pdfkit: (typeof pdfkitT)["default"] = window.require("pdfkit");
-export const electron: (typeof electronT) = require('electron');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+export const electron: (typeof electronT) = require("electron");
 export const dialog = electron.remote.dialog;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
   const radians = angle * Math.PI / 180;
@@ -24,7 +24,7 @@ export const getPixelsByAngle = (x: number, y: number, width: number, height: nu
       y: y + height/2 + width/-2 * Math.sin(radians) + height/2 * Math.cos(radians)
     },
   ];
-}
+};
 
 interface PropsImage {
   rotate: number;
@@ -44,7 +44,7 @@ export const Image = ({ rotate, contrast, src: png, width, height, scale, x, y }
     width*scale,
     height*scale,
     rotate
-  )
+  );
   const marginLeft = -Math.min(...newPoints.map(x => x.x)) + (x || 0);
   const marginTop = -Math.min(...newPoints.map(x => x.y)) + (y || 0);
   return <img
@@ -59,8 +59,8 @@ export const Image = ({ rotate, contrast, src: png, width, height, scale, x, y }
       boxSizing: "border-box",
     }}
     draggable={false}
-  />
-}
+  />;
+};
 
 interface PropsImageMiniature {
   original: {
@@ -84,7 +84,7 @@ interface PropsImageMiniature {
 }
 export const ImageMiniature = (props: PropsImageMiniature) => {
   const scale = Math.min(props.width/props.crop.width, props.height/props.crop.height);
-  return <div onClick={e => { e.stopPropagation(); props.onClick() }}>
+  return <div onClick={e => { e.stopPropagation(); props.onClick(); }}>
     <div style={{ width: props.crop.width*scale, height: props.crop.height*scale, overflow: "hidden" }}>
       <div style={{ transform: `scale(${scale})` }}>
         <div
@@ -110,5 +110,5 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
     }}>
       {props.children}
     </div>
-  </div>
-}
+  </div>;
+};

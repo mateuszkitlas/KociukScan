@@ -1,4 +1,4 @@
-import { PageNr } from './state';
+import { PageNr } from "./state";
 
 export type DPI = 75 | 100 | 200 | 300;
 
@@ -32,10 +32,10 @@ export namespace Page {
     const nr = book.pages.findIndex(PageNr.eq(page));
     for (let pnr = nr - 2; 0 <= pnr; pnr -= 2) {
       if (book.pages[pnr].properties)
-        return book.pages[pnr].properties
+        return book.pages[pnr].properties;
     }
     return undefined;
-  }
+  };
   export const defaultProperties: Properties = { x: 0, y: 0, rotate: 0, color: { contrast: 0 } };
   export const properties = (book: Book, page: Page): Page.Properties =>
     page.properties ?? prevPrevProperties(book, page) ?? Page.defaultProperties;
@@ -44,5 +44,5 @@ export namespace Page {
     y: number;
     rotate: number;
     color: Color;
-  };
+  }
 }

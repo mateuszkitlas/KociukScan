@@ -1,14 +1,14 @@
-import React from 'react';
-import './App.css';
-import { MiniPage } from './MiniPage';
-import { PageNr, State, StateContext, StateProvider } from './state';
-import { buttons } from './toolbar';
-import { page } from './page';
-import { mainPageSize, offset } from './offset';
+import React from "react";
+import "./App.css";
+import { MiniPage } from "./MiniPage";
+import { PageNr, State, StateContext, StateProvider } from "./state";
+import { buttons } from "./toolbar";
+import { page } from "./page";
+import { mainPageSize, offset } from "./offset";
 
 class X extends React.Component<{ s: State }, { dnd?: boolean }> {
   constructor(props: { s: State }) {
-    super(props)
+    super(props);
     this.state = {};
   }
   render = () => {
@@ -24,11 +24,11 @@ class X extends React.Component<{ s: State }, { dnd?: boolean }> {
         {buttons(s)}
       </div>
       {s.rs.modals.map(m => m.node)}
-    </div>
+    </div>;
   }
 }
 
-const AppProvided = () => <div id="App"><X s={React.useContext(StateContext)}/></div>
+const AppProvided = () => <div id="App"><X s={React.useContext(StateContext)}/></div>;
 const App = () => (<StateProvider><AppProvided /></StateProvider>);
 
 export default App;

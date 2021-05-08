@@ -1,12 +1,9 @@
-import React from 'react';
-import { Page } from './types';
-import { State, PageNr } from './state';
-import { FaTrash, FaCopy } from 'react-icons/fa';
-import md5 from "md5"
-import { ModalYesNo } from './modal';
-import { ImageMiniature } from './Image';
-import { hashToPng } from './utils';
-import { scaleByPage } from './logic';
+import React from "react";
+import { Page } from "./types";
+import { State } from "./state";
+import { ImageMiniature } from "./Image";
+import { hashToPng } from "./utils";
+import { scaleByPage } from "./logic";
 
 export const MiniPage = (props: { s: State; page: Page }) => {
   const page = props.page;
@@ -34,7 +31,7 @@ export const MiniPage = (props: { s: State; page: Page }) => {
         height={100}
         onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
       >
-        <div style={{ position: 'absolute', right: 0, width: 40 }}>
+        <div style={{ position: "absolute", right: 0, width: 40 }}>
           <div style={{
             backgroundColor: page.properties ? "#445" : "#F00",
             borderRadius: "50%",
@@ -46,5 +43,5 @@ export const MiniPage = (props: { s: State; page: Page }) => {
         </div>
       </ImageMiniature>
     </div>
-  )
+  );
 };

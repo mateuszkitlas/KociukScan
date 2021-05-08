@@ -1,6 +1,6 @@
-import React from 'react';
-import { FaTimesCircle } from 'react-icons/fa';
-import './App.css';
+import React from "react";
+import { FaTimesCircle } from "react-icons/fa";
+import "./App.css";
 
 export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
   return <div>
@@ -40,7 +40,7 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
         {props.children}
       </div>
     </div>
-  </div>
+  </div>;
 };
 
 export const ModalWithClose = (props: ModalWithClose.Props) =>
@@ -54,7 +54,7 @@ export const ModalWithClose = (props: ModalWithClose.Props) =>
       borderRadius: "5px 5px 0 0",
     }}>
       {props.title}
-      <div onClick={e => { e.stopPropagation(); props.onClose()}} style={{ float: "right" }}>
+      <div onClick={e => { e.stopPropagation(); props.onClose();}} style={{ float: "right" }}>
         <FaTimesCircle/>
       </div>
     </div>
@@ -85,8 +85,8 @@ export const ModalYesNo = (props: ModalYesNo.Props) =>
         margin: "0 auto"
       }}
     >
-      <div className="button" onClick={e => {e.stopPropagation(); props.onYes()}}>Yes</div>
-      <div className="button" onClick={e => {e.stopPropagation(); props.onNo()}}>No</div>
+      <div className="button" onClick={e => {e.stopPropagation(); props.onYes();}}>Yes</div>
+      <div className="button" onClick={e => {e.stopPropagation(); props.onNo();}}>No</div>
     </div>
   </Modal>;
 
@@ -96,4 +96,4 @@ export namespace ModalYesNo {
     onYes: () => void;
     onNo: () => void;
   }
-};
+}

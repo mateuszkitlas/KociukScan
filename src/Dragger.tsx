@@ -1,7 +1,7 @@
-import React from 'react';
-import { reactSvgComponentToMarkupString } from './utils';
-import { IconType } from 'react-icons';
-import { offset } from './offset';
+import React from "react";
+import { reactSvgComponentToMarkupString } from "./utils";
+import { IconType } from "react-icons";
+import { offset } from "./offset";
 
 interface Props {
   left: number;
@@ -44,8 +44,8 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Prop
           e.stopPropagation();
           document.onmousemove = null;
           onMouseUp({x: parseInt(el.style.left)/zoom, y: parseInt(el.style.top)/zoom});
-        }
-      }
+        };
+      };
     }}
-  ></div>
-}
+  ></div>;
+};

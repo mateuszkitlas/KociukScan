@@ -1,11 +1,11 @@
-import React from 'react';
-import { State, emptyRawState } from './state';
-import { ModalWithClose, ModalYesNo } from './modal';
-import { FaCog, FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from 'react-icons/fa';
-import { list } from 'scanner-to-buffer';
-import { exportBook, importBook } from './exportBook';
-import { DPI } from './types';
-import { importPages } from './importPages';
+import React from "react";
+import { State, emptyRawState } from "./state";
+import { ModalWithClose, ModalYesNo } from "./modal";
+import { FaCog, FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa";
+import { list } from "scanner-to-buffer";
+import { exportBook, importBook } from "./exportBook";
+import { DPI } from "./types";
+import { importPages } from "./importPages";
 
 interface P {
   s: State;
@@ -27,13 +27,13 @@ export class Settings extends React.Component<P, S> {
     this.setState({ devices });
   }
   deleteProject = () => {
-    this.props.s.setRS(_ => emptyRawState);
-    this.setState({ deleteProject: false })
+    this.props.s.setRS(() => emptyRawState);
+    this.setState({ deleteProject: false });
   }
 
   renderDevices = (d: string[]) => [
     `(${d.length}):`,
-    <ul>
+    <ul key="devices">
       {d.map(device =>
         <li key={device}>
           {device}
@@ -65,10 +65,10 @@ export class Settings extends React.Component<P, S> {
             s.setBook({ ...s.rs.book, dpi });
           }}
           value={s.rs.book.dpi}
-          key={`dpi`}
+          key={"dpi"}
         >{[75, 100, 200, 300].map(v => <option value={v} key={v}>{v}</option>)}
         </select><br/>
-        The higher DPI, the better quality of picture, but it's also more time consuming.
+        The higher DPI, the better quality of picture, but it is also more time consuming.
       </li>
       <li>
         Project
@@ -98,7 +98,7 @@ export class Settings extends React.Component<P, S> {
         ><FaImage/> Import
         </div>
       </li>
-    </ul>
+    </ul>;
   }
 
   render = () =>
@@ -109,8 +109,8 @@ export class Settings extends React.Component<P, S> {
     >
       <FaCog/>
       {this.state.show
-      ? <ModalWithClose title="Settings" onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
-      : null}
+        ? <ModalWithClose title="Settings" onClose={() => this.setState({ show: false })}>{this.renderModal()}</ModalWithClose>
+        : null}
       {this.state.deleteProject
         ? <ModalYesNo
           onYes={this.deleteProject}

@@ -1,13 +1,13 @@
-import React from 'react';
-import './App.css';
-import { PageNr, State } from './state';
-import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash } from 'react-icons/fa';
-import { pdf } from './scanner';
-import { Settings } from './Settings';
-import { ScanningButtons } from './ScanningButtons';
-import { Color, Page } from './types';
-import { ModalYesNo } from './modal';
-import md5 from 'md5';
+import React from "react";
+import "./App.css";
+import { PageNr, State } from "./state";
+import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash } from "react-icons/fa";
+import { pdf } from "./scanner";
+import { Settings } from "./Settings";
+import { ScanningButtons } from "./ScanningButtons";
+import { Color, Page } from "./types";
+import { ModalYesNo } from "./modal";
+import md5 from "md5";
 
 
 type B = React.MouseEventHandler<HTMLDivElement>;
@@ -19,20 +19,21 @@ const pageButtons = (s: State) => {
       const properties = Page.properties(s.rs.book, page);
       const rotate = properties.rotate + deg;
       s.setPage({ ...page, properties: { ...properties, rotate } });
-    }
+    };
     const allowPageResize: React.ChangeEventHandler<HTMLInputElement> = e =>
       s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }));
     const setColor = (c: Partial<Color>) => s.setRS(rs =>
       ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
-    )
+    );
     return [
       <div
+        key="duplicate"
         className="button"
         onClick={async () => {
           const duplicated = md5(Date.now().toString());
           const newPage = { ...page, duplicated };
           s.setRS(rs => {
-            const pageNr = rs.book.pages.findIndex(PageNr.eq(page))
+            const pageNr = rs.book.pages.findIndex(PageNr.eq(page));
             return {
               ...rs,
               currentPage: { hash: page.hash, duplicated },
@@ -44,12 +45,13 @@ const pageButtons = (s: State) => {
                   ...rs.book.pages.slice(pageNr + 1),
                 ]
               }
-            }
+            };
           });
         }}
         title="duplicate"
       ><FaCopy /></div>,
       <div
+        key="delete"
         className="button"
         onClick={() => s.addModal((key, dispose) =>
           <ModalYesNo
@@ -88,7 +90,7 @@ const pageButtons = (s: State) => {
           borderRadius: 5,
           margin: "0 5px 0 5px",
         }}
-        ></input>,
+      ></input>,
       <label key="allowPageResize">
         <input className="button" type="checkbox" checked={s.rs.allowPageResize} onChange={allowPageResize}/>
         resize
@@ -97,14 +99,14 @@ const pageButtons = (s: State) => {
   } else {
     return [];
   }
-}
+};
 
 const downloadButtons = (s: State) => {
-  const download: B = async _e => {
+  const download: B = async () => {
     s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: 0 }));
     await pdf(s);
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
-  }
+  };
   return (
     <div
       className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
@@ -115,12 +117,12 @@ const downloadButtons = (s: State) => {
       <FaFilePdf />
       {
         s.rs.kind === "generating pdf"
-         ? `${s.rs.processedPages}/${s.rs.book.pages.length}`
-         : undefined
+          ? `${s.rs.processedPages}/${s.rs.book.pages.length}`
+          : undefined
       }
     </div>
   );
-}
+};
 
 
 

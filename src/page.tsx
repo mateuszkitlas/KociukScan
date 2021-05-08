@@ -1,12 +1,12 @@
-import React from 'react';
-import { PageNr, State } from './state';
-import { Color, Page } from "./types"
-import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from 'react-icons/fa';
-import { hashToPng } from './utils';
-import { getPixelsByAngle, Image } from './Image';
-import { Dragger } from './Dragger';
-import { scaleByPage } from './logic';
-import { offset } from './offset';
+import React from "react";
+import { PageNr, State } from "./state";
+import { Color, Page } from "./types";
+import { FaArrowsAlt, FaLongArrowAltDown, FaLongArrowAltLeft, FaLongArrowAltRight, FaLongArrowAltUp } from "react-icons/fa";
+import { hashToPng } from "./utils";
+import { getPixelsByAngle, Image } from "./Image";
+import { Dragger } from "./Dragger";
+import { scaleByPage } from "./logic";
+import { offset } from "./offset";
 
 const cropSize = 40;
 
@@ -18,7 +18,7 @@ const crop = (s: State, page: Page, zoom: number) => {
     page.original.width * scaleByPage(page),
     page.original.height * scaleByPage(page),
     properties.rotate
-  )
+  );
   const minX = Math.min(...newPoints.map(x => x.x));
   const minY = Math.min(...newPoints.map(x => x.y));
   const maxX = Math.max(...newPoints.map(x => x.x));
@@ -79,7 +79,7 @@ const crop = (s: State, page: Page, zoom: number) => {
       }),
       zoom,
     }}/>
-  ]
+  ];
 
   return [
     <Dragger key="crop" {...{
@@ -92,12 +92,12 @@ const crop = (s: State, page: Page, zoom: number) => {
       filterY: () => true,
       onMouseUp: (xy) => s.setPage({ ...page, properties: { ...properties, ...xy } }),
       zoom,
-      }} />,
+    }} />,
     ...(s.rs.allowPageResize ? resize : []),
-  ]
-}
+  ];
+};
 
-const somePage = (s: State) => (page: Page) => {
+const somePage = (s: State, page: Page) => {
   const properties = Page.properties(s.rs.book, page);
   return <div
     id="page"
@@ -114,13 +114,9 @@ const somePage = (s: State) => (page: Page) => {
     />
     {crop(s, page, s.rs.zoom)}
   </div>;
-}
-
-const nonePage = (s: State) => {
-  return undefined;
-}
+};
 
 export const page = (s: State) => {
   const file = s.getPage(s.rs.currentPage);
-  return file ? somePage(s)(file) : nonePage(s);
-}
+  return file ? somePage(s, file) : undefined;
+};

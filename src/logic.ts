@@ -1,7 +1,7 @@
-import { PageNr, RawState } from './state';
-import { Book, Color, DPI, Page } from './types';
+import { PageNr, RawState } from "./state";
+import { Book, Color, DPI, Page } from "./types";
 
-export const scaleByPage = (page: Page) => 850 / page.original.width
+export const scaleByPage = (page: Page) => 850 / page.original.width;
 
 export interface ScanOpts {
   dpi: DPI;
@@ -18,7 +18,7 @@ export interface ProcessPage {
   pageNr: PageNr;
   scale: number
 }
-export module ProcessPage {
+export namespace ProcessPage {
   export const from = (book: Book, page: Page): ProcessPage => ({
     width: book.width,
     height: book.height,

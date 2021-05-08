@@ -1,6 +1,6 @@
 import React from "react";
-import { Book, Page } from './types';
-import { randomMd5 } from './utils';
+import { Book, Page } from "./types";
+import { randomMd5 } from "./utils";
 
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {
@@ -8,7 +8,7 @@ export namespace PageNr {
   export const key = (p: Page | PageNr) => { // TODO use in miniatures {}
     const v = get(p);
     return `${v.hash}-${v.duplicated}`;
-  }
+  };
   export const eq =
     (pn?: PageNr) => (p: Page | PageNr) => p.hash === pn?.hash && p.duplicated === pn?.duplicated;
 }
@@ -59,7 +59,7 @@ export const emptyRawState: RawState = {
   zoom: 1,
 };
 
-const loadRSFromLS = () => loadRS(window.localStorage.getItem('book'));
+const loadRSFromLS = () => loadRS(window.localStorage.getItem("book"));
 export const loadRSFromBook = (book: Book) => ({ ...emptyRawState, book });
 const loadRS = (bookRaw: string | null) =>
   bookRaw ? loadRSFromBook(JSON.parse(bookRaw)) : emptyRawState;
@@ -68,28 +68,28 @@ export const StateContext = React.createContext<State>({
   rs: loadRSFromLS(),
   isCurrentPage: () => false,
   getRS: async () => loadRSFromLS(),
-  setRS: () => {},
-  setBook: () => {},
-  deletePage: () => {},
+  setRS: () => undefined,
+  setBook: () => undefined,
+  deletePage: () => undefined,
   getPage: () => undefined,
-  setPage: () => {},
-  addModal: () => {},
+  setPage: () => undefined,
+  addModal: () => undefined,
 });
 
-export const StateProvider: React.FC = ({ children }) => {
+export const StateProvider: React.FC = ({ children }: { children?: React.ReactNode }) => {
   const reduce = (rs: RawState, f: (rs: RawState) => RawState) => {
-    window.localStorage.setItem('book', JSON.stringify(rs.book));
+    window.localStorage.setItem("book", JSON.stringify(rs.book));
     return f(rs);
-  }
+  };
   const [rs, setRS] = React.useReducer(reduce, loadRSFromLS());
   const isCurrentPage = PageNr.eq(rs.currentPage);
   const getRS =
-    () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs }));
+    () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs; }));
   const setBook =
     (book: Book) => setRS(rs => ({ ...rs, book }));
   const deletePage = (page: PageNr) =>
     setRS(rs => ({ ...rs, book: { ...rs.book, pages: rs.book.pages.filter(p => !PageNr.eq(page)(p)) } }));
-  const getPage = (page?: PageNr) => rs.book.pages.find(PageNr.eq(page))
+  const getPage = (page?: PageNr) => rs.book.pages.find(PageNr.eq(page));
   const setPage = async (page: Page) => {
     setRS(rs => ({
       ...rs,
@@ -98,7 +98,7 @@ export const StateProvider: React.FC = ({ children }) => {
         pages: rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...p, ...page } : p)
       }
     }));
-  }
+  };
   
   const addModal = (f: (key: string, dispose: () => void) => React.ReactNode) => {
     const hash = randomMd5();
@@ -107,7 +107,7 @@ export const StateProvider: React.FC = ({ children }) => {
     const node = f(hash, dispose);
     setRS(rs => ({ ...rs, modals: [...rs.modals, { hash, node }] }));
     return ;
-  }
+  };
 
   const value = {
     rs, isCurrentPage, getRS, setRS, setBook, deletePage, getPage, setPage,
@@ -115,4 +115,4 @@ export const StateProvider: React.FC = ({ children }) => {
   };
   
   return <StateContext.Provider value={value}>{ children }</StateContext.Provider>;
-}
+};
