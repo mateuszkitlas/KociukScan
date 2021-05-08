@@ -86,10 +86,14 @@ export class MiniPage extends React.Component<P, S> {
               title="delete"
             ><FaTrash />
             </div>
-            <div
-              className="button"
-              style={{backgroundColor: page.properties ? undefined : "#F00" }}
-            >{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
+            <div style={{
+              backgroundColor: page.properties ? "#445" : "#F00",
+              borderRadius: "50%",
+              width: 32,
+              height: 24,
+              textAlign: "center",
+              paddingTop: 6,
+            }}>{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
           </div>
         </ImageMiniature>
       </div>
