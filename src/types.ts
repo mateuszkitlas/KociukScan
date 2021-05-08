@@ -28,13 +28,17 @@ export interface Page {
 }
 
 export namespace Page {
-  const prevPrev = (book: Book, page: Page) => {
+  const prevPrevProperties = (book: Book, page: Page) => {
     const nr = book.pages.findIndex(PageNr.eq(page));
-    return 2 <= nr ? book.pages[nr - 2] : undefined;
+    for (let pnr = nr - 2; 0 <= pnr; pnr -= 2) {
+      if (book.pages[pnr].properties)
+        return book.pages[pnr].properties
+    }
+    return undefined;
   }
   export const defaultProperties: Properties = { x: 0, y: 0, rotate: 0, color: { contrast: 0 } };
   export const properties = (book: Book, page: Page): Page.Properties =>
-    page.properties ?? prevPrev(book, page)?.properties ?? Page.defaultProperties;
+    page.properties ?? prevPrevProperties(book, page) ?? Page.defaultProperties;
   export interface Properties {
     x: number;
     y: number;
