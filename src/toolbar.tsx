@@ -141,10 +141,13 @@ const downloadButtons = (s: State) => {
   };
   const f = (processed: number, all: number, startedAt: number) => {
     const elapsed = (Date.now() - startedAt) / 1000;
-    const v = Math.round(elapsed / processed);
+    const v = Math.round(elapsed / processed * 10) / 10;
     if (elapsed > 0 && processed > 0) {
       const seconds = Math.round((all - processed)/processed*elapsed);
-      return `${processed}/${all}, ${seconds} seconds remaining (${v} seconds per page)`;
+      const rMin = Math.floor(seconds / 60);
+      const rSec = seconds % 60;
+      const rSec2 = rSec < 10 ? `0${rSec}` : rSec;
+      return `${processed}/${all} ${rMin}:${rSec2} (${v}s per page)`;
     } else {
       return `${processed}/${all}`;
     }
