@@ -82,7 +82,8 @@ export const ModalYesNo = (props: ModalYesNo.Props) =>
     <div
       style={{
         display: "block",
-        margin: "0 auto"
+        margin: "0 auto",
+        textAlign: "center",
       }}
     >
       <div className="button" onClick={e => {e.stopPropagation(); props.onYes();}}>Yes</div>
