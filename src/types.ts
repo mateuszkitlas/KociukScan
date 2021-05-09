@@ -1,6 +1,6 @@
 import { PageNr } from "./state";
 
-export type DPI = 75 | 100 | 200 | 300;
+export type DPI = 150 | 200 | 300;
 
 export interface Book {
   pages: Page[];

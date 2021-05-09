@@ -66,7 +66,7 @@ export class Settings extends React.Component<P, S> {
           }}
           value={s.rs.book.dpi}
           key={"dpi"}
-        >{[75, 100, 200, 300].map(v => <option value={v} key={v}>{v}</option>)}
+        >{[150, 200, 300].map(v => <option value={v} key={v}>{v}</option>)}
         </select><br/>
         The higher DPI, the better quality of picture, but it is also more time consuming.
       </li>

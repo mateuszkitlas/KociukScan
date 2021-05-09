@@ -50,7 +50,7 @@ export const emptyRawState: RawState = {
     pages: [],
     width: 400,
     height: 400,
-    dpi: 100,
+    dpi: 150,
     color: {
       contrast: 1,
     }
