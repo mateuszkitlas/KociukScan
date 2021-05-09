@@ -1,8 +1,8 @@
 import React from "react";
 import "./App.css";
 import { PageNr, State } from "./state";
-import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash } from "react-icons/fa";
-import { pdf } from "./scanner";
+import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit } from "react-icons/fa";
+import { pdf, scan } from "./scanner";
 import { Settings } from "./Settings";
 import { ScanningButtons } from "./ScanningButtons";
 import { Color, Page } from "./types";
@@ -64,6 +64,38 @@ const pageButtons = (s: State) => {
         )}
         title="Delete"
       ><FaTrash />
+      </div>,
+      <div
+        key="rescan"
+        className="button"
+        onClick={() => s.addModal((key, dispose) =>
+          <ModalYesNo
+            key={key}
+            onYes={async () => {
+              dispose();
+              s.setRS(rs => ({ ...rs, kind: "scanning one" }));
+              const pageGetter = await scan(s);
+              if (pageGetter) {
+                const newPage = await pageGetter();
+                s.setRS(rs => ({
+                  ...rs,
+                  kind: "nothing",
+                  currentPage: PageNr.get(newPage),
+                  book: {
+                    ...rs.book,
+                    pages: rs.book.pages.map(p => PageNr.eq(p)(page) ? newPage : p)
+                  }
+                }));
+              } else {
+                s.setRS(rs => ({ ...rs, kind: "nothing" }));
+              }
+            }}
+            onNo={dispose}
+          >Are you sure you want to scan this page again?
+          </ModalYesNo>
+        )}
+        title="Scan again this page"
+      ><FaEdit />
       </div>,
       <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º" ><FaUndo /></div>,
       <div className="button" onClick={rotate(0.5)}  key="rr" title="Rotate right by 0.5º"><FaRedo /></div>,

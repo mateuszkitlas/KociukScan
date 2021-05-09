@@ -65,9 +65,9 @@ export class ScanningButtons extends React.Component<P> {
     };
 
     return [
-      ["scanning one", "scanning many", "generating pdf"].includes(s.rs.kind)
-        ? <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>
-        : <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>,
+      s.rs.kind === "nothing"
+        ? <div className="button" onClick={one} key="one" title="Scan"><FaPaw /></div>
+        : <div className="button" onClick={stop} key="stop" title="Stop"><FaStop /></div>,
       <div
         className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
         onClick={s.rs.kind === "nothing" ? many : undefined}

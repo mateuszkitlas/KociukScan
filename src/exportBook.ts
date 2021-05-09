@@ -34,6 +34,6 @@ export const importBook = async (s: State) => {
     for (const page of book.pages) {
       zip.extractEntryTo(`${page.hash}.png`, dirname(hashToPng(page.hash)), true, true);
     }
-    s.setRS(_ => loadRSFromBook(book));
+    s.setRS(() => loadRSFromBook(book));
   }
 };
