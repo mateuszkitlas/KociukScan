@@ -5,7 +5,7 @@ import { hashToPng } from "./utils";
 import { getPixelsByAngle, Image } from "./Image";
 import { scaleByPage } from "./logic";
 import { ResizeableDragger } from "./ResizeableDragger";
-import { offset } from "./offset";
+import { mainPageSize, offset } from "./offset";
 
 const f = (book: Book, page: Page) => {
   const properties = Page.properties(book, page);
@@ -26,20 +26,25 @@ const f = (book: Book, page: Page) => {
 
 export const MoveResize = (props: { s: State, page: Page }) => {
   const properties = Page.properties(props.s.rs.book, props.page);
+  const boundries = f(props.s.rs.book, props.page);
+  const rawWidth = boundries.maxX - boundries.minX;
+  const rawHeight = boundries.maxY - boundries.minY;
+  const windowWH = mainPageSize();
+  const zoom = Math.min(windowWH.height/rawHeight, windowWH.width/rawWidth);
   return <div>
     <Image
       key="image"
       src={hashToPng(props.page.hash)}
-      scale={scaleByPage(props.page) * props.s.rs.zoom}
+      scale={scaleByPage(props.page) * zoom}
       contrast={Color.merge(props.page, props.s.rs.book).contrast}
       rotate={properties.rotate}
       width={props.page.original.width}
       height={props.page.original.height}
     />
     <ResizeableDragger
-      zoom={props.s.rs.zoom}
+      zoom={zoom}
       resize={props.s.rs.allowPageResize}
-      boundries={f(props.s.rs.book, props.page)}
+      boundries={boundries}
       cropSize={40}
       set={o => props.s.setRS(rs => ({
         ...rs,
