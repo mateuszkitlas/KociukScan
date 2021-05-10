@@ -105,4 +105,5 @@ input::-webkit-slider-thumb {
 ::-webkit-scrollbar-thumb {
   background: #334;
   -webkit-border-radius: 1ex;
+  border-radius: 1ex;
 }
