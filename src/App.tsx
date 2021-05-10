@@ -2,13 +2,13 @@ import React, { useEffect } from "react";
 import "./App.css";
 import { MiniPage } from "./MiniPage";
 import { PageNr, State, StateContext, StateProvider } from "./state";
-import { buttons } from "./toolbar";
+import { buttons, deleteAction, duplicateAction } from "./toolbar";
 import { PageElt } from "./page";
 import { mainPageSize, offset } from "./offset";
 import { Page } from "./types";
 
-
 const X = ({ s }: { s: State }) => {
+  const page = s.getPage(s.rs.currentPage);
   const nextPrevPage = (movePageNr: number) => s.setRS(rs => {
     const pageNr = rs.currentPage;
     const nr = rs.book.pages.findIndex(PageNr.eq(pageNr));
@@ -16,9 +16,8 @@ const X = ({ s }: { s: State }) => {
     const nextPageNr = nextPage ? PageNr.get(nextPage) : pageNr;
     return { ...rs, currentPage: nextPageNr };
   });
-  const rotate = (deg: number) => s.setRS(rs => {
-    const page = s.getPage(rs.currentPage);
-    if (page) {
+  const rotate = (deg: number) => page
+    ? s.setRS(rs => {
       const properties = Page.properties(s.rs.book, page);
       const rotate = properties.rotate + deg;
       return {
@@ -28,13 +27,10 @@ const X = ({ s }: { s: State }) => {
           pages: rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, rotate } } : p),
         }
       };
-    } else {
-      return rs;
-    }
-  });
-  const move = (dx: number, dy: number) => s.setRS(rs => {
-    const page = s.getPage(rs.currentPage);
-    if (page) {
+    })
+    : undefined;
+  const move = (dx: number, dy: number) => page
+    ? s.setRS(rs => {
       const properties = Page.properties(s.rs.book, page);
       const x = properties.x + dx;
       const y = properties.y + dy;
@@ -45,10 +41,9 @@ const X = ({ s }: { s: State }) => {
           pages: rs.book.pages.map(p => PageNr.eq(page)(p) ? { ...page, properties: { ...properties, x, y } } : p),
         }
       };
-    } else {
-      return rs;
-    }
-  });
+    })
+    : undefined;
+
   useEffect(() => {
     let pressed = false;
     const onKeyDown = async ({ code, shiftKey }: KeyboardEvent) => {
@@ -63,6 +58,8 @@ const X = ({ s }: { s: State }) => {
       case "ArrowUp+":    move(0, -1); return;
       case "ArrowLeft+":  move(-1, 0); return;
       case "ArrowRight+": move(1, 0); return;
+      case "KeyD-":       page && duplicateAction(s, page); return;
+      case "Delete-":     page && deleteAction(s, page); return;
       }
     };
     const onKeyUp = () => { pressed = false; };

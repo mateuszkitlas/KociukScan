@@ -11,6 +11,37 @@ import md5 from "md5";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 
+export const duplicateAction = (s: State, page: Page) => {
+  const duplicated = md5(Date.now().toString());
+  const newPage = { ...page, duplicated, properties: undefined };
+  s.setRS(rs => {
+    const pageNr = rs.book.pages.findIndex(PageNr.eq(page));
+    return {
+      ...rs,
+      currentPage: { hash: page.hash, duplicated },
+      book: {
+        ...rs.book,
+        pages: [
+          ...rs.book.pages.slice(0, pageNr + 1),
+          newPage,
+          ...rs.book.pages.slice(pageNr + 1),
+        ]
+      }
+    };
+  });
+};
+
+export const deleteAction = (s: State, page: Page) => s.addModal((key, dispose) => <ModalYesNo
+  key={key}
+  onYes={() => {
+    s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash } }));
+    s.deletePage(page);
+    dispose();
+  }}
+  onNo={dispose}
+>Are you sure?
+</ModalYesNo>);
+
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
   if (page) {
@@ -23,48 +54,8 @@ const pageButtons = (s: State) => {
       ({ ...rs, book: { ...rs.book, color: { ...rs.book.color, ...c } } })
     );
     return [
-      <div
-        key="duplicate"
-        className="button"
-        onClick={async () => {
-          const duplicated = md5(Date.now().toString());
-          const newPage = { ...page, duplicated };
-          s.setRS(rs => {
-            const pageNr = rs.book.pages.findIndex(PageNr.eq(page));
-            return {
-              ...rs,
-              currentPage: { hash: page.hash, duplicated },
-              book: {
-                ...rs.book,
-                pages: [
-                  ...rs.book.pages.slice(0, pageNr + 1),
-                  newPage,
-                  ...rs.book.pages.slice(pageNr + 1),
-                ]
-              }
-            };
-          });
-        }}
-        title="Duplicate"
-      ><FaCopy /></div>,
-      <div
-        key="delete"
-        className="button"
-        onClick={() => s.addModal((key, dispose) =>
-          <ModalYesNo
-            key={key}
-            onYes={() => {
-              s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash } }));
-              s.deletePage(page);
-              dispose();
-            }}
-            onNo={dispose}
-          >Are you sure?
-          </ModalYesNo>
-        )}
-        title="Delete"
-      ><FaTrash />
-      </div>,
+      <div key="duplicate" className="button" onClick={() => duplicateAction(s, page)} title="Duplicate"><FaCopy /></div>,
+      <div key="delete" className="button" onClick={() => deleteAction(s, page)} title="Delete"><FaTrash /></div>,
       <div
         key="rescan"
         className="button"
