@@ -80,8 +80,8 @@ export const ResizeableDragger = (props: Props) => {
       width: width,
       height: height,
       svg: FaArrowsAlt,
-      filterX: () => true,
-      filterY: () => true,
+      filterX: x => 0 < x && x + props.width < rawWidth,
+      filterY: y => 0 < y && y + props.height < rawHeight,
       onMouseUp: set,
       zoom,
     }} />
