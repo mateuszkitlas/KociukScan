@@ -3,7 +3,7 @@ import "./App.css";
 import { MiniPage } from "./MiniPage";
 import { PageNr, State, StateContext, StateProvider } from "./state";
 import { buttons } from "./toolbar";
-import { page } from "./page";
+import { PageElt } from "./page";
 import { mainPageSize, offset } from "./offset";
 
 class X extends React.Component<{ s: State }, { dnd?: boolean }> {
@@ -15,7 +15,7 @@ class X extends React.Component<{ s: State }, { dnd?: boolean }> {
     const s = this.props.s;
     return <div>
       <div id="wrapper" key="wrapper">
-        {page(s)}
+        <PageElt s={s}/>
         <div id="pages" key="pages" style={{ width: offset.x, height: mainPageSize().height }}>
           {s.rs.book.pages.map(page => <MiniPage key={PageNr.key(page)} page={page} s={s}/>)}
         </div>

@@ -28,6 +28,8 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Prop
       width: css.width*zoom,
       height: css.height*zoom,
       backgroundImage: reactSvgComponentToMarkupString(svg),
+      border: "1px dashed #000",
+      outline: "1px dashed #fff",
     }}
     onMouseDown={e => {
       e.stopPropagation();

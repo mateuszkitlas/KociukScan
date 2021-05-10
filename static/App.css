@@ -15,7 +15,6 @@ div#page {
   position: absolute;
 }
 /*----------*/
-div#page > div { border: 1px dashed #000; outline: 1px dashed #fff; }
 
 #toolbar { background-color: #334; }
 body {
