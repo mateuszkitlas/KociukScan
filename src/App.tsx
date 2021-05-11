@@ -54,24 +54,24 @@ const X = ({ s }: { s: State }) => {
     : undefined;
 
   useEffect(() => {
-    let pressed = false;
-    const onKeyDown = async ({ code, shiftKey }: KeyboardEvent) => {
-      if (pressed) return;
-      pressed = true;
+    const pressed: Record<string, boolean> = {};
+    const onKeyDown = async ({ code, shiftKey, ctrlKey }: KeyboardEvent) => {
+      if (pressed[code]) return;
+      pressed[code] = true;
       switch (`${code}${shiftKey ? "+" : "-"}`) {
       case "ArrowDown-":  nextPrevPage(1); return;
       case "ArrowUp-":    nextPrevPage(-1); return;
       case "ArrowLeft-":  rotate(-0.25); return;
       case "ArrowRight-": rotate(0.25); return;
-      case "ArrowDown+":  move(0, 1); return;
-      case "ArrowUp+":    move(0, -1); return;
-      case "ArrowLeft+":  move(-1, 0); return;
-      case "ArrowRight+": move(1, 0); return;
+      case "ArrowDown+":  move(0, ctrlKey ? 5 : 1); return;
+      case "ArrowUp+":    move(0, ctrlKey ? -5 : -1); return;
+      case "ArrowLeft+":  move(ctrlKey ? -5 : -1, 0); return;
+      case "ArrowRight+": move(ctrlKey ? 5 : 1, 0); return;
       case "KeyD-":       page && duplicateAction(s, page); return;
       case "Delete-":     page && s.setRS(rs => ({ ...rs, modal: { kind: "deletePage", pageNr: PageNr.get(page) } })); return;
       }
     };
-    const onKeyUp = () => { pressed = false; };
+    const onKeyUp = ({ code }: KeyboardEvent) => { pressed[code] = false; };
     window.addEventListener("keydown", onKeyDown);
     window.addEventListener("keyup", onKeyUp);
     return () => {

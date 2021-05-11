@@ -8,6 +8,7 @@ function createWindow () {
   const mainWindow = new BrowserWindow({
     width: 1300,
     height: 1000,
+    icon: path.join(__dirname, "build/favicon.ico"),
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false,
@@ -21,7 +22,6 @@ function createWindow () {
     protocol: "file:",
     slashes: true
   });
-  console.log(startUrl);
   mainWindow.loadURL(startUrl);
 }
 

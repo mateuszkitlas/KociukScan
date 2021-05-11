@@ -7,5 +7,9 @@
 - `Shift + →` move crop frame right
 - `Shift + 🠕` move crop frame up
 - `Shift + 🠗` move crop frame down
+- `Shift + Ctrl + ←` faster move crop frame left
+- `Shift + Ctrl + →` faster move crop frame right
+- `Shift + Ctrl + 🠕` faster move crop frame up
+- `Shift + Ctrl + 🠗` faster move crop frame down
 - `D` duplicate page
 - `Delete` delete page
