@@ -1,0 +1,10 @@
+- `←` rotate left by 0.25º
+- `→` rotate right by 0.25º
+- `🠕` previous page
+- `🠗` next page
+- `Shift + ←` move crop frame left
+- `Shift + →` move crop frame right
+- `Shift + 🠕` move crop frame up
+- `Shift + 🠗` move crop frame down
+- `D` duplicate page
+- `Delete` delete page
