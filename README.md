@@ -1,3 +1,4 @@
+# Key mappings
 - `←` rotate left by 0.25º
 - `→` rotate right by 0.25º
 - `🠕` previous page
