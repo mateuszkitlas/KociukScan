@@ -6,6 +6,6 @@ tmp
 build
 out/
 tmp/*.png
-static/*.js
+static/**/*.js
 .cache
 out/*.zip

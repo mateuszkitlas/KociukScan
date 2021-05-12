@@ -1,4 +1,3 @@
-import React from "react";
 import { Page } from "./types";
 import md5 from "md5";
 import { writeFileSync, createWriteStream } from "fs";
@@ -7,7 +6,6 @@ import { Sharp, OutputInfo, sharp, pdfkit, dialog } from "./electronImports";
 import * as ScannerToBuffer from "scanner-to-buffer";
 import { State } from "./state";
 import { arrayBufferToBuffer, hashToPng } from "./utils";
-import { ModalWithClose } from "./modal";
 
 const toBuffer = (s: Sharp) => new Promise<Buffer>((resolve, reject) =>
   s.toBuffer((err, buffer) => err ? reject(err) : resolve(buffer))
@@ -54,11 +52,7 @@ export const scan = async (s: State) => {
     const buffer = await ScannerToBuffer.scan({ dpi: s.rs.book.dpi, format: "png", device: s.rs.device });
     return () => scanFromBuffer(buffer);
   } catch (err) {
-    s.addModal((key, dispose) =>
-      <ModalWithClose key={key} title="Error" onClose={dispose}>
-        {err.message}
-      </ModalWithClose>
-    );
+    s.setRS(rs => ({ ...rs, modal: { kind: "errorScan", message: err.message } }));
   }
 };
 
