@@ -21,6 +21,7 @@
         "@typescript-eslint"
     ],
     "rules": {
+        "no-case-declarations": "off",
         "no-underscore-dangle": ["error", { "allowFunctionParams": true }],
         "@typescript-eslint/no-namespace": "off",
         "@typescript-eslint/explicit-module-boundary-types": "off",

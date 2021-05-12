@@ -79,6 +79,8 @@ const X = ({ s }: { s: State }) => {
       window.removeEventListener("keyup", onKeyUp);
     };
   });
+  const closeModal = () => s.setRS(rs => ({ ...rs, modal: undefined }));
+  
   return <div>
     <div id="wrapper" key="wrapper">
       <PageElt s={s}/>
@@ -90,84 +92,78 @@ const X = ({ s }: { s: State }) => {
       {buttons(s)}
     </div>
 
-    { s.rs.modal?.kind === "settings" && <ModalWithClose
-      title="Settings"
-      onClose={() => s.setRS(rs => ({ ...rs, modal: undefined }))}
-    >
-      <Settings modal={s.rs.modal} s={s}/>
-    </ModalWithClose>}
-
-    { s.rs.modal?.kind === "deletePage" && <ModalYesNo
-      onYes={() => {
-        if (s.rs.modal?.kind === "deletePage") {
-          s.deletePage(s.rs.modal.pageNr);
-          s.setRS(rs => ({ ...rs, currentPage: undefined, modal: undefined }));
-        }
-      }}
-      onNo={() => s.setRS(rs => ({ ...rs, modal: undefined }))}
-    >Are you sure?
-    </ModalYesNo>}
-
-    { s.rs.modal?.kind === "settings" && s.rs.modal.modal?.kind === "importPages" && <ModalWithClose
-      onClose={() => s.setRS(rs =>
-        (s.rs.modal?.kind === "settings" && s.rs.modal.modal?.kind === "importPages")
-          ? { ...rs, modal: { ...s.rs.modal, modal: undefined } }
-          : rs )}
-      title="Import pages"
-    >
-      <FileDrop
-        onDrop={(files) => files && addFiles(files)}
-      ><div style={{
-          width: 490,
-          height: 250,
-          border: "5px dashed #fff",
-          borderRadius: 15,
-          paddingTop: 240,
-          textAlign: "center",
-          fontSize: 30
-        }}>Drop images here</div>
-      </FileDrop>
-    </ModalWithClose>}
-
-    { s.rs.modal?.kind === "settings" && s.rs.modal.modal?.kind === "deleteProject" && <ModalYesNo
-      onYes={() => s.setRS(() => emptyRawState)}
-      onNo={() => s.setRS(rs =>
-        (s.rs.modal?.kind === "settings" && s.rs.modal.modal?.kind === "deleteProject")
-          ? { ...rs, modal: { ...s.rs.modal, modal: undefined } }
-          : rs )}
-    >Are you sure?
-    </ModalYesNo>}
-
-    { s.rs.modal?.kind === "errorScan" && <ModalWithClose
-      title="Error"
-      onClose={() => s.setRS(rs => ({ ...rs, modal: undefined }))}
-    >{s.rs.modal.message}</ModalWithClose>}
-    
-    { s.rs.modal?.kind === "rescanPage" && <ModalYesNo
-      onYes={async () => {
-        if (s.rs.modal?.kind === "rescanPage") {
-          const oldPageNr = s.rs.modal.pageNr;
-          s.setRS(rs => ({ ...rs, kind: "scanning one", modal: undefined }));
-          const pageGetter = await scan(s);
-          if (pageGetter) {
-            const newPage = await pageGetter();
-            s.setRS(rs => ({
-              ...rs,
-              kind: "nothing",
-              currentPage: PageNr.get(newPage),
-              book: {
-                ...rs.book,
-                pages: rs.book.pages.map(p => PageNr.eq(p)(oldPageNr) ? newPage : p)
-              }
-            }));
-          } else {
-            s.setRS(rs => ({ ...rs, kind: "nothing" }));
+    {(() => {
+      switch (s.rs.modal?.kind) {
+      case "deletePage":
+        const pageNr = s.rs.modal.pageNr;
+        return <ModalYesNo
+          onYes={() => {
+            s.deletePage(pageNr);
+            s.setRS(rs => ({ ...rs, currentPage: undefined, modal: undefined }));
+          }}
+          onNo={closeModal}
+        >Are you sure?
+        </ModalYesNo>;
+      case "errorScan":
+        return <ModalWithClose title="Error" onClose={closeModal}>{s.rs.modal.message}</ModalWithClose>;
+      case "rescanPage":
+        const oldPageNr = s.rs.modal.pageNr;
+        return <ModalYesNo
+          onYes={async () => {
+            s.setRS(rs => ({ ...rs, kind: "scanning one", modal: undefined }));
+            const pageGetter = await scan(s);
+            if (pageGetter) {
+              const newPage = await pageGetter();
+              s.setRS(rs => ({
+                ...rs,
+                kind: "nothing",
+                currentPage: PageNr.get(newPage),
+                book: {
+                  ...rs.book,
+                  pages: rs.book.pages.map(p => PageNr.eq(p)(oldPageNr) ? newPage : p)
+                }
+              }));
+            } else {
+              s.setRS(rs => ({ ...rs, kind: "nothing" }));
+            }
+          }}
+          onNo={closeModal}
+        >Are you sure you want to scan this page again?
+        </ModalYesNo>;
+      case "settings":
+        return (() => {
+          const modal = s.rs.modal;
+          const closeModalModal = () => s.setRS(rs => ({ ...rs, modal: { ...modal, modal: undefined } }));
+          switch (modal.modal?.kind) {
+          case "deleteProject":
+            return <ModalYesNo
+              onYes={() => s.setRS(() => emptyRawState)}
+              onNo={closeModalModal}
+            >Are you sure?
+            </ModalYesNo>;
+          case "importPages":
+            return <ModalWithClose onClose={closeModalModal} title="Import pages">
+              <FileDrop
+                onDrop={(files) => files && addFiles(files)}
+              ><div style={{
+                  width: 490,
+                  height: 250,
+                  border: "5px dashed #fff",
+                  borderRadius: 15,
+                  paddingTop: 240,
+                  textAlign: "center",
+                  fontSize: 30
+                }}>Drop images here</div>
+              </FileDrop>
+            </ModalWithClose>;
+          case undefined:
+            return <ModalWithClose title="Settings" onClose={closeModal}>
+              <Settings modal={modal} s={s}/>
+            </ModalWithClose>;
           }
-        }
-      }}
-      onNo={() => s.setRS(rs => ({ ...rs, modal: undefined }))}
-    >Are you sure you want to scan this page again?
-    </ModalYesNo>}
+        })();
+      }
+    })()}
   </div>;
 };
 
