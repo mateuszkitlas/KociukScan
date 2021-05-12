@@ -1,12 +1,10 @@
 import React from "react";
 import "./App.css";
 import { PageNr, State } from "./state";
-import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit } from "react-icons/fa";
-import { pdf, scan } from "./scanner";
-import { Settings } from "./Settings";
+import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa";
+import { pdf } from "./scanner";
 import { ScanningButtons } from "./ScanningButtons";
 import { Color, Page } from "./types";
-import { ModalYesNo } from "./modal";
 import md5 from "md5";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
@@ -31,17 +29,6 @@ export const duplicateAction = (s: State, page: Page) => {
   });
 };
 
-export const deleteAction = (s: State, page: Page) => s.addModal((key, dispose) => <ModalYesNo
-  key={key}
-  onYes={() => {
-    s.setRS(rs => ({ ...rs, currentPage: { hash: page.hash } }));
-    s.deletePage(page);
-    dispose();
-  }}
-  onNo={dispose}
->Are you sure?
-</ModalYesNo>);
-
 const pageButtons = (s: State) => {
   const page = s.getPage(s.rs.currentPage);
   if (page) {
@@ -55,36 +42,16 @@ const pageButtons = (s: State) => {
     );
     return [
       <div key="duplicate" className="button" onClick={() => duplicateAction(s, page)} title="Duplicate"><FaCopy /></div>,
-      <div key="delete" className="button" onClick={() => deleteAction(s, page)} title="Delete"><FaTrash /></div>,
+      <div
+        key="delete"
+        className="button"
+        onClick={() => s.setRS(rs => ({ ...rs, modal: { kind: "deletePage", pageNr: PageNr.get(page) } }))}
+        title="Delete"
+      ><FaTrash /></div>,
       <div
         key="rescan"
         className="button"
-        onClick={() => s.addModal((key, dispose) =>
-          <ModalYesNo
-            key={key}
-            onYes={async () => {
-              dispose();
-              s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-              const pageGetter = await scan(s);
-              if (pageGetter) {
-                const newPage = await pageGetter();
-                s.setRS(rs => ({
-                  ...rs,
-                  kind: "nothing",
-                  currentPage: PageNr.get(newPage),
-                  book: {
-                    ...rs.book,
-                    pages: rs.book.pages.map(p => PageNr.eq(p)(page) ? newPage : p)
-                  }
-                }));
-              } else {
-                s.setRS(rs => ({ ...rs, kind: "nothing" }));
-              }
-            }}
-            onNo={dispose}
-          >Are you sure you want to scan this page again?
-          </ModalYesNo>
-        )}
+        onClick={() => s.setRS(rs => ({ ...rs, modal: { kind: "rescanPage", pageNr: PageNr.get(page) } }))}
         title="Scan again this page"
       ><FaEdit />
       </div>,
@@ -160,11 +127,14 @@ const downloadButtons = (s: State) => {
   );
 };
 
-
-
 export const buttons = (s: State) => [
   <ScanningButtons s={s} key="ScanningButtons"/>,
   downloadButtons(s),
   ...pageButtons(s),
-  <Settings s={s} key="Settings"/>
+  <div
+    className="button"
+    onClick={() => s.setRS(rs => ({ ...rs, modal: { kind: "settings" } }))}
+    title="Settings"
+    key="settings"
+  ><FaCog/></div>
 ];
