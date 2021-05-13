@@ -64,8 +64,8 @@ const pageButtons = (s: State) => {
         key="contrast-book"
         title="Contrast"
         type="range"
-        min="0.5"
-        max="4"
+        min="1"
+        max="2"
         step="0.05"
         value={s.rs.book.color.contrast}
         style={{
