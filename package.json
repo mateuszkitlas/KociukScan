@@ -71,6 +71,7 @@
       "node_modules/**/*"
     ],
     "linux": {
+      "icon": "static/logo512.png",
       "target": [
         "zip",
         "deb"
