@@ -1,9 +1,9 @@
-import { loadRSFromBook, State } from "./state";
+import { loadRSFromBook, State } from "../native/state";
 import AdmZip from "adm-zip";
 import { hashToPng } from "./utils";
-import { dialog } from "./electronImports";
-import { Book } from "./types";
+import { Book } from "../native/types";
 import { dirname } from "path";
+import { dialog } from "electron";
 
 export const exportBook = async (s: State) => {
   const filename = dialog.showSaveDialogSync({
@@ -14,7 +14,7 @@ export const exportBook = async (s: State) => {
     const zip = new AdmZip();
     zip.addFile("book.json", Buffer.from(JSON.stringify(s.rs.book), "utf8"));
     for (const page of s.rs.book.pages) {
-      zip.addLocalFile(hashToPng(page.hash));
+      zip.addLocalFile(hashToPng(s.rs.tmpPath ?? "unknown", page.hash));
     }
     await new Promise<void>((resolve, reject) => zip.writeZip(filename, error =>
       error ? reject(error) : resolve()
@@ -32,7 +32,7 @@ export const importBook = async (s: State) => {
     const zip = new AdmZip(filename[0]);
     const book: Book = JSON.parse(zip.readAsText("book.json"));
     for (const page of book.pages) {
-      zip.extractEntryTo(`${page.hash}.png`, dirname(hashToPng(page.hash)), true, true);
+      zip.extractEntryTo(`${page.hash}.png`, dirname(hashToPng(s.rs.tmpPath ?? "unknown", page.hash)), true, true);
     }
     s.setRS(() => loadRSFromBook(book));
   }

@@ -1,11 +1,17 @@
-import { Page } from "./types";
+import { Page } from "../native/types";
 import md5 from "md5";
-import { writeFileSync, createWriteStream } from "fs";
-import { ProcessPage, scaleByPage } from "./logic";
-import { Sharp, OutputInfo, sharp, pdfkit, dialog } from "./electronImports";
+import { createWriteStream } from "fs";
+import { ProcessPage, scaleByPage } from "../native/logic";
+//import { Sharp, OutputInfo, sharp, pdfkit, dialog } from "../electronImports";
 import * as ScannerToBuffer from "scanner-to-buffer";
-import { State } from "./state";
-import { arrayBufferToBuffer, hashToPng } from "./utils";
+import { State } from "../native/state";
+import { arrayBufferToBuffer } from "../native/utils";
+import { assertNotFalsy } from "../native/utils";
+import { promises as fs } from "fs"
+import sharp, { OutputInfo, Sharp } from "sharp";
+import pdfkit from "pdfkit"
+import electron from "electron"
+import { hashToPng } from "../frontend/utils";
 
 const toBuffer = (s: Sharp) => new Promise<Buffer>((resolve, reject) =>
   s.toBuffer((err, buffer) => err ? reject(err) : resolve(buffer))
@@ -15,8 +21,8 @@ const toInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
 );
 const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
-const processPage = async (opts: ProcessPage): Promise<Buffer> => {
-  const rotatedBuffer = await toBuffer(sharp(hashToPng(opts.pageNr.hash)).rotate(opts.pageProperties.rotate, { background }));
+const processPage = async (tmpPath: string, opts: ProcessPage): Promise<Buffer> => {
+  const rotatedBuffer = await toBuffer(sharp(hashToPng(tmpPath, opts.pageNr.hash)).rotate(opts.pageProperties.rotate, { background }));
   const brightness = 1;
   const contrast = opts.pageProperties.color.contrast;
   const img3 = sharp(rotatedBuffer)
@@ -30,11 +36,10 @@ const processPage = async (opts: ProcessPage): Promise<Buffer> => {
   return await toBuffer(img3);
 };
 
-const scanFromBuffer = async (buffer: Buffer) => {
-  const hash = md5(buffer);
+export const scanFromBuffer = async (tmpPath: string, hash: string, buffer: Buffer) => {
   const info = await toInfo(buffer);
-  const path = hashToPng(hash);
-  writeFileSync(path, buffer);
+  const path = hashToPng(tmpPath, hash);
+  await fs.writeFile(path, buffer);
   const page: Page = {
     hash,
     original: {
@@ -45,22 +50,17 @@ const scanFromBuffer = async (buffer: Buffer) => {
   return page;
 };
 
-export const scanFromFile = async (buffer: ArrayBuffer) => scanFromBuffer(arrayBufferToBuffer(buffer));
-
-export const scan = async (s: State) => {
-  try {
-    const buffer = await ScannerToBuffer.scan({ dpi: s.rs.book.dpi, format: "png", device: s.rs.device });
-    return () => scanFromBuffer(buffer);
-  } catch (err) {
-    s.setRS(rs => ({ ...rs, modal: { kind: "errorScan", message: err.message } }));
-  }
-};
+export const scanFromFile = (tmpPath: string) => async (arrayBuffer: ArrayBuffer) => {
+  const buffer = arrayBufferToBuffer(arrayBuffer)
+  return scanFromBuffer(tmpPath, md5(buffer), buffer);
+}
 
 export const pdf = async (s: State) => {
-  const book = s.rs.book;
+  const { tmpPath, book } = s.rs;
+  assertNotFalsy(tmpPath, "tmpPath");
   const doContinue = async () => (await s.getRS()).kind === "generating pdf";
   const pdf = new pdfkit({ autoFirstPage: false });
-  const filename = dialog.showSaveDialogSync({
+  const filename = electron.dialog.showSaveDialogSync({
     defaultPath: "Book.pdf",
     filters: [{
       name: "PDF document",
@@ -75,7 +75,7 @@ export const pdf = async (s: State) => {
       s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i, startedAt }));
       const page = book.pages[i];
       const scale = scaleByPage(page);
-      const buffer = await processPage(ProcessPage.from(book, page));
+      const buffer = await processPage(tmpPath, ProcessPage.from(book, page));
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },

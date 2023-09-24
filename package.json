@@ -11,30 +11,24 @@
     "url": "git+https://github.com/mateuszkitlas/scan.git"
   },
   "dependencies": {
-    "@types/adm-zip": "^0.4.34",
-    "@types/md5": "^2.3.0",
-    "@types/node": "^12.0.0",
-    "@types/pdfkit": "^0.11.0",
-    "@types/react": "^17.0.0",
-    "@types/react-dom": "^17.0.0",
-    "@types/sharp": "^0.28.0",
     "adm-zip": "^0.5.5",
-    "electron-squirrel-startup": "^1.0.0",
+    "buffer": "^6.0.3",
+    "crypto": "^1.0.1",
+    "fontkit": "^2.0.2",
     "md5": "^2.3.0",
-    "pdfkit": "^0.12.1",
+    "pdfkit": "^0.13.0",
     "react": "^17.0.2",
     "react-dom": "^17.0.2",
     "react-file-drop": "^3.1.2",
     "react-icons": "^4.2.0",
+    "readable-stream": "^4.4.2",
     "scanner-to-buffer": "^2.1.1",
-    "sharp": "^0.22.1",
-    "typescript": "^4.1.2",
-    "web-vitals": "^1.0.1"
+    "sharp": "^0.32.6",
+    "typescript": "^5.2.2"
   },
   "scripts": {
-    "start": "electron .",
-    "build": "tsc && parcel build static/index.html --target electron --out-dir build --public-url ./",
-    "dist": "electron-builder"
+    "start": "npx electron ./dist/backend.js",
+    "build": "webpack"
   },
   "eslintConfig": {
     "extends": [
@@ -51,15 +45,26 @@
     ]
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.4.34",
+    "@types/md5": "^2.3.0",
+    "@types/node": "^12.0.0",
+    "@types/pdfkit": "^0.11.0",
+    "@types/react": "^17.0.0",
+    "@types/react-dom": "^17.0.0",
+    "@types/sharp": "^0.28.0",
     "@typescript-eslint/eslint-plugin": "^4.22.1",
     "@typescript-eslint/parser": "^4.22.1",
-    "electron": "^6",
-    "electron-builder": "^22.11.3",
+    "css-loader": "^6.8.1",
+    "electron": "^26.2.2",
     "eslint": "^7.26.0",
     "eslint-plugin-react": "^7.23.2",
-    "parcel-bundler": "^1.12.5"
+    "html-webpack-plugin": "^5.5.3",
+    "style-loader": "^3.3.3",
+    "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
+    "webpack": "^5.88.2",
+    "webpack-cli": "^5.1.4"
   },
-  "main": "main.js",
   "build": {
     "appId": "kociuk",
     "compression": "normal",

@@ -1,36 +1,18 @@
 import { join } from "path";
-import { existsSync, mkdirSync } from "fs";
-import { electron } from "./electronImports";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createElement } from "react";
 import { IconType } from "react-icons/lib";
 import md5 from "md5";
-
-export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000*seconds));
-
-export function arrayBufferToBuffer(ab: ArrayBuffer) {
-  const buf = Buffer.alloc(ab.byteLength);
-  const view = new Uint8Array(ab);
-  for (let i = 0; i < buf.length; ++i) {
-    buf[i] = view[i];
-  }
-  return buf;
-}
+import { State } from "../native/state";
+import { toError } from "../native/utils";
+import { ipcRendererInvoke } from "../backend/endpoints";
 
 export const reactSvgComponentToMarkupString = (component: IconType) =>
   `url(data:image/svg+xml,${encodeURIComponent(
     renderToStaticMarkup(createElement(component))
   )})`;
 
-
-const rootPath = electron.remote.process?.cwd();
-export const tmpRawPath = join(rootPath, "tmp");
-if (!existsSync(tmpRawPath)) {
-  mkdirSync(tmpRawPath);
-}
-
-const tmpPath = (filename: string) => join(tmpRawPath, filename);
-export const hashToPng = (hash: string) => tmpPath(`${hash}.png`);
+export const hashToPng = (tmpPath: string, hash: string) => join(tmpPath, `${hash}.png`);
 
 const queue: Map<string, { handler: NodeJS.Timeout; reject: () => void }> = new Map();
 export function dispatch<T>(f: () => Promise<T>, hash: string, timeout: number): Promise<T> {
@@ -48,6 +30,15 @@ export function dispatch<T>(f: () => Promise<T>, hash: string, timeout: number):
     }, timeout);
     queue.set(hash, { handler, reject: () => reject("cancelled") });
   });
+}
+
+export const scan = async (s: State) => {
+  try {
+    const hash = await ipcRendererInvoke("scanToHash", s.rs.book.dpi, s.rs.device)
+    return () => ipcRendererInvoke("popPageFromHash", hash)
+  } catch (e) {
+    s.setRS(rs => ({ ...rs, modal: { kind: "errorScan", message: toError(e).message } }));
+  }
 }
 
 export const randomMd5 = () => md5(Math.random().toString());

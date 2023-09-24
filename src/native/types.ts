@@ -1,13 +1,11 @@
-import { PageNr } from "./state";
-
-export type DPI = 150 | 200 | 300;
+import { PageNr } from "../native/state";
 
 export interface Book {
   pages: Page[];
   delay: number;
   width: number;
   height: number;
-  dpi: DPI;
+  dpi: number;
   color: Color;
 }
 

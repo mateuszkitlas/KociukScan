@@ -1,9 +1,9 @@
 import React from "react";
 import "./App.css";
-import { State } from "./state";
-import { sleep } from "./utils";
+import type { State } from "../native/state";
+import { sleep } from "../native/utils";
 import { FaPaw, FaStop } from "react-icons/fa";
-import { scan } from "./scanner";
+import { scan } from "./utils";
 
 const beep = () => {
   const context = new AudioContext();
@@ -27,13 +27,12 @@ export class ScanningButtons extends React.Component<P> {
     const s = this.props.s;
     const one: B = async () => {
       s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-      const pageGetter = await scan(s);
-      if (pageGetter) {
-        const page = await pageGetter();
-        s.setRS(rs => ({ ...rs, kind: "nothing", book: { ...rs.book, pages: [...rs.book.pages, page] } }));
-      } else {
-        s.setRS(rs => ({ ...rs, kind: "nothing" }));
-      }
+      const page = await (await scan(s))?.();
+      s.setRS(rs => ({
+        ...rs,
+        kind: "nothing",
+        book: page ? { ...rs.book, pages: [...rs.book.pages, page] } : rs.book
+      }));
     };
     const many: B = async () => {
       s.setRS(rs => ({ ...rs, kind: "scanning many" }));

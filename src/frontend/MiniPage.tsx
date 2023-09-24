@@ -1,20 +1,20 @@
-import React from "react";
-import { Page } from "./types";
-import { State } from "./state";
+import { Page } from "../native/types";
+import { State } from "../native/state";
 import { ImageMiniature } from "./Image";
 import { hashToPng } from "./utils";
-import { scaleByPage } from "./logic";
+import { scaleByPage } from "../native/logic";
 
 export const MiniPage = (props: { s: State; page: Page }) => {
   const page = props.page;
   const s = props.s;
   const properties = Page.properties(s.rs.book, page);
+  const tmpPath = s.rs.tmpPath
   const currentPage = { hash: page.hash, duplicated: page.duplicated };
   return (
     <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
       <ImageMiniature
         original={{
-          src: hashToPng(page.hash),
+          src: hashToPng(tmpPath ?? "unknown", page.hash),
           scale: scaleByPage(page),
           contrast: s.rs.book.color.contrast,
           rotate: properties.rotate,

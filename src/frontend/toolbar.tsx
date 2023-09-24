@@ -1,10 +1,10 @@
 import React from "react";
 import "./App.css";
-import { PageNr, State } from "./state";
+import { PageNr, State } from "../native/state";
 import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa";
-import { pdf } from "./scanner";
+import { pdf } from "../backend/scanner";
 import { ScanningButtons } from "./ScanningButtons";
-import { Color, Page } from "./types";
+import { Color, Page } from "../native/types";
 import md5 from "md5";
 
 type B = React.MouseEventHandler<HTMLDivElement>;

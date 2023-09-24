@@ -1,9 +1,7 @@
-import React from "react";
-import { State, SettingsModal } from "../state";
 import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa";
 import { list } from "scanner-to-buffer";
+import { SettingsModal, State } from "../../native/state";
 import { exportBook, importBook } from "../exportBook";
-import { DPI } from "../types";
 
 const renderDevices = (d: string[], s: State) => [
   `(${d.length}):`,
@@ -41,7 +39,7 @@ export const Settings = (props: { modal: SettingsModal, s: State }) => {
       <select
         className="sm"
         onChange={e => {
-          const dpi = parseFloat(e.target.value) as DPI;
+          const dpi = parseFloat(e.target.value);
           s.setBook({ ...s.rs.book, dpi });
         }}
         value={s.rs.book.dpi}

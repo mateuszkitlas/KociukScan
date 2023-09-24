@@ -1,9 +1,8 @@
-import React from "react";
-import { State, PageNr } from "./state";
-import { Book, Color, Page } from "./types";
+import { State, PageNr } from "../native/state";
+import { Book, Color, Page } from "../native/types";
 import { hashToPng } from "./utils";
 import { getPixelsByAngle, Image } from "./Image";
-import { scaleByPage } from "./logic";
+import { scaleByPage } from "../native/logic";
 import { ResizeableDragger } from "./ResizeableDragger";
 import { mainPageSize, offset } from "./offset";
 
@@ -34,7 +33,7 @@ export const MoveResize = (props: { s: State, page: Page }) => {
   return <div>
     <Image
       key="image"
-      src={hashToPng(props.page.hash)}
+      src={hashToPng(props.s.rs.tmpPath ?? "unknown", props.page.hash)}
       scale={scaleByPage(props.page) * zoom}
       contrast={Color.merge(props.page, props.s.rs.book).contrast}
       rotate={properties.rotate}

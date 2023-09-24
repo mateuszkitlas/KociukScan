@@ -1,19 +1,22 @@
 import React, { useEffect } from "react";
 import "./App.css";
 import { MiniPage } from "./MiniPage";
-import { emptyRawState, PageNr, State, StateContext, StateProvider } from "./state";
+import { StateContext, StateProvider } from "./state";
+import { emptyRawState, PageNr, State } from "../native/state";
 import { buttons, duplicateAction } from "./toolbar";
 import { PageElt } from "./page";
 import { mainPageSize, offset } from "./offset";
-import { Page } from "./types";
+import { Page } from "../native/types";
 import { ModalWithClose, ModalYesNo } from "./modal";
 import { Settings } from "./Settings/Settings";
 import { FileDrop } from "react-file-drop";
-import { scan, scanFromFile } from "./scanner";
+import { arrayBufferToBuffer, assertNotFalsy, toError } from "../native/utils";
+import { ipcRendererInvoke } from "../backend/endpoints";
+import { scan } from "./utils";
 
 const X = ({ s }: { s: State }) => {
   const addFiles = async (fl: FileList) => {
-    const newPages = await Promise.all(Array.from(fl).map(async f => scanFromFile(await f.arrayBuffer())));
+    const newPages = await Promise.all(Array.from(fl).map(async f => ipcRendererInvoke("scanFromFile", arrayBufferToBuffer(await f.arrayBuffer()))));
     s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, ...newPages] } }));
   };
 
@@ -111,9 +114,8 @@ const X = ({ s }: { s: State }) => {
         return <ModalYesNo
           onYes={async () => {
             s.setRS(rs => ({ ...rs, kind: "scanning one", modal: undefined }));
-            const pageGetter = await scan(s);
-            if (pageGetter) {
-              const newPage = await pageGetter();
+            const newPage = await (await scan(s))?.();
+            if (newPage)
               s.setRS(rs => ({
                 ...rs,
                 kind: "nothing",
@@ -123,9 +125,8 @@ const X = ({ s }: { s: State }) => {
                   pages: rs.book.pages.map(p => PageNr.eq(p)(oldPageNr) ? newPage : p)
                 }
               }));
-            } else {
+            else
               s.setRS(rs => ({ ...rs, kind: "nothing" }));
-            }
           }}
           onNo={closeModal}
         >Are you sure you want to scan this page again?
