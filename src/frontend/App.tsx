@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { MiniPage } from "./MiniPage";
 import { StateContext, StateProvider } from "./state";
-import { emptyRawState, PageNr, State } from "../native/state";
+import { PageNr, State } from "../native/state";
 import { buttons, duplicateAction } from "./toolbar";
 import { PageElt } from "./page";
 import { mainPageSize, offset } from "./offset";
@@ -10,7 +10,7 @@ import { ModalWithClose, ModalYesNo } from "./modal";
 import { Settings } from "./Settings/Settings";
 import { FileDrop } from "react-file-drop";
 import { arrayBufferToBuffer } from "../native/utils";
-import { scan, invoke } from "./utils";
+import { scan, invoke, InitProps } from "./utils";
 import { registerRendererEndpoints } from "./endpoints";
 
 const X = ({ s }: { s: State }) => {
@@ -110,7 +110,7 @@ const X = ({ s }: { s: State }) => {
         </ModalYesNo>;
       case "errorScan":
         return <ModalWithClose title="Error" onClose={closeModal}>{s.rs.modal.message}</ModalWithClose>;
-      case "rescanPage":
+      case "reScanPage":
         const oldPageNr = s.rs.modal.pageNr;
         return <ModalYesNo
           onYes={async () => {
@@ -139,7 +139,7 @@ const X = ({ s }: { s: State }) => {
           switch (modal.modal?.kind) {
           case "deleteProject":
             return <ModalYesNo
-              onYes={() => s.setRS(() => emptyRawState)}
+              onYes={() => s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [] } }))}
               onNo={closeModalModal}
             >Are you sure?
             </ModalYesNo>;
@@ -170,6 +170,6 @@ const X = ({ s }: { s: State }) => {
 };
 
 const AppProvided = () => <div id="App"><X s={React.useContext(StateContext)}/></div>;
-const App = () => (<StateProvider><AppProvided /></StateProvider>);
+const App = (props: InitProps) => (<StateProvider {...props}><AppProvided /></StateProvider>);
 
 export default App;

@@ -44,3 +44,4 @@ export const scan = async (s: State) => {
 export const randomMd5 = () => md5(Math.random().toString());
 
 export const invoke = genInvoke<MainEndpoints>((...args) => ipcRenderer.invoke(...args))
+export type InitProps = Awaited<ReturnType<MainEndpoints["init"]>>

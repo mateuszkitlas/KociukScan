@@ -19,9 +19,25 @@ const endpoints = async (app: Electron.App) => {
     fs.access(tmpPath, err => resolve(!err)))
   if(!exists) fs.promises.mkdir(tmpPath)
   const bookJsonFilePath = join(tmpPath, "book.json");
+
   return {
-    rootPath: () => rootPath,
-    tmpPath: () => tmpPath,
+    init: async () => {
+      const bookJson = await fs.promises.readFile(bookJsonFilePath, { encoding: "utf8" }).catch(() => "");
+      const book = jsonSafeParse<Book>(bookJson, {
+          delay: 5,
+          pages: [],
+          width: 400,
+          height: 400,
+          dpi: 200,
+          color: {
+            contrast: 1,
+          }
+      })
+      return {
+      tmpPath,
+      book
+    }
+    },
     scanFromFile: async (arrayBuffer: ArrayBuffer) => {
       const buffer = arrayBufferToBuffer(arrayBuffer)
       return scanFromBuffer(tmpPath, md5(buffer), buffer);
@@ -47,20 +63,7 @@ const endpoints = async (app: Electron.App) => {
       } else return false;
     } }),
     listDevices: () => STB.list(),
-    setBook: (book: Book) => fs.promises.writeFile(bookJsonFilePath, JSON.stringify(book), { encoding: "utf8" }),
-    getBook: async () => {
-      const text = await fs.promises.readFile(bookJsonFilePath, { encoding: "utf8" }).catch(() => "");
-      return jsonSafeParse<Book>(text, {
-          delay: 5,
-          pages: [],
-          width: 400,
-          height: 400,
-          dpi: 150,
-          color: {
-            contrast: 1,
-          }
-      })
-    }
+    setBook: (book: Book) => fs.promises.writeFile(bookJsonFilePath, JSON.stringify(book), { encoding: "utf8" })
   } satisfies SRecord<AnyFun>;
 }
 

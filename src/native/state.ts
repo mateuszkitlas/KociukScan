@@ -18,7 +18,7 @@ export interface SettingsModal {
 }
 
 interface Common {
-  tmpPath?: string;
+  tmpPath: string;
   currentPage?: PageNr;
   book: Book;
   miniatures?: Map<string, string>;
@@ -28,7 +28,7 @@ interface Common {
     : SettingsModal
     | { kind: "deletePage", pageNr: PageNr }
     | { kind: "errorScan", message: string }
-    | { kind: "rescanPage", pageNr: PageNr }
+    | { kind: "reScanPage", pageNr: PageNr }
 }
 export type RawState = Common & (
   | { kind: "scanning one" | "scanning many" | "nothing" }
@@ -49,18 +49,3 @@ export interface State {
   getPage: (page?: PageNr) => Page | undefined,
   setPage: (page: Page) => void,
 }
-
-export const emptyRawState: RawState = {
-  kind: "nothing",
-  book: {
-    delay: 5,
-    pages: [],
-    width: 400,
-    height: 400,
-    dpi: 200,
-    color: {
-      contrast: 1,
-    }
-  },
-  allowPageResize: false,
-};

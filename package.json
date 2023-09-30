@@ -28,7 +28,8 @@
   },
   "scripts": {
     "start": "electron dist",
-    "build": "webpack"
+    "build": "webpack",
+    "watch": "webpack --watch"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.34",

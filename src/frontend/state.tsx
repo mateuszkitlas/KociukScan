@@ -1,7 +1,25 @@
 import React from "react";
 import { Book, Page } from "../native/types";
-import { PageNr, RawState, State, emptyRawState } from "../native/state";
-import { invoke } from "./utils";
+import { PageNr, RawState, State } from "../native/state";
+import { InitProps, invoke } from "./utils";
+
+
+const emptyRawState: RawState = {
+  kind: "nothing",
+  tmpPath: "",
+  book: {
+    delay: 5,
+    pages: [],
+    width: 400,
+    height: 400,
+    dpi: 200,
+    color: {
+      contrast: 1,
+    }
+  },
+  allowPageResize: false,
+};
+
 
 export const StateContext = React.createContext<State>({
   rs: emptyRawState,
@@ -14,19 +32,12 @@ export const StateContext = React.createContext<State>({
   setPage: () => undefined,
 });
 
-export const StateProvider: React.FC = ({ children }: { children?: React.ReactNode }) => {
+export const StateProvider: React.FC<InitProps> = ({ children, tmpPath, book }) => {
   const [rs, setRS] = React.useReducer((rs: RawState, f: (rs: RawState) => RawState) => {
     const newRs = f(rs);
     if(rs.book !== newRs.book) void invoke("setBook", rs.book);
     return newRs;
-  }, emptyRawState);
-  React.useEffect(() => void (async () => {
-    const [tmpPath, book] = await Promise.all([
-      invoke("tmpPath"),
-      invoke("getBook")
-    ])
-    setRS(rs => ({ ...rs, tmpPath, book }))
-  })(), [])
+  }, { ...emptyRawState, book, tmpPath });
   const isCurrentPage = PageNr.eq(rs.currentPage);
   const getRS =
     () => new Promise<RawState>(resolve => setRS(rs => { resolve(rs); return rs; }));
