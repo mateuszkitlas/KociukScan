@@ -6,13 +6,13 @@ const createWindow = () => {
   const win = new BrowserWindow({
     //icon: path.join(__dirname, "build/favicon.ico"),
     webPreferences: {
-      preload: join(__dirname, "renderer.js")
-    }
+      preload: join(__dirname, "renderer.js"),
+    },
   });
   win.webContents.openDevTools();
   win.setMenuBarVisibility(false);
   win.loadFile(join(__dirname, "index.html"));
-}
+};
 
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
@@ -23,11 +23,6 @@ app.on("window-all-closed", () => {
   await registerMainEndpoints(app);
   createWindow();
   app.on("activate", async () => {
-    if (BrowserWindow.getAllWindows().length === 0)
-      createWindow();
+    if (BrowserWindow.getAllWindows().length === 0) createWindow();
   });
 })();
-
-
-
-

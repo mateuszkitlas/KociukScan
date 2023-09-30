@@ -8,8 +8,8 @@ export const MiniPage = (props: { s: State; page: Page }) => {
   const page = props.page;
   const s = props.s;
   const properties = Page.properties(s.rs.book, page);
-  const tmpPath = s.rs.tmpPath
-  if(!tmpPath) return null;
+  const tmpPath = s.rs.tmpPath;
+  if (!tmpPath) return null;
   const currentPage = { hash: page.hash, duplicated: page.duplicated };
   return (
     <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
@@ -33,14 +33,18 @@ export const MiniPage = (props: { s: State; page: Page }) => {
         onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
       >
         <div style={{ position: "absolute", right: 0, width: 40 }}>
-          <div style={{
-            backgroundColor: page.properties ? "#445" : "#F00",
-            borderRadius: "50%",
-            width: 32,
-            height: 24,
-            textAlign: "center",
-            paddingTop: 6,
-          }}>{s.rs.book.pages.findIndex(p => p === page) + 1}</div>
+          <div
+            style={{
+              backgroundColor: page.properties ? "#445" : "#F00",
+              borderRadius: "50%",
+              width: 32,
+              height: 24,
+              textAlign: "center",
+              paddingTop: 6,
+            }}
+          >
+            {s.rs.book.pages.findIndex(p => p === page) + 1}
+          </div>
         </div>
       </ImageMiniature>
     </div>

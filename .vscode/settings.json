@@ -1,3 +1,14 @@
 {
-  "typescript.tsdk": "node_modules\\typescript\\lib"
+  "typescript.tsdk": "node_modules\\typescript\\lib",
+  "cSpell.words": [
+    "Kociuk",
+    "linebreak",
+    "Parens"
+  ],
+  "files.eol": "\n",
+  "editor.tabSize": 2,
+  "editor.indentSize": "tabSize",
+  "editor.detectIndentation": false,
+  "eslint.format.enable": true,
+  "eslint.lintTask.enable": true,
 }

@@ -7,7 +7,7 @@ import { dialog } from "electron";
 export const exportBook = async (s: State) => {
   const filename = dialog.showSaveDialogSync({
     defaultPath: "book.zip",
-    filters: [{ extensions: ["zip", "ZIP"], name: "zip"}],
+    filters: [{ extensions: ["zip", "ZIP"], name: "zip" }],
   });
   if (filename) {
     /*const zip = new AdmZip();
@@ -24,8 +24,8 @@ export const exportBook = async (s: State) => {
 export const importBook = async (s: State) => {
   const filename = dialog.showOpenDialogSync({
     defaultPath: "book.zip",
-    filters: [{ extensions: ["zip", "ZIP"], name: "zip"}],
-    properties: ["openFile"]
+    filters: [{ extensions: ["zip", "ZIP"], name: "zip" }],
+    properties: ["openFile"],
   });
   if (filename && filename[0]) {
     /*const zip = new AdmZip(filename[0]);

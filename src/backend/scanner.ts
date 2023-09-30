@@ -2,26 +2,30 @@ import { Book, Page } from "../native/types";
 import { createWriteStream } from "fs";
 import { ProcessPage, scaleByPage } from "../native/logic";
 import { genBroadcast } from "../native/utils";
-import { promises as fs } from "fs"
+import { promises as fs } from "fs";
 import sharp, { OutputInfo, Sharp } from "sharp";
-import pdfkit from "pdfkit"
-import { dialog, webContents } from "electron"
+import pdfkit from "pdfkit";
+import { dialog, webContents } from "electron";
 import { hashToPng } from "../frontend/utils";
 import { RendererEndpoints } from "../frontend/endpoints";
 import { join } from "path";
 
-export const broadcast = genBroadcast<RendererEndpoints>((...args) => webContents.getAllWebContents().forEach(wc => wc.send(...args)))
+export const broadcast = genBroadcast<RendererEndpoints>((...args) =>
+  webContents.getAllWebContents().forEach(wc => wc.send(...args)),
+);
 
-const toBuffer = (s: Sharp) => new Promise<Buffer>((resolve, reject) =>
-  s.toBuffer((err, buffer) => err ? reject(err) : resolve(buffer))
-);
-const toInfo = (buf: Buffer) => new Promise<OutputInfo>((resolve, reject) =>
-  sharp(buf).toBuffer((err, _buf, info) => err ? reject(err) : resolve(info))
-);
+const toBuffer = (s: Sharp) =>
+  new Promise<Buffer>((resolve, reject) => s.toBuffer((err, buffer) => (err ? reject(err) : resolve(buffer))));
+const toInfo = (buf: Buffer) =>
+  new Promise<OutputInfo>((resolve, reject) =>
+    sharp(buf).toBuffer((err, _buf, info) => (err ? reject(err) : resolve(info))),
+  );
 const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
 const processPage = async (tmpPath: string, opts: ProcessPage): Promise<Buffer> => {
-  const rotatedBuffer = await toBuffer(sharp(hashToPng(tmpPath, opts.pageNr.hash)).rotate(opts.pageProperties.rotate, { background }));
+  const rotatedBuffer = await toBuffer(
+    sharp(hashToPng(tmpPath, opts.pageNr.hash)).rotate(opts.pageProperties.rotate, { background }),
+  );
   const brightness = 1;
   const contrast = opts.pageProperties.color.contrast;
   const img3 = sharp(rotatedBuffer)
@@ -49,14 +53,16 @@ export const scanFromBuffer = async (tmpPath: string, hash: string, buffer: Buff
   return page;
 };
 
-export const pdf = async (props: { tmpPath: string, book: Book, abort: () => boolean }) => {
+export const pdf = async (props: { tmpPath: string; book: Book; abort: () => boolean }) => {
   const pdf = new pdfkit({ autoFirstPage: false, font: join(props.tmpPath, "..", "blank.ttf") });
   const filePath = dialog.showSaveDialogSync({
     defaultPath: "Book.pdf",
-    filters: [{
-      name: "PDF document",
-      extensions: ["pdf", "PDF"]
-    }],
+    filters: [
+      {
+        name: "PDF document",
+        extensions: ["pdf", "PDF"],
+      },
+    ],
   });
   if (filePath) {
     pdf.pipe(createWriteStream(filePath));
@@ -68,7 +74,7 @@ export const pdf = async (props: { tmpPath: string, book: Book, abort: () => boo
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },
-          size: [Math.floor(props.book.width / scale), Math.floor(props.book.height / scale)]
+          size: [Math.floor(props.book.width / scale), Math.floor(props.book.height / scale)],
         })
         .image(buffer);
     }

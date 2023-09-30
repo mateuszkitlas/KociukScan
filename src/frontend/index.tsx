@@ -3,10 +3,15 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import { invoke } from "./utils";
 
-const props = invoke("init")
+const props = invoke("init");
 
-window.addEventListener("DOMContentLoaded",async () => 
-  ReactDOM.render(
-  <React.StrictMode><App {...(await props)}/></React.StrictMode>,
-  document.getElementById("root")
-));
+window.addEventListener(
+  "DOMContentLoaded",
+  async () =>
+    void ReactDOM.render(
+      <React.StrictMode>
+        <App {...await props} />
+      </React.StrictMode>,
+      document.getElementById("root"),
+    ),
+);

@@ -8,7 +8,7 @@ export interface ProcessPage {
   height: number;
   pageProperties: Page.Properties;
   pageNr: PageNr;
-  scale: number
+  scale: number;
 }
 export namespace ProcessPage {
   export const from = (book: Book, page: Page): ProcessPage => ({
@@ -21,5 +21,4 @@ export namespace ProcessPage {
     },
     scale: scaleByPage(page),
   });
-  
 }
