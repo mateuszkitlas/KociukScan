@@ -1,38 +1,70 @@
 import fs from "fs";
 import { join } from "path";
-import { scanFromBuffer, scanFromFile } from "./scanner";
-import electron from "electron";
-import { scan } from "scanner-to-buffer";
+import { pdf, scanFromBuffer } from "./scanner";
+import * as STB from "scanner-to-buffer";
 import md5 from "md5";
-import { Page } from "../native/types";
+import { Book, Page } from "../native/types";
+import { AnyFun, SRecord, arrayBufferToBuffer, jsonSafeParse, registerEndpoints, satisfies } from "../native/utils";
+import { ipcMain } from "electron";
 
-const pages: Record<string, Promise<Page>> = {}
+const state = {
+  pages: satisfies<SRecord<Promise<Page>>>({}),
+  abortPdf: false,
+}
 
-export const endpoints = async (app: Electron.App) => {
+const endpoints = async (app: Electron.App) => {
   const rootPath = app.getAppPath();
   const tmpPath = join(rootPath, "tmp");
   const exists = await new Promise(resolve =>
     fs.access(tmpPath, err => resolve(!err)))
   if(!exists) fs.promises.mkdir(tmpPath)
+  const bookJsonFilePath = join(tmpPath, "book.json");
   return {
     rootPath: () => rootPath,
     tmpPath: () => tmpPath,
-    scanFromFile: scanFromFile(tmpPath),
+    scanFromFile: async (arrayBuffer: ArrayBuffer) => {
+      const buffer = arrayBufferToBuffer(arrayBuffer)
+      return scanFromBuffer(tmpPath, md5(buffer), buffer);
+    },
     scanToHash: async (dpi: number, device?: string) => {
-      const buffer = await scan({ dpi, format: "png", device });
+      const buffer = await STB.scan({ dpi, format: "png", device });
       const hash = md5(buffer);
-      pages[hash] = scanFromBuffer(tmpPath, hash, buffer);
+      state.pages[hash] = scanFromBuffer(tmpPath, hash, buffer);
       return hash;
     },
     popPageFromHash: (hash: string) => {
-      const p = pages[hash];
-      delete pages[hash];
+      const p = state.pages[hash];
+      delete state.pages[hash];
       return p;
+    },
+    abortPdf: () => {
+      state.abortPdf = true;
+    },
+    pdf: (book: Book) => pdf({ tmpPath, book, abort: () => { 
+      if(state.abortPdf) {
+        state.abortPdf = false;
+        return true;
+      } else return false;
+    } }),
+    listDevices: () => STB.list(),
+    setBook: (book: Book) => fs.promises.writeFile(bookJsonFilePath, JSON.stringify(book), { encoding: "utf8" }),
+    getBook: async () => {
+      const text = await fs.promises.readFile(bookJsonFilePath, { encoding: "utf8" }).catch(() => "");
+      return jsonSafeParse<Book>(text, {
+          delay: 5,
+          pages: [],
+          width: 400,
+          height: 400,
+          dpi: 150,
+          color: {
+            contrast: 1,
+          }
+      })
     }
-  } satisfies Record<string, Function>;
+  } satisfies SRecord<AnyFun>;
 }
 
-type E = Awaited<ReturnType<typeof endpoints>>
+export const registerMainEndpoints = async (app: Electron.App) =>
+  registerEndpoints(ipcMain.handle, await endpoints(app))
 
-export const ipcRendererInvoke = <K extends keyof E>(channel: K, ...args: Parameters<E[K]>) =>
-  electron.ipcRenderer.invoke(channel, ...args) as Promise<Awaited<ReturnType<E[K]>>>
+export type MainEndpoints = Awaited<ReturnType<typeof endpoints>>

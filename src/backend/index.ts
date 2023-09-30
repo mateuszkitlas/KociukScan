@@ -1,16 +1,17 @@
-import { endpoints } from "./endpoints";
-import { app, BrowserWindow, ipcMain } from "electron";
+import { join } from "path";
+import { registerMainEndpoints } from "./endpoints";
+import { app, BrowserWindow } from "electron";
 
 const createWindow = () => {
   const win = new BrowserWindow({
     //icon: path.join(__dirname, "build/favicon.ico"),
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: join(__dirname, "renderer.js")
     }
   });
+  win.webContents.openDevTools();
   win.setMenuBarVisibility(false);
-  win.loadFile("./index.html")
+  win.loadFile(join(__dirname, "index.html"));
 }
 
 app.on("window-all-closed", () => {
@@ -18,10 +19,8 @@ app.on("window-all-closed", () => {
 });
 
 (async () => {
-  await app.whenReady()
-  Object.entries(await endpoints(app)).forEach(([k, v]) => 
-    ipcMain.handle(k, (_ev, ...args) => (v as any)(...args))
-  );
+  await app.whenReady();
+  await registerMainEndpoints(app);
   createWindow();
   app.on("activate", async () => {
     if (BrowserWindow.getAllWindows().length === 0)

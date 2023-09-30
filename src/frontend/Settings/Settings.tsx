@@ -1,7 +1,7 @@
 import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa";
-import { list } from "scanner-to-buffer";
 import { SettingsModal, State } from "../../native/state";
 import { exportBook, importBook } from "../exportBook";
+import { invoke } from "../utils";
 
 const renderDevices = (d: string[], s: State) => [
   `(${d.length}):`,
@@ -19,7 +19,7 @@ const renderDevices = (d: string[], s: State) => [
 
 const detect = async (s: State, modal: SettingsModal) => {
   s.setRS(rs => ({ ...rs, modal: { ...modal, devices: null } }));
-  const devices = await list();
+  const devices = await invoke("listDevices");
   s.setRS(rs => ({ ...rs, modal: { ...modal, devices } }));
 };
 

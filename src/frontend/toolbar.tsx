@@ -1,11 +1,11 @@
 import React from "react";
-import "./App.css";
 import { PageNr, State } from "../native/state";
 import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa";
-import { pdf } from "../backend/scanner";
 import { ScanningButtons } from "./ScanningButtons";
 import { Color, Page } from "../native/types";
 import md5 from "md5";
+import { invoke } from "./utils";
+import { toError } from "../native/utils";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 
@@ -94,7 +94,11 @@ const pageButtons = (s: State) => {
 
 const downloadButtons = (s: State) => {
   const download: B = async () => {
-    await pdf(s);
+    try {
+      await invoke("pdf", s.rs.book);
+    } catch(e) {
+      s.setRS(rs => ({ ...rs, "modal": { kind: "errorScan", message: toError(e).message } }))
+    }
     s.setRS(rs => ({ ...rs, kind: "nothing" }));
   };
   const f = (processed: number, all: number, startedAt: number) => {

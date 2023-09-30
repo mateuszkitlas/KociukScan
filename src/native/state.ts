@@ -57,11 +57,10 @@ export const emptyRawState: RawState = {
     pages: [],
     width: 400,
     height: 400,
-    dpi: 150,
+    dpi: 200,
     color: {
       contrast: 1,
     }
   },
   allowPageResize: false,
 };
-export const loadRSFromBook = (book: Book) => ({ ...emptyRawState, book });

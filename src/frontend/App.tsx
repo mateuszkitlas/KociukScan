@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import "./App.css";
 import { MiniPage } from "./MiniPage";
 import { StateContext, StateProvider } from "./state";
 import { emptyRawState, PageNr, State } from "../native/state";
@@ -10,13 +9,15 @@ import { Page } from "../native/types";
 import { ModalWithClose, ModalYesNo } from "./modal";
 import { Settings } from "./Settings/Settings";
 import { FileDrop } from "react-file-drop";
-import { arrayBufferToBuffer, assertNotFalsy, toError } from "../native/utils";
-import { ipcRendererInvoke } from "../backend/endpoints";
-import { scan } from "./utils";
+import { arrayBufferToBuffer } from "../native/utils";
+import { scan, invoke } from "./utils";
+import { registerRendererEndpoints } from "./endpoints";
 
 const X = ({ s }: { s: State }) => {
+  useEffect(() => void registerRendererEndpoints(s), []);
+
   const addFiles = async (fl: FileList) => {
-    const newPages = await Promise.all(Array.from(fl).map(async f => ipcRendererInvoke("scanFromFile", arrayBufferToBuffer(await f.arrayBuffer()))));
+    const newPages = await Promise.all(Array.from(fl).map(async f => invoke("scanFromFile", arrayBufferToBuffer(await f.arrayBuffer()))));
     s.setRS(rs => ({ ...rs, book: { ...rs.book, pages: [...rs.book.pages, ...newPages] } }));
   };
 

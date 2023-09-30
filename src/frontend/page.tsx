@@ -24,6 +24,7 @@ const f = (book: Book, page: Page) => {
 };
 
 export const MoveResize = (props: { s: State, page: Page }) => {
+  if(!props.s.rs.tmpPath) return null;
   const properties = Page.properties(props.s.rs.book, props.page);
   const boundries = f(props.s.rs.book, props.page);
   const rawWidth = boundries.maxX - boundries.minX;
@@ -33,7 +34,7 @@ export const MoveResize = (props: { s: State, page: Page }) => {
   return <div>
     <Image
       key="image"
-      src={hashToPng(props.s.rs.tmpPath ?? "unknown", props.page.hash)}
+      src={hashToPng(props.s.rs.tmpPath, props.page.hash)}
       scale={scaleByPage(props.page) * zoom}
       contrast={Color.merge(props.page, props.s.rs.book).contrast}
       rotate={properties.rotate}

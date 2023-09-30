@@ -1,6 +1,5 @@
 import React from "react";
 import { FaTimesCircle } from "react-icons/fa";
-import "./App.css";
 
 export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
   return <div>

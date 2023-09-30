@@ -1,5 +1,4 @@
 import React from "react";
-import "./App.css";
 import type { State } from "../native/state";
 import { sleep } from "../native/utils";
 import { FaPaw, FaStop } from "react-icons/fa";

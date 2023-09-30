@@ -1,17 +1,16 @@
-import { Page } from "../native/types";
-import md5 from "md5";
+import { Book, Page } from "../native/types";
 import { createWriteStream } from "fs";
 import { ProcessPage, scaleByPage } from "../native/logic";
-//import { Sharp, OutputInfo, sharp, pdfkit, dialog } from "../electronImports";
-import * as ScannerToBuffer from "scanner-to-buffer";
-import { State } from "../native/state";
-import { arrayBufferToBuffer } from "../native/utils";
-import { assertNotFalsy } from "../native/utils";
+import { genBroadcast } from "../native/utils";
 import { promises as fs } from "fs"
 import sharp, { OutputInfo, Sharp } from "sharp";
 import pdfkit from "pdfkit"
-import electron from "electron"
+import { dialog, webContents } from "electron"
 import { hashToPng } from "../frontend/utils";
+import { RendererEndpoints } from "../frontend/endpoints";
+import { join } from "path";
+
+export const broadcast = genBroadcast<RendererEndpoints>((...args) => webContents.getAllWebContents().forEach(wc => wc.send(...args)))
 
 const toBuffer = (s: Sharp) => new Promise<Buffer>((resolve, reject) =>
   s.toBuffer((err, buffer) => err ? reject(err) : resolve(buffer))
@@ -50,36 +49,26 @@ export const scanFromBuffer = async (tmpPath: string, hash: string, buffer: Buff
   return page;
 };
 
-export const scanFromFile = (tmpPath: string) => async (arrayBuffer: ArrayBuffer) => {
-  const buffer = arrayBufferToBuffer(arrayBuffer)
-  return scanFromBuffer(tmpPath, md5(buffer), buffer);
-}
-
-export const pdf = async (s: State) => {
-  const { tmpPath, book } = s.rs;
-  assertNotFalsy(tmpPath, "tmpPath");
-  const doContinue = async () => (await s.getRS()).kind === "generating pdf";
-  const pdf = new pdfkit({ autoFirstPage: false });
-  const filename = electron.dialog.showSaveDialogSync({
+export const pdf = async (props: { tmpPath: string, book: Book, abort: () => boolean }) => {
+  const pdf = new pdfkit({ autoFirstPage: false, font: join(props.tmpPath, "..", "blank.ttf") });
+  const filePath = dialog.showSaveDialogSync({
     defaultPath: "Book.pdf",
     filters: [{
       name: "PDF document",
       extensions: ["pdf", "PDF"]
     }],
   });
-  if (filename) {
-    const startedAt = Date.now();
-    s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: 0, startedAt }));
-    pdf.pipe(createWriteStream(filename));
-    for (let i = 0; i < book.pages.length && await doContinue(); i++) {
-      s.setRS(rs => ({ ...rs, kind: "generating pdf", processedPages: i, startedAt }));
-      const page = book.pages[i];
+  if (filePath) {
+    pdf.pipe(createWriteStream(filePath));
+    for (let i = 0; i < props.book.pages.length && !props.abort(); i++) {
+      broadcast("genPdfProgress", i);
+      const page = props.book.pages[i];
       const scale = scaleByPage(page);
-      const buffer = await processPage(tmpPath, ProcessPage.from(book, page));
+      const buffer = await processPage(props.tmpPath, ProcessPage.from(props.book, page));
       pdf
         .addPage({
           margins: { left: 0, right: 0, top: 0, bottom: 0 },
-          size: [Math.floor(book.width / scale), Math.floor(book.height / scale)]
+          size: [Math.floor(props.book.width / scale), Math.floor(props.book.height / scale)]
         })
         .image(buffer);
     }

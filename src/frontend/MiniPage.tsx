@@ -9,12 +9,13 @@ export const MiniPage = (props: { s: State; page: Page }) => {
   const s = props.s;
   const properties = Page.properties(s.rs.book, page);
   const tmpPath = s.rs.tmpPath
+  if(!tmpPath) return null;
   const currentPage = { hash: page.hash, duplicated: page.duplicated };
   return (
     <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
       <ImageMiniature
         original={{
-          src: hashToPng(tmpPath ?? "unknown", page.hash),
+          src: hashToPng(tmpPath, page.hash),
           scale: scaleByPage(page),
           contrast: s.rs.book.color.contrast,
           rotate: properties.rotate,
