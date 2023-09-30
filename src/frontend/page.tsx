@@ -26,9 +26,9 @@ const f = (book: Book, page: Page) => {
 export const MoveResize = (props: { s: State; page: Page }) => {
   if (!props.s.rs.tmpPath) return null;
   const properties = Page.properties(props.s.rs.book, props.page);
-  const boundries = f(props.s.rs.book, props.page);
-  const rawWidth = boundries.maxX - boundries.minX;
-  const rawHeight = boundries.maxY - boundries.minY;
+  const boundaries = f(props.s.rs.book, props.page);
+  const rawWidth = boundaries.maxX - boundaries.minX;
+  const rawHeight = boundaries.maxY - boundaries.minY;
   const windowWH = mainPageSize();
   const zoom = Math.min(windowWH.height / rawHeight, windowWH.width / rawWidth);
   return (
@@ -45,7 +45,7 @@ export const MoveResize = (props: { s: State; page: Page }) => {
       <ResizableDragger
         zoom={zoom}
         resize={props.s.rs.allowPageResize}
-        boundaries={boundries}
+        boundaries={boundaries}
         cropSize={40}
         set={o =>
           props.s.setRS(rs => ({
