@@ -29,7 +29,8 @@
   "scripts": {
     "start": "electron dist",
     "build": "webpack",
-    "watch": "webpack --watch"
+    "watch": "webpack --watch",
+    "eslint": "eslint src/**/*.{ts,tsx}"
   },
   "devDependencies": {
     "@types/adm-zip": "^0.4.34",
@@ -47,6 +48,7 @@
     "eslint-config-prettier": "^9.0.0",
     "eslint-plugin-prettier": "^5.0.0",
     "eslint-plugin-react": "^7.23.2",
+    "eslint-plugin-react-hooks": "^4.6.0",
     "html-webpack-plugin": "^5.5.3",
     "prettier": "^3.0.3",
     "style-loader": "^3.3.3",
