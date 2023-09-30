@@ -1,4 +1,4 @@
-import { Book, Page } from "./types";
+import { Book, Page } from "./types.mjs";
 
 export type PageNr = Pick<Page, "hash" | "duplicated">;
 export namespace PageNr {

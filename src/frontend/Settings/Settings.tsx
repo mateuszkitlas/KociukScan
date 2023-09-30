@@ -1,7 +1,7 @@
-import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa";
-import { SettingsModal, State } from "../../native/state";
-import { exportBook, importBook } from "../exportBook";
-import { invoke } from "../utils";
+import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa/index.js";
+import { SettingsModal, State } from "../../native/state.mjs";
+import { exportBook, importBook } from "../exportBook.mjs";
+import { invoke } from "../utils.mjs";
 
 const renderDevices = (d: string[], s: State) => [
   `(${d.length}):`,

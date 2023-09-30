@@ -1,14 +1,15 @@
-import { Book, Page } from "../native/types";
+import { Book, Page } from "../native/types.mjs";
 import { createWriteStream } from "fs";
-import { ProcessPage, scaleByPage } from "../native/logic";
-import { genBroadcast } from "../native/utils";
+import { ProcessPage, scaleByPage } from "../native/logic.mjs";
+import { genBroadcast } from "../native/utils.mjs";
 import { promises as fs } from "fs";
 import sharp, { OutputInfo, Sharp } from "sharp";
 import pdfkit from "pdfkit";
 import { dialog, webContents } from "electron";
-import { hashToPng } from "../frontend/utils";
-import { RendererEndpoints } from "../frontend/endpoints";
+import { hashToPng } from "../frontend/utils.mjs";
+import { RendererEndpoints } from "../frontend/endpoints.js";
 import { join } from "path";
+import open from "open";
 
 export const broadcast = genBroadcast<RendererEndpoints>((...args) =>
   webContents.getAllWebContents().forEach(wc => wc.send(...args)),
@@ -79,5 +80,6 @@ export const pdf = async (props: { tmpPath: string; book: Book; abort: () => boo
         .image(buffer);
     }
     pdf.end();
+    open(filePath);
   }
 };

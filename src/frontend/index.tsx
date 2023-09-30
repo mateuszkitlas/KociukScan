@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import App from "./App";
-import { invoke } from "./utils";
+import App from "./App.js";
+import { invoke } from "./utils.mjs";
 
 const props = invoke("init");
 

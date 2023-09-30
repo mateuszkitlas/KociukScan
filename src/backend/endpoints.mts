@@ -1,10 +1,10 @@
 import fs from "fs";
 import { join } from "path";
-import { pdf, scanFromBuffer } from "./scanner";
+import { pdf, scanFromBuffer } from "./scanner.mjs";
 import * as STB from "scanner-to-buffer";
 import md5 from "md5";
-import { Book, Page } from "../native/types";
-import { AnyFun, SRecord, arrayBufferToBuffer, jsonSafeParse, registerEndpoints, satisfies } from "../native/utils";
+import { Book, Page } from "../native/types.mjs";
+import { AnyFun, SRecord, arrayBufferToBuffer, jsonSafeParse, registerEndpoints, satisfies } from "../native/utils.mjs";
 import { ipcMain } from "electron";
 
 const state = {

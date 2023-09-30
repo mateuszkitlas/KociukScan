@@ -1,6 +1,6 @@
-import { reactSvgComponentToMarkupString } from "./utils";
+import { reactSvgComponentToMarkupString } from "./utils.mjs";
 import { IconType } from "react-icons";
-import { offset } from "./offset";
+import { offset } from "./offset.mjs";
 
 interface Props {
   left: number;

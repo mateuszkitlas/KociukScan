@@ -4,8 +4,8 @@ import {
   FaLongArrowAltLeft,
   FaLongArrowAltRight,
   FaLongArrowAltUp,
-} from "react-icons/fa";
-import { Dragger } from "./Dragger";
+} from "react-icons/fa/index.js";
+import { Dragger } from "./Dragger.js";
 
 interface Boundaries {
   minX: number;

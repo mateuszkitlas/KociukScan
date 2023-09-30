@@ -1,8 +1,8 @@
-import { Page } from "../native/types";
-import { State } from "../native/state";
-import { ImageMiniature } from "./Image";
-import { hashToPng } from "./utils";
-import { scaleByPage } from "../native/logic";
+import { Page } from "../native/types.mjs";
+import { State } from "../native/state.mjs";
+import { ImageMiniature } from "./Image.js";
+import { hashToPng } from "./utils.mjs";
+import { scaleByPage } from "../native/logic.mjs";
 
 export const MiniPage = (props: { s: State; page: Page }) => {
   const page = props.page;

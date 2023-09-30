@@ -1,10 +1,10 @@
-import { renderToStaticMarkup } from "react-dom/server";
+import { renderToStaticMarkup } from "react-dom/server.js";
 import { createElement } from "react";
 import { IconType } from "react-icons/lib";
 import md5 from "md5";
-import { State } from "../native/state";
-import { genInvoke, toError } from "../native/utils";
-import type { MainEndpoints } from "../backend/endpoints";
+import { State } from "../native/state.mjs";
+import { genInvoke, toError } from "../native/utils.mjs";
+import type { MainEndpoints } from "../backend/endpoints.mjs";
 import { ipcRenderer } from "electron";
 
 export const reactSvgComponentToMarkupString = (component: IconType) =>

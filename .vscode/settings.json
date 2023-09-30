@@ -1,8 +1,12 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "cSpell.words": [
+    "fontkit",
+    "Kitlas",
     "Kociuk",
+    "kociukscan",
     "linebreak",
+    "Mateusz",
     "Parens"
   ],
   "files.eol": "\n",
@@ -11,4 +15,6 @@
   "editor.detectIndentation": false,
   "eslint.format.enable": true,
   "eslint.lintTask.enable": true,
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "dbaeumer.vscode-eslint",
 }

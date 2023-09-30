@@ -1,4 +1,4 @@
-import { PageNr } from "../native/state";
+import { PageNr } from "../native/state.mjs";
 
 export interface Book {
   pages: Page[];

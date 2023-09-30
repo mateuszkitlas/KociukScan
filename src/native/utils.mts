@@ -2,12 +2,13 @@ export type AnyFun = (...args: any[]) => unknown;
 export type SRecord<T> = Record<string, T>;
 export type Falsy = false | "" | 0 | null | undefined;
 
-export const satisfies = <T>(t: T) => t;
+export const notFalsy = <T,>(t: T): t is Exclude<T, Falsy> => !!t;
+export const satisfies = <T,>(t: T) => t;
 export const throwExp = (e: Error | string) => {
   throw typeof e === "string" ? new Error(e) : e;
 };
 
-export const tryOrUndefined = <T>(f: () => T) => {
+export const tryOrUndefined = <T,>(f: () => T) => {
   try {
     return f();
   } catch {
@@ -37,7 +38,7 @@ export function arrayBufferToBuffer(ab: ArrayBuffer) {
   return buf;
 }
 
-export const tapLog = <T>(t: T) => {
+export const tapLog = <T,>(t: T) => {
   console.log("tapLog", t);
   return t;
 };
@@ -76,6 +77,11 @@ export function toError(o: unknown): Error {
     ? toError(o.error)
     : new Error(`Unknown error ${o}`);
 }
+
+export const formatError = (e: Error) =>
+  [`${e.name}: ${e.message}`, tryOrUndefined(() => `cause: ${JSON.stringify(e.cause)}`), e.stack]
+    .filter(notFalsy)
+    .join("\n\n");
 
 type ChannelFun<T> = (ch: string, ...args: any[]) => T;
 

@@ -1,11 +1,12 @@
 import { ipcRenderer } from "electron";
-import { State } from "../native/state";
-import { AnyFun, SRecord, registerEndpoints } from "../native/utils";
+import { State } from "../native/state.mjs";
+import { AnyFun, SRecord, registerEndpoints } from "../native/utils.mjs";
 
 const endpoints = (s: State) => {
   return {
     genPdfProgress: (processedPages: number) =>
       s.setRS(rs => (s.rs.kind === "generating pdf" ? { ...rs, processedPages } : rs)),
+    error: (message: string) => s.setRS(rs => ({ ...rs, modal: { kind: "errorScan", message } })),
   } satisfies SRecord<AnyFun>;
 };
 

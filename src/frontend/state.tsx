@@ -1,7 +1,7 @@
 import React from "react";
-import { Book, Page } from "../native/types";
-import { PageNr, RawState, State } from "../native/state";
-import { InitProps, invoke } from "./utils";
+import { Book, Page } from "../native/types.mjs";
+import { PageNr, RawState, State } from "../native/state.mjs";
+import { InitProps, invoke } from "./utils.mjs";
 
 const emptyRawState: RawState = {
   kind: "nothing",

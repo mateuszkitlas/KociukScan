@@ -1,7 +1,7 @@
-import { State } from "../native/state";
+import { State } from "../native/state.mjs";
 //import AdmZip from "adm-zip";
-import { hashToPng } from "./utils";
-import { Book } from "../native/types";
+import { hashToPng } from "./utils.mjs";
+import { Book } from "../native/types.mjs";
 import { dialog } from "electron";
 
 export const exportBook = async (s: State) => {

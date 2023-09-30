@@ -1,8 +1,8 @@
 import React from "react";
-import type { State } from "../native/state";
-import { sleep } from "../native/utils";
-import { FaPaw, FaStop } from "react-icons/fa";
-import { scan } from "./utils";
+import type { State } from "../native/state.mjs";
+import { sleep } from "../native/utils.mjs";
+import { FaPaw, FaStop } from "react-icons/fa/index.js";
+import { scan } from "./utils.mjs";
 
 const beep = () => {
   const context = new AudioContext();

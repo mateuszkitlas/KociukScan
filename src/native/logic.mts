@@ -1,5 +1,5 @@
-import { PageNr } from "./state";
-import { Book, Color, Page } from "./types";
+import { PageNr } from "./state.mjs";
+import { Book, Color, Page } from "./types.mjs";
 
 export const scaleByPage = (page: Page) => 850 / page.original.width;
 

@@ -1,11 +1,11 @@
 import React from "react";
-import { PageNr, State } from "../native/state";
-import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa";
-import { ScanningButtons } from "./ScanningButtons";
-import { Color, Page } from "../native/types";
+import { PageNr, State } from "../native/state.mjs";
+import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa/index.js";
+import { ScanningButtons } from "./ScanningButtons.js";
+import { Color, Page } from "../native/types.mjs";
 import md5 from "md5";
-import { invoke } from "./utils";
-import { toError } from "../native/utils";
+import { invoke } from "./utils.mjs";
+import { toError } from "../native/utils.mjs";
 
 type B = React.MouseEventHandler<HTMLDivElement>;
 

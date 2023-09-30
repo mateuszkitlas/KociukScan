@@ -1,17 +1,17 @@
 import React, { useEffect } from "react";
-import { MiniPage } from "./MiniPage";
-import { StateContext, StateProvider } from "./state";
-import { PageNr, State } from "../native/state";
-import { buttons, duplicateAction } from "./toolbar";
-import { PageElt } from "./page";
-import { mainPageSize, offset } from "./offset";
-import { Page } from "../native/types";
-import { ModalWithClose, ModalYesNo } from "./modal";
-import { Settings } from "./Settings/Settings";
+import { MiniPage } from "./MiniPage.js";
+import { StateContext, StateProvider } from "./state.js";
+import { PageNr, State } from "../native/state.mjs";
+import { buttons, duplicateAction } from "./toolbar.js";
+import { PageElt } from "./page.js";
+import { mainPageSize, offset } from "./offset.mjs";
+import { Page } from "../native/types.mjs";
+import { ModalWithClose, ModalYesNo } from "./modal.js";
+import { Settings } from "./Settings/Settings.js";
 import { FileDrop } from "react-file-drop";
-import { arrayBufferToBuffer } from "../native/utils";
-import { scan, invoke, InitProps } from "./utils";
-import { registerRendererEndpoints } from "./endpoints";
+import { arrayBufferToBuffer } from "../native/utils.mjs";
+import { scan, invoke, InitProps } from "./utils.mjs";
+import { registerRendererEndpoints } from "./endpoints.js";
 
 const X = ({ s }: { s: State }) => {
   useEffect(() => void registerRendererEndpoints(s), []);

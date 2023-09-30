@@ -1,10 +1,10 @@
-import { State, PageNr } from "../native/state";
-import { Book, Color, Page } from "../native/types";
-import { hashToPng } from "./utils";
-import { getPixelsByAngle, Image } from "./Image";
-import { scaleByPage } from "../native/logic";
-import { ResizableDragger } from "./ResizableDragger";
-import { mainPageSize, offset } from "./offset";
+import { State, PageNr } from "../native/state.mjs";
+import { Book, Color, Page } from "../native/types.mjs";
+import { hashToPng } from "./utils.mjs";
+import { getPixelsByAngle, Image } from "./Image.js";
+import { scaleByPage } from "../native/logic.mjs";
+import { ResizableDragger } from "./ResizableDragger.js";
+import { mainPageSize, offset } from "./offset.mjs";
 
 const f = (book: Book, page: Page) => {
   const properties = Page.properties(book, page);
