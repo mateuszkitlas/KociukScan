@@ -9,7 +9,7 @@ const createWindow = () => {
       preload: join(__dirname, "renderer.cjs"),
     },
   });
-  //win.webContents.openDevTools();
+  win.webContents.openDevTools();
   win.setMenuBarVisibility(false);
   win.loadFile(join(__dirname, "index.html"));
 };

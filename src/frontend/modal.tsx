@@ -1,5 +1,7 @@
 import React from "react";
 import { FaTimesCircle } from "react-icons/fa/index.js";
+import { mouse } from "./react.mjs";
+import { Btn } from "./btn.js";
 
 export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
   return (
@@ -44,7 +46,11 @@ export const Modal = (props: React.HTMLProps<HTMLDivElement>) => {
   );
 };
 
-export const ModalWithClose = (props: ModalWithClose.Props) => (
+interface Common {
+  children: React.ReactNode;
+  onClose: () => void;
+}
+export const ModalWithClose = (props: Common & { title: string }) => (
   <Modal>
     <div
       style={{
@@ -57,28 +63,15 @@ export const ModalWithClose = (props: ModalWithClose.Props) => (
       }}
     >
       {props.title}
-      <div
-        onClick={e => {
-          e.stopPropagation();
-          props.onClose();
-        }}
-        style={{ float: "right" }}
-      >
+      <div onClick={mouse(props.onClose)} style={{ float: "right" }}>
         <FaTimesCircle />
       </div>
     </div>
     <div style={{ width: "100%", display: "block", textAlign: "left" }}>{props.children}</div>
   </Modal>
 );
-export namespace ModalWithClose {
-  export interface Props {
-    children: React.ReactNode;
-    onClose: () => void;
-    title: string;
-  }
-}
 
-export const ModalYesNo = (props: ModalYesNo.Props) => (
+export const ModalYesNo = (props: Common & { onYes: () => void }) => (
   <Modal>
     <div
       style={{
@@ -96,32 +89,14 @@ export const ModalYesNo = (props: ModalYesNo.Props) => (
         textAlign: "center",
       }}
     >
-      <div
-        className="button"
-        onClick={e => {
-          e.stopPropagation();
+      <Btn
+        onClick={() => {
           props.onYes();
+          props.onClose();
         }}
-      >
-        Yes
-      </div>
-      <div
-        className="button"
-        onClick={e => {
-          e.stopPropagation();
-          props.onNo();
-        }}
-      >
-        No
-      </div>
+        children="Yes"
+      />
+      <Btn onClick={props.onClose} children="No" />
     </div>
   </Modal>
 );
-
-export namespace ModalYesNo {
-  export interface Props {
-    children: React.ReactNode;
-    onYes: () => void;
-    onNo: () => void;
-  }
-}

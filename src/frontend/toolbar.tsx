@@ -1,96 +1,48 @@
-import React from "react";
-import { PageNr, State } from "../native/state.mjs";
+import { ReactNode } from "react";
 import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa/index.js";
 import { ScanningButtons } from "./ScanningButtons.js";
-import { Color, Page } from "../native/types.mjs";
-import md5 from "md5";
 import { invoke } from "./utils.mjs";
-import { toError } from "../native/utils.mjs";
+import { satisfies } from "../native/utils.mjs";
+import { StatePair } from "./state.mjs";
+import { Btn } from "./btn.js";
 
-type B = React.MouseEventHandler<HTMLDivElement>;
-
-export const duplicateAction = (s: State, page: Page) => {
-  const duplicated = md5(Date.now().toString());
-  const newPage = { ...page, duplicated, properties: undefined };
-  s.setRS(rs => {
-    const pageNr = rs.book.pages.findIndex(PageNr.eq(page));
-    return {
-      ...rs,
-      currentPage: { hash: page.hash, duplicated },
-      book: {
-        ...rs.book,
-        pages: [...rs.book.pages.slice(0, pageNr + 1), newPage, ...rs.book.pages.slice(pageNr + 1)],
-      },
-    };
-  });
-};
-
-const pageButtons = (s: State) => {
-  const page = s.getPage(s.rs.currentPage);
-  if (page) {
-    const rotate =
-      (deg: number): B =>
-      () => {
-        const properties = Page.properties(s.rs.book, page);
-        const rotate = properties.rotate + deg;
-        s.setPage({ ...page, properties: { ...properties, rotate } });
-      };
-    const setColor = (c: Partial<Color>) =>
-      s.setRS(rs => ({
-        ...rs,
-        book: { ...rs.book, color: { ...rs.book.color, ...c } },
-      }));
-    return [
-      <div key="duplicate" className="button" onClick={() => duplicateAction(s, page)} title="Duplicate">
-        <FaCopy />
-      </div>,
-      <div
-        key="delete"
-        className="button"
-        onClick={() =>
-          s.setRS(rs => ({
-            ...rs,
-            modal: { kind: "deletePage", pageNr: PageNr.get(page) },
-          }))
-        }
-        title="Delete"
-      >
-        <FaTrash />
-      </div>,
-      <div
-        key="rescan"
-        className="button"
-        onClick={() =>
-          s.setRS(rs => ({
-            ...rs,
-            modal: { kind: "reScanPage", pageNr: PageNr.get(page) },
-          }))
-        }
-        title="Scan again this page"
-      >
-        <FaEdit />
-      </div>,
-      <div className="button" onClick={rotate(-0.5)} key="rl" title="Rotate left by 0.5º">
-        <FaUndo />
-      </div>,
-      <div className="button" onClick={rotate(0.5)} key="rr" title="Rotate right by 0.5º">
-        <FaRedo />
-      </div>,
-      <div className="button" onClick={rotate(90)} key="90*" title="Rotate by 90º">
-        90º
-      </div>,
-      <div className="button" onClick={rotate(180)} key="180*" title="Rotate by 180º">
-        180º
-      </div>,
+const PageButtons = ({ state, set }: StatePair) => {
+  const pageIdx = state.cPageIdx;
+  const page = state.cPageFull;
+  if (!page || pageIdx === undefined) return null;
+  return (
+    <>
+      <Btn onClick={() => set.pages.duplicate(page.id)} title="Duplicate" children={<FaCopy />} />
+      <Btn onClick={() => set({ modal: { kind: "deletePage", pageIdx } })} title="Delete" children={<FaTrash />} />
+      <Btn
+        onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })}
+        title="Scan this page again"
+        children={<FaEdit />}
+      />
+      {satisfies<[number, ReactNode, string][]>([
+        // eslint-disable-next-line react/jsx-key
+        [-0.5, <FaUndo />, "left "],
+        // eslint-disable-next-line react/jsx-key
+        [0.5, <FaRedo />, "right "],
+        [90, "90º", "right "],
+        [180, "180º", ""],
+      ]).map(([deg, ch, desc]) => (
+        <Btn
+          onClick={() => set.current.rotate(deg)}
+          key={deg}
+          title={`Rotate ${desc}by ${deg < 0 ? -deg : deg}º`}
+          children={ch}
+        />
+      ))}
       <input
-        onChange={e => setColor({ contrast: parseFloat(e.target.value) })}
+        onChange={e => set.book.color({ contrast: parseFloat(e.target.value) })}
         key="contrast-book"
         title="Contrast"
         type="range"
         min="1"
         max="2"
         step="0.05"
-        value={s.rs.book.color.contrast}
+        value={state.book.color.contrast}
         style={{
           position: "relative",
           top: 11,
@@ -100,34 +52,21 @@ const pageButtons = (s: State) => {
           borderRadius: 5,
           margin: "0 5px 0 5px",
         }}
-      ></input>,
+      ></input>
       <label key="allowPageResize">
         <input
           className="button"
           type="checkbox"
-          checked={s.rs.allowPageResize}
-          onChange={e => s.setRS(rs => ({ ...rs, allowPageResize: e.target.checked }))}
+          checked={state.allowPageResize}
+          onChange={e => set({ allowPageResize: e.target.checked })}
         />
         resize
-      </label>,
-    ];
-  } else {
-    return [];
-  }
+      </label>
+    </>
+  );
 };
 
-const downloadButtons = (s: State) => {
-  const download: B = async () => {
-    try {
-      await invoke("pdf", s.rs.book);
-    } catch (e) {
-      s.setRS(rs => ({
-        ...rs,
-        modal: { kind: "errorScan", message: toError(e).message },
-      }));
-    }
-    s.setRS(rs => ({ ...rs, kind: "nothing" }));
-  };
+const Download = ({ state, set }: StatePair) => {
   const f = (processed: number, all: number, startedAt: number) => {
     const elapsed = (Date.now() - startedAt) / 1000;
     const v = Math.round((elapsed / processed) * 10) / 10;
@@ -142,28 +81,18 @@ const downloadButtons = (s: State) => {
     }
   };
   return (
-    <div
-      className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
-      onClick={s.rs.kind === "nothing" ? download : undefined}
-      key="pdf"
-      title="Generate PDF"
-    >
+    <Btn onClick={state.kind === "nothing" ? invoke.cb("pdf") : undefined} title="Generate PDF">
       <FaFilePdf />
-      {s.rs.kind === "generating pdf" ? f(s.rs.processedPages, s.rs.book.pages.length, s.rs.startedAt) : undefined}
-    </div>
+      {state.kind === "generating pdf" ? f(state.processedPages, state.book.pages.length, state.startedAt) : undefined}
+    </Btn>
   );
 };
 
-export const buttons = (s: State) => [
-  <ScanningButtons s={s} key="ScanningButtons" />,
-  downloadButtons(s),
-  ...pageButtons(s),
-  <div
-    className="button"
-    onClick={() => s.setRS(rs => ({ ...rs, modal: { kind: "settings" } }))}
-    title="Settings"
-    key="settings"
-  >
-    <FaCog />
-  </div>,
-];
+export const Buttons = (props: StatePair) => (
+  <>
+    <ScanningButtons {...props} />
+    <Download {...props} />
+    <PageButtons {...props} />
+    <Btn onClick={() => props.set({ modal: { kind: "settings" } })} title="Settings" children={<FaCog />} />
+  </>
+);

@@ -1,10 +1,6 @@
-import { State } from "../native/state.mjs";
-//import AdmZip from "adm-zip";
-import { hashToPng } from "./utils.mjs";
-import { Book } from "../native/types.mjs";
 import { dialog } from "electron";
 
-export const exportBook = async (s: State) => {
+export const exportBook = async () => {
   const filename = dialog.showSaveDialogSync({
     defaultPath: "book.zip",
     filters: [{ extensions: ["zip", "ZIP"], name: "zip" }],
@@ -21,7 +17,7 @@ export const exportBook = async (s: State) => {
   }
 };
 
-export const importBook = async (s: State) => {
+export const importBook = async () => {
   const filename = dialog.showOpenDialogSync({
     defaultPath: "book.zip",
     filters: [{ extensions: ["zip", "ZIP"], name: "zip" }],

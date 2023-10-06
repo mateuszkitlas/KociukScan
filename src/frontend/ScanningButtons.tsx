@@ -1,97 +1,32 @@
-import React from "react";
-import type { State } from "../native/state.mjs";
-import { sleep } from "../native/utils.mjs";
 import { FaPaw, FaStop } from "react-icons/fa/index.js";
-import { scan } from "./utils.mjs";
+import { invoke } from "./utils.mjs";
+import { StatePair } from "./state.mjs";
+import { Btn } from "./btn.js";
 
-const beep = () => {
-  const context = new AudioContext();
-  const o = context.createOscillator();
-  o.type = "sine";
-  o.connect(context.destination);
-  o.start();
-  setTimeout(() => o.stop(), 300);
-};
-
-interface P {
-  s: State;
-}
-type B = React.MouseEventHandler<HTMLDivElement>;
-export class ScanningButtons extends React.Component<P> {
-  constructor(props: P) {
-    super(props);
-    this.state = {};
-  }
-  render = () => {
-    const s = this.props.s;
-    const one: B = async () => {
-      s.setRS(rs => ({ ...rs, kind: "scanning one" }));
-      const page = await (await scan(s))?.();
-      s.setRS(rs => ({
-        ...rs,
-        kind: "nothing",
-        book: page ? { ...rs.book, pages: [...rs.book.pages, page] } : rs.book,
-      }));
-    };
-    const many: B = async () => {
-      s.setRS(rs => ({ ...rs, kind: "scanning many" }));
-      const doScan = async () => (await s.getRS()).kind === "scanning many";
-      while (await doScan()) {
-        const pageGetter = await scan(s);
-        if (pageGetter && (await doScan())) {
-          beep();
-          const processPage = async () => {
-            const page = await pageGetter();
-            s.setRS(rs => ({
-              ...rs,
-              book: { ...rs.book, pages: [...rs.book.pages, page] },
-            }));
-          };
-          processPage(); // TODO
-          await sleep((await s.getRS()).book.delay);
-        } else {
-          s.setRS(rs => ({ ...rs, kind: "nothing" }));
-        }
-      }
-    };
-    const stop: B = () => {
-      s.setRS(rs => ({ ...rs, kind: "nothing" }));
-    };
-
-    const setDelay =
-      (delta: number): B =>
-      e => {
-        e.stopPropagation();
-        if (s.rs.book.delay + delta >= 0) {
-          s.setBook({ ...s.rs.book, delay: s.rs.book.delay + delta });
-        }
-      };
-
-    return [
-      s.rs.kind === "nothing" ? (
-        <div className="button" onClick={one} key="one" title="Scan">
-          <FaPaw />
-        </div>
+export const ScanningButtons = (props: StatePair) => {
+  const { set, state } = props;
+  const setDelay = (delta: number) => () =>
+    set.book(book => (book.delay + delta >= 0 ? { delay: book.delay + delta } : {}));
+  return (
+    <>
+      {state.kind === "nothing" ? (
+        <Btn
+          onClick={async () => {
+            const page = await invoke("scanOne");
+            set.pages(pages => [...pages, page]);
+          }}
+          title="Scan"
+          children={<FaPaw />}
+        />
       ) : (
-        <div className="button" onClick={stop} key="stop" title="Stop">
-          <FaStop />
-        </div>
-      ),
-      <div
-        className={`button ${s.rs.kind === "nothing" ? "" : "inactive"}`}
-        onClick={s.rs.kind === "nothing" ? many : undefined}
-        key="scan*"
-        title="Scan many pages"
-      >
+        <Btn onClick={invoke.cb("scanAbort")} title="Stop" children={<FaStop />} />
+      )}
+      <Btn onClick={state.kind === "nothing" ? invoke.cb("scanMany") : undefined} title="Scan many pages">
         <FaPaw />
-        <div className="button" onClick={setDelay(-1)} key="-" title="-1 second">
-          -
-        </div>
-        {s.rs.book.delay}sec
-        <div className="button" onClick={setDelay(1)} key="+" title="+1 second">
-          +
-        </div>
-      </div>,
-    ];
-  };
-}
+        <Btn onClick={setDelay(-1)} title="-1 second" children="-" />
+        {state.book.delay}sec
+        <Btn onClick={setDelay(1)} title="+1 second" children="+" />
+      </Btn>
+    </>
+  );
+};

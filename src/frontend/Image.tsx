@@ -1,32 +1,25 @@
-import React from "react";
+import { mouse } from "./react.mjs";
 
 export const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
   const radians = (angle * Math.PI) / 180;
-  return [
-    //upper left
-    {
-      x: x + width / 2 + (width / -2) * Math.cos(radians) - (height / -2) * Math.sin(radians),
-      y: y + height / 2 + (width / -2) * Math.sin(radians) + (height / -2) * Math.cos(radians),
-    },
-    //upper right
-    {
-      x: x + width / 2 + (width / 2) * Math.cos(radians) - (height / -2) * Math.sin(radians),
-      y: y + height / 2 + (width / 2) * Math.sin(radians) + (height / -2) * Math.cos(radians),
-    },
-    //bottom right
-    {
-      x: x + width / 2 + (width / 2) * Math.cos(radians) - (height / 2) * Math.sin(radians),
-      y: y + height / 2 + (width / 2) * Math.sin(radians) + (height / 2) * Math.cos(radians),
-    },
-    //bottom left
-    {
-      x: x + width / 2 + (width / -2) * Math.cos(radians) - (height / 2) * Math.sin(radians),
-      y: y + height / 2 + (width / -2) * Math.sin(radians) + (height / 2) * Math.cos(radians),
-    },
-  ];
+  const sin = Math.sin(radians);
+  const cos = Math.cos(radians);
+  const w2 = width / 2;
+  const h2 = height / 2;
+  const f = (a: number, b: number) => ({
+    x: x + w2 - w2 * cos * a + h2 * sin * b,
+    y: y + h2 - w2 * sin * a - h2 * cos * b,
+  });
+  const z = [f(1, 1), f(-1, 1), f(-1, -1), f(1, -1)]; // [tl, tr, br, bl]
+  return {
+    minX: Math.min(...z.map(x => x.x)),
+    minY: Math.min(...z.map(x => x.y)),
+    maxX: Math.max(...z.map(x => x.x)),
+    maxY: Math.max(...z.map(x => x.y)),
+  };
 };
 
-interface PropsImage {
+export const Image = (props: {
   rotate: number;
   contrast: number;
   src: string;
@@ -35,28 +28,24 @@ interface PropsImage {
   scale: number;
   x?: number;
   y?: number;
-}
-
-export const Image = ({ rotate, contrast, src: png, width, height, scale, x, y }: PropsImage) => {
-  const newPoints = getPixelsByAngle(
-    (width * (1 - scale)) / 2,
-    (height * (1 - scale)) / 2,
-    width * scale,
-    height * scale,
-    rotate,
+}) => {
+  const p = getPixelsByAngle(
+    (props.width * (1 - props.scale)) / 2,
+    (props.height * (1 - props.scale)) / 2,
+    props.width * props.scale,
+    props.height * props.scale,
+    props.rotate,
   );
-  const marginLeft = -Math.min(...newPoints.map(x => x.x)) + (x || 0);
-  const marginTop = -Math.min(...newPoints.map(x => x.y)) + (y || 0);
   return (
     <img
-      src={png}
+      src={props.src}
       alt=""
       style={{
-        transform: `rotate(${rotate}deg) scale(${scale})`,
-        filter: `contrast(${contrast})`,
+        transform: `rotate(${props.rotate}deg) scale(${props.scale})`,
+        filter: `contrast(${props.contrast})`,
         userSelect: "none",
-        marginLeft,
-        marginTop,
+        marginLeft: -p.minX + (props.x ?? 0),
+        marginTop: -p.minY + (props.y ?? 0),
         boxSizing: "border-box",
       }}
       draggable={false}
@@ -64,7 +53,7 @@ export const Image = ({ rotate, contrast, src: png, width, height, scale, x, y }
   );
 };
 
-interface PropsImageMiniature {
+export const ImageMiniature = (props: {
   original: {
     rotate: number;
     contrast: number;
@@ -83,16 +72,10 @@ interface PropsImageMiniature {
   height: number;
   children: React.ReactNode;
   onClick: () => void;
-}
-export const ImageMiniature = (props: PropsImageMiniature) => {
+}) => {
   const scale = Math.min(props.width / props.crop.width, props.height / props.crop.height);
   return (
-    <div
-      onClick={e => {
-        e.stopPropagation();
-        props.onClick();
-      }}
-    >
+    <div onClick={mouse(props.onClick)}>
       <div style={{ width: props.crop.width * scale, height: props.crop.height * scale, overflow: "hidden" }}>
         <div style={{ transform: `scale(${scale})` }}>
           <div
@@ -102,9 +85,8 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
               marginLeft: -(props.crop.width * (1 - scale)) / 2,
               marginTop: (-props.crop.height * (1 - scale)) / 2,
             }}
-          >
-            <Image {...props.original} x={-props.crop.x} y={-props.crop.y} />
-          </div>
+            children={<Image {...props.original} x={-props.crop.x} y={-props.crop.y} />}
+          />
         </div>
       </div>
       <div
@@ -114,9 +96,8 @@ export const ImageMiniature = (props: PropsImageMiniature) => {
           width: props.width,
           height: props.height,
         }}
-      >
-        {props.children}
-      </div>
+        children={props.children}
+      />
     </div>
   );
 };

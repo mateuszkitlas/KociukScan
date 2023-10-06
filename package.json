@@ -10,13 +10,12 @@
     "type": "git",
     "url": "git+https://github.com/mateuszkitlas/scan.git"
   },
-  "type":"module",
+  "type": "module",
   "dependencies": {
     "adm-zip": "^0.5.5",
     "buffer": "^6.0.3",
     "crypto": "^1.0.1",
     "fontkit": "^2.0.2",
-    "md5": "^2.3.0",
     "open": "^9.1.0",
     "pdfkit": "^0.13.0",
     "react": "^17.0.2",

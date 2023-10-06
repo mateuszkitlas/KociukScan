@@ -1,65 +1,56 @@
 import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa/index.js";
-import { SettingsModal, State } from "../../native/state.mjs";
+import { SettingsModal } from "../../native/state.mjs";
 import { exportBook, importBook } from "../exportBook.mjs";
 import { invoke } from "../utils.mjs";
+import { SetState, StatePair } from "../state.mjs";
+import { Btn } from "../btn.js";
 
-const renderDevices = (d: string[], s: State) => [
-  `(${d.length}):`,
-  <ul key="devices">
-    {d.map(device => (
-      <li key={device}>
-        {device}
-        {device === s.rs.device ? (
-          "(current)"
-        ) : (
-          <div className="button" onClick={() => s.setRS(rs => ({ ...rs, device }))}>
-            use
-          </div>
-        )}
-      </li>
-    ))}
-  </ul>,
-];
+const Devices = (props: { devices: string[]; current?: string; set: SetState }) => (
+  <>
+    `(${props.devices.length}):`
+    <ul>
+      {props.devices.map(device => (
+        <li key={device}>
+          {device}
+          {device === props.current ? "(current)" : <Btn onClick={() => props.set({ device })} children="use" />}
+        </li>
+      ))}
+    </ul>
+  </>
+);
 
-const detect = async (s: State, modal: SettingsModal) => {
-  s.setRS(rs => ({ ...rs, modal: { ...modal, devices: null } }));
-  const devices = await invoke("listDevices");
-  s.setRS(rs => ({ ...rs, modal: { ...modal, devices } }));
-};
-
-export const Settings = (props: { modal: SettingsModal; s: State }) => {
-  const { s, modal } = props;
+export const Settings = ({ set, state, modal }: StatePair & { modal: SettingsModal }) => {
   return (
     <ul>
       <li>
         Scanning devices
         {modal.devices === undefined ? (
-          <div className="button sm" onClick={() => detect(s, modal)}>
+          <Btn
+            sm
+            onClick={async () => {
+              set({ modal: { ...modal, devices: null } });
+              set({ modal: { ...modal, devices: await invoke("listDevices") } });
+            }}
+          >
             <FaSearch /> Detect
-          </div>
+          </Btn>
         ) : modal.devices === null ? (
-          <div className="button sm inactive">
+          <Btn sm>
             <FaSearch /> Detecting...
-          </div>
+          </Btn>
         ) : (
-          renderDevices(modal.devices, s)
+          <Devices devices={modal.devices} current={state.device} set={set} />
         )}
       </li>
       <li>
         DPI
         <select
           className="sm"
-          onChange={e => {
-            const dpi = parseFloat(e.target.value);
-            s.setBook({ ...s.rs.book, dpi });
-          }}
-          value={s.rs.book.dpi}
-          key={"dpi"}
+          onChange={e => set(rs => ({ book: { ...rs.book, dpi: parseFloat(e.target.value) } }))}
+          value={state.book.dpi}
         >
           {[150, 200, 300].map(v => (
-            <option value={v} key={v}>
-              {v}
-            </option>
+            <option value={v} key={v} children={v} />
           ))}
         </select>
         <br />
@@ -67,29 +58,21 @@ export const Settings = (props: { modal: SettingsModal; s: State }) => {
       </li>
       <li>
         Project
-        <div
-          className="button sm"
-          onClick={() => s.setRS(rs => ({ ...rs, modal: { ...modal, modal: { kind: "deleteProject" } } }))}
-        >
+        <Btn sm onClick={() => set({ modal: { ...modal, modal: { kind: "deleteProject" } } })}>
           <FaTrash /> Delete
-        </div>
-        <div className="button sm" onClick={() => exportBook(s)} key="export" title="Save">
+        </Btn>
+        <Btn sm onClick={() => exportBook()} key="export" title="Save">
           <FaFileDownload /> Save
-        </div>
-        <div className="button sm" onClick={() => importBook(s)} key="import" title="Load">
+        </Btn>
+        <Btn sm onClick={() => importBook()} key="import" title="Load">
           <FaFileUpload /> Load
-        </div>
+        </Btn>
       </li>
       <li>
         Raw images{" "}
-        <div
-          className="button sm"
-          onClick={() => s.setRS(rs => ({ ...rs, modal: { ...modal, modal: { kind: "importPages" } } }))}
-          key="import"
-          title="Import"
-        >
+        <Btn sm onClick={() => set({ modal: { ...modal, modal: { kind: "importPages" } } })} title="Import">
           <FaImage /> Import
-        </div>
+        </Btn>
       </li>
     </ul>
   );

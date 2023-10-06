@@ -1,6 +1,9 @@
 export type AnyFun = (...args: any[]) => unknown;
 export type SRecord<T> = Record<string, T>;
+export type URecord = SRecord<unknown>;
+export type NRecord = SRecord<never>;
 export type Falsy = false | "" | 0 | null | undefined;
+export type MaybeAwaited<T> = Awaited<T> | T;
 
 export const notFalsy = <T,>(t: T): t is Exclude<T, Falsy> => !!t;
 export const satisfies = <T,>(t: T) => t;
@@ -23,9 +26,19 @@ export function jsonSafeParse<T>(text: string, defaultValue?: T) {
   return v === undefined ? defaultValue : v;
 }
 
+export const pick = <T extends Record<string, any>, K extends keyof T>(t: T, keys: K[]) =>
+  Object.fromEntries(keys.filter(k => k in t).map(k => [k, t[k]])) as Pick<T, K>;
+
 export function assertNotFalsy<T>(t: T, name: string): asserts t is Exclude<T, Falsy> {
   if (!t) throwExp(`${name} is falsy ${t}`);
 }
+
+export const arrayGet = <T,>(arr: T[], index?: number) => (index === undefined ? undefined : arr[index]);
+
+export const validIndex = (arr: unknown[], index: number) =>
+  index < 0 ? 0 : arr.length <= index ? arr.length - 1 : index;
+
+export const idToPng = (tmpPath: string, id: number) => `${tmpPath}/${id}.png`;
 
 export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000 * seconds));
 
@@ -85,6 +98,11 @@ export const formatError = (e: Error) =>
 
 type ChannelFun<T> = (ch: string, ...args: any[]) => T;
 
+export const genInvoked =
+  <E extends SRecord<AnyFun>>(invoke: ChannelFun<Promise<unknown>>) =>
+  <K extends string & keyof E>(channel: K, ...args: Parameters<E[K]>) =>
+  () =>
+    invoke(channel, ...args) as Promise<Awaited<ReturnType<E[K]>>>;
 export const genInvoke =
   <E extends SRecord<AnyFun>>(invoke: ChannelFun<Promise<unknown>>) =>
   <K extends string & keyof E>(channel: K, ...args: Parameters<E[K]>) =>

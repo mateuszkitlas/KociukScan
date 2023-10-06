@@ -1,88 +1,50 @@
-import { State, PageNr } from "../native/state.mjs";
-import { Book, Color, Page } from "../native/types.mjs";
-import { hashToPng } from "./utils.mjs";
+import { Color, Page } from "../native/types.mjs";
 import { getPixelsByAngle, Image } from "./Image.js";
 import { scaleByPage } from "../native/logic.mjs";
 import { ResizableDragger } from "./ResizableDragger.js";
 import { mainPageSize, offset } from "./offset.mjs";
+import { StatePair } from "./state.mjs";
+import { idToPng, pick } from "../native/utils.mjs";
 
-const f = (book: Book, page: Page) => {
-  const properties = Page.properties(book, page);
-  const newPoints = getPixelsByAngle(
+const MoveResize = ({ page, set, state }: StatePair & { page: Page.Full }) => {
+  const boundaries = getPixelsByAngle(
     0,
     0,
     page.original.width * scaleByPage(page),
     page.original.height * scaleByPage(page),
-    properties.rotate,
+    page.props.rotate,
   );
-  return {
-    minX: Math.min(...newPoints.map(x => x.x)),
-    minY: Math.min(...newPoints.map(x => x.y)),
-    maxX: Math.max(...newPoints.map(x => x.x)),
-    maxY: Math.max(...newPoints.map(x => x.y)),
-  };
-};
-
-export const MoveResize = (props: { s: State; page: Page }) => {
-  if (!props.s.rs.tmpPath) return null;
-  const properties = Page.properties(props.s.rs.book, props.page);
-  const boundaries = f(props.s.rs.book, props.page);
   const rawWidth = boundaries.maxX - boundaries.minX;
   const rawHeight = boundaries.maxY - boundaries.minY;
   const windowWH = mainPageSize();
   const zoom = Math.min(windowWH.height / rawHeight, windowWH.width / rawWidth);
   return (
-    <div>
+    <>
       <Image
-        key="image"
-        src={hashToPng(props.s.rs.tmpPath, props.page.hash)}
-        scale={scaleByPage(props.page) * zoom}
-        contrast={Color.merge(props.page, props.s.rs.book).contrast}
-        rotate={properties.rotate}
-        width={props.page.original.width}
-        height={props.page.original.height}
+        src={idToPng(state.tmpPath, page.id)}
+        scale={scaleByPage(page) * zoom}
+        contrast={Color.merge(page, state.book).contrast}
+        rotate={page.props.rotate}
+        {...page.original}
       />
       <ResizableDragger
         zoom={zoom}
-        resize={props.s.rs.allowPageResize}
+        resize={state.allowPageResize}
         boundaries={boundaries}
         cropSize={40}
-        set={o =>
-          props.s.setRS(rs => ({
-            ...rs,
-            book: {
-              ...rs.book,
-              width: o.width ?? rs.book.width,
-              height: o.height ?? rs.book.height,
-              pages: rs.book.pages.map(p =>
-                PageNr.eq(p)(props.page)
-                  ? {
-                      ...props.page,
-                      properties: {
-                        ...properties,
-                        x: o.x ?? properties.x,
-                        y: o.y ?? properties.y,
-                      },
-                    }
-                  : p,
-              ),
-            },
-          }))
-        }
-        width={props.s.rs.book.width}
-        height={props.s.rs.book.height}
-        x={properties.x}
-        y={properties.y}
+        set={o => {
+          set.book(pick(o, ["height", "width"]));
+          set.pages.mod({ ...page, props: { ...page.props, ...pick(o, ["x", "y"]) } });
+        }}
+        {...pick(state.book, ["width", "height"])}
+        {...pick(page.props, ["x", "y"])}
       />
-    </div>
+    </>
   );
 };
 
-export const PageElt = (props: { s: State }) => {
-  const page = props.s.getPage(props.s.rs.currentPage);
-  return (
-    <div id="page" key="page" style={{ left: offset.x }}>
-      {page ? <MoveResize s={props.s} page={page} /> : null}
-    </div>
-  );
-};
+export const PageElt = (props: StatePair & { page?: Page.Full }) => (
+  <div id="page" style={{ left: offset.x }}>
+    {props.page ? <MoveResize {...props} page={props.page} /> : null}
+  </div>
+);

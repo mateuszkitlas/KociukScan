@@ -1,51 +1,49 @@
 import { Page } from "../native/types.mjs";
-import { State } from "../native/state.mjs";
 import { ImageMiniature } from "./Image.js";
-import { hashToPng } from "./utils.mjs";
 import { scaleByPage } from "../native/logic.mjs";
+import { StatePair } from "./state.mjs";
+import { className } from "./react.mjs";
+import { idToPng } from "../native/utils.mjs";
 
-export const MiniPage = (props: { s: State; page: Page }) => {
-  const page = props.page;
-  const s = props.s;
-  const properties = Page.properties(s.rs.book, page);
-  const tmpPath = s.rs.tmpPath;
-  if (!tmpPath) return null;
-  const currentPage = { hash: page.hash, duplicated: page.duplicated };
+export const MiniPage = ({ page, state, set, idx }: StatePair & { page: Page.Full; idx: number }) => {
+  const { book } = state;
   return (
-    <div className={`page ${s.isCurrentPage(currentPage) ? "current" : ""}`}>
+    <div {...className("page", { current: page.id === state.cPageFull?.id })}>
       <ImageMiniature
         original={{
-          src: hashToPng(tmpPath, page.hash),
+          src: idToPng(state.tmpPath, page.id),
           scale: scaleByPage(page),
-          contrast: s.rs.book.color.contrast,
-          rotate: properties.rotate,
+          contrast: book.color.contrast,
+          rotate: page.props.rotate,
           width: page.original.width,
           height: page.original.height,
         }}
         crop={{
-          width: s.rs.book.width,
-          height: s.rs.book.height,
-          x: properties.x,
-          y: properties.y,
+          width: book.width,
+          height: book.height,
+          x: page.props.x,
+          y: page.props.y,
         }}
         width={100}
         height={100}
-        onClick={() => s.setRS(rs => ({ ...rs, currentPage }))}
+        onClick={() => set({ cPageIdx: idx })}
       >
-        <div style={{ position: "absolute", right: 0, width: 40 }}>
-          <div
-            style={{
-              backgroundColor: page.properties ? "#445" : "#F00",
-              borderRadius: "50%",
-              width: 32,
-              height: 24,
-              textAlign: "center",
-              paddingTop: 6,
-            }}
-          >
-            {s.rs.book.pages.findIndex(p => p === page) + 1}
-          </div>
-        </div>
+        <div
+          style={{ position: "absolute", right: 0, width: 40 }}
+          children={
+            <div
+              style={{
+                backgroundColor: page.props ? "#445" : "#F00",
+                borderRadius: "50%",
+                width: 32,
+                height: 24,
+                textAlign: "center",
+                paddingTop: 6,
+              }}
+              children={idx + 1}
+            />
+          }
+        />
       </ImageMiniature>
     </div>
   );
