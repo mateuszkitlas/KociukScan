@@ -13,4 +13,8 @@ const endpoints = (set: SetState) =>
 
 export type RendererEndpoints = ReturnType<typeof endpoints>;
 export const registerRendererEndpoints = (set: SetState) =>
-  registerEndpoints((...args) => ipcRenderer.on(...args), endpoints(set));
+  registerEndpoints({
+    add: (...args) => ipcRenderer.on(...args),
+    remove: (...args) => ipcRenderer.removeListener(...args),
+    endpoints: endpoints(set),
+  });

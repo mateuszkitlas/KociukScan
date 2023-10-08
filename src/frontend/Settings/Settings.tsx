@@ -1,7 +1,5 @@
-import { FaFileDownload, FaFileUpload, FaImage, FaSearch, FaTrash } from "react-icons/fa/index.js";
 import { SettingsModal } from "../../native/state.mjs";
 import { exportBook, importBook } from "../exportBook.mjs";
-import { invoke } from "../utils.mjs";
 import { SetState, StatePair } from "../state.mjs";
 import { Btn } from "../btn.js";
 
@@ -29,15 +27,13 @@ export const Settings = ({ set, state, modal }: StatePair & { modal: SettingsMod
             sm
             onClick={async () => {
               set({ modal: { ...modal, devices: null } });
-              set({ modal: { ...modal, devices: await invoke("listDevices") } });
+              set({ modal: { ...modal, devices: await set.invoke("listDevices") } });
             }}
-          >
-            <FaSearch /> Detect
-          </Btn>
+            icon="search"
+            children="Detect"
+          />
         ) : modal.devices === null ? (
-          <Btn sm>
-            <FaSearch /> Detecting...
-          </Btn>
+          <Btn sm icon="search" children="Detecting..." />
         ) : (
           <Devices devices={modal.devices} current={state.device} set={set} />
         )}
@@ -58,21 +54,23 @@ export const Settings = ({ set, state, modal }: StatePair & { modal: SettingsMod
       </li>
       <li>
         Project
-        <Btn sm onClick={() => set({ modal: { ...modal, modal: { kind: "deleteProject" } } })}>
-          <FaTrash /> Delete
-        </Btn>
-        <Btn sm onClick={() => exportBook()} key="export" title="Save">
-          <FaFileDownload /> Save
-        </Btn>
-        <Btn sm onClick={() => importBook()} key="import" title="Load">
-          <FaFileUpload /> Load
-        </Btn>
+        <Btn
+          sm
+          icon="trash"
+          children="Delete"
+          onClick={() => set({ modal: { ...modal, modal: { kind: "deleteProject" } } })}
+        />
+        <Btn sm icon="save" children="Save" onClick={() => exportBook()} />
+        <Btn sm icon="folder-opened" onClick={() => importBook()} key="import" children="Load" />
       </li>
       <li>
         Raw images{" "}
-        <Btn sm onClick={() => set({ modal: { ...modal, modal: { kind: "importPages" } } })} title="Import">
-          <FaImage /> Import
-        </Btn>
+        <Btn
+          sm
+          icon="chrome-restore"
+          onClick={() => set({ modal: { ...modal, modal: { kind: "importPages" } } })}
+          children="Import"
+        />
       </li>
     </ul>
   );

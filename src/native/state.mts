@@ -25,11 +25,15 @@ export namespace State {
         startedAt: number;
       };
 
-  export const fullPages = (pages: Page[]) =>
+  export const fullPages = (pages: Page[], cPageIdx?: number) =>
     pages.reduce(
-      ({ prevPrev, prev, acc }, page) => {
+      ({ prevPrev, prev, acc }, page, idx) => {
         const props = page.props ?? prevPrev;
-        return { prevPrev: prev, prev: props, acc: [...acc, { ...page, props }] };
+        return {
+          prevPrev: prev,
+          prev: props,
+          acc: [...acc, { ...page, props, touched: !!page.props, idx, current: cPageIdx === idx }],
+        };
       },
       {
         prevPrev: Page.defaultProps,
@@ -44,12 +48,6 @@ export namespace State {
       if (!page) return Page.defaultProps;
       if (page.props) return page.props;
     }
-  };
-
-  export const pageFull = (pages: Page[], index?: number): undefined | Page.Full => {
-    if (index === undefined) return;
-    const page = arrayGet(pages, index);
-    return page && { ...page, props: props(pages, index) };
   };
 }
 

@@ -1,7 +1,9 @@
 import { fileURLToPath } from "url";
+import CopyWebpackPlugin from "copy-webpack-plugin";
+
 const extensions = ["ts", "js"].flatMap(e => [`m${e}`, `c${e}`, e]).map(e => `.${e}`);
 
-const path = fileURLToPath(new URL("./dist", import.meta.url));
+const path = pth => fileURLToPath(new URL(pth, import.meta.url));
 export default [
   {
     stats: "minimal",
@@ -26,7 +28,8 @@ export default [
       ],
     },
     resolve: { extensions: [...extensions, ".tsx", ".jsx"] },
-    output: { path, filename: "renderer.cjs", publicPath: "/" },
+    plugins: [new CopyWebpackPlugin({ patterns: [{ from: "static", to: "./" }] })],
+    output: { path: path("./dist"), filename: "renderer.cjs", publicPath: "/" },
   },
   {
     stats: "minimal",
@@ -55,6 +58,6 @@ export default [
       ],
     },
     externals: { sharp: "commonjs sharp" },
-    output: { path, filename: "index.cjs" },
+    output: { path: path("./dist"), filename: "index.cjs" },
   },
 ];

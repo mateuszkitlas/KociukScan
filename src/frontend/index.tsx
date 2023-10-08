@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { App } from "./App.js";
 import { invoke } from "./utils.mjs";
 
-const props = invoke("init");
+const props = invoke(m => console.error(m))("init");
 
 window.addEventListener(
   "DOMContentLoaded",

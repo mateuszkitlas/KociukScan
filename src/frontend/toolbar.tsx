@@ -1,10 +1,9 @@
 import { ReactNode } from "react";
-import { FaUndo, FaRedo, FaFilePdf, FaCopy, FaTrash, FaEdit, FaCog } from "react-icons/fa/index.js";
 import { ScanningButtons } from "./ScanningButtons.js";
-import { invoke } from "./utils.mjs";
 import { satisfies } from "../native/utils.mjs";
 import { StatePair } from "./state.mjs";
 import { Btn } from "./btn.js";
+import { Icon } from "./icon.js";
 
 const PageButtons = ({ state, set }: StatePair) => {
   const pageIdx = state.cPageIdx;
@@ -12,18 +11,14 @@ const PageButtons = ({ state, set }: StatePair) => {
   if (!page || pageIdx === undefined) return null;
   return (
     <>
-      <Btn onClick={() => set.pages.duplicate(page.id)} title="Duplicate" children={<FaCopy />} />
-      <Btn onClick={() => set({ modal: { kind: "deletePage", pageIdx } })} title="Delete" children={<FaTrash />} />
-      <Btn
-        onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })}
-        title="Scan this page again"
-        children={<FaEdit />}
-      />
+      <Btn onClick={() => set.pages.duplicate(page.id)} title="Duplicate" icon="file-symlink-file" />
+      <Btn onClick={() => set({ modal: { kind: "deletePage", pageIdx } })} title="Delete" icon="trash" />
+      <Btn onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })} title="Scan this page again" icon="edit" />
       {satisfies<[number, ReactNode, string][]>([
         // eslint-disable-next-line react/jsx-key
-        [-0.5, <FaUndo />, "left "],
+        [-0.5, <Icon name="refresh" transform="scaleX(-1) rotate(90deg)" />, "left "],
         // eslint-disable-next-line react/jsx-key
-        [0.5, <FaRedo />, "right "],
+        [0.5, <Icon name="refresh" transform="rotate(90deg)" />, "right "],
         [90, "90º", "right "],
         [180, "180º", ""],
       ]).map(([deg, ch, desc]) => (
@@ -36,7 +31,6 @@ const PageButtons = ({ state, set }: StatePair) => {
       ))}
       <input
         onChange={e => set.book.color({ contrast: parseFloat(e.target.value) })}
-        key="contrast-book"
         title="Contrast"
         type="range"
         min="1"
@@ -45,15 +39,13 @@ const PageButtons = ({ state, set }: StatePair) => {
         value={state.book.color.contrast}
         style={{
           position: "relative",
-          top: 11,
           WebkitAppearance: "none",
-          backgroundColor: "#445",
           padding: 5,
           borderRadius: 5,
           margin: "0 5px 0 5px",
         }}
-      ></input>
-      <label key="allowPageResize">
+      />
+      <label>
         <input
           className="button"
           type="checkbox"
@@ -81,18 +73,17 @@ const Download = ({ state, set }: StatePair) => {
     }
   };
   return (
-    <Btn onClick={state.kind === "nothing" ? invoke.cb("pdf") : undefined} title="Generate PDF">
-      <FaFilePdf />
+    <Btn onClick={state.kind === "nothing" ? () => set.invoke("pdf") : undefined} title="Generate PDF" icon="file-pdf">
       {state.kind === "generating pdf" ? f(state.processedPages, state.book.pages.length, state.startedAt) : undefined}
     </Btn>
   );
 };
 
 export const Buttons = (props: StatePair) => (
-  <>
+  <div id="toolbar">
     <ScanningButtons {...props} />
     <Download {...props} />
     <PageButtons {...props} />
-    <Btn onClick={() => props.set({ modal: { kind: "settings" } })} title="Settings" children={<FaCog />} />
-  </>
+    <Btn onClick={() => props.set({ modal: { kind: "settings" } })} title="Settings" icon="gear" />
+  </div>
 );

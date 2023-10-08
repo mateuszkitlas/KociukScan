@@ -1,7 +1,7 @@
 import { Book, Color, Page } from "../native/types.mjs";
 import { State } from "../native/state.mjs";
 import { usePartialState } from "./react.mjs";
-import { InitProps } from "./utils.mjs";
+import { InitProps, invoke } from "./utils.mjs";
 import { arrayGet, satisfies, validIndex } from "../native/utils.mjs";
 import { useMemo } from "react";
 
@@ -32,19 +32,16 @@ export const useKociukState = (props: InitProps) => {
         set(rs => ({ book: { ...rs.book, ...(typeof arg === "function" ? arg(rs.book, rs) : arg) } }));
       const setPages = (f: (pages: Page[], state: SState) => Page[]) =>
         book((_, rs) => ({ pages: f(rs.book.pages, rs) }));
-      const findIndex = (pages: Page[]) => (id: number) =>
-        validIndex(
-          pages,
-          pages.findIndex(p => p.id === id),
-        );
-      const mod = (arg: Page | undefined | ((prevState: SState) => Page | undefined)) =>
+      type PageMod = (Partial<Page.Full> & { idx: number; id: number }) | undefined;
+      const mod = (arg: PageMod | ((prevState: SState) => PageMod)) =>
         setPages((pages, state) => {
-          const page = typeof arg === "function" ? arg(state) : arg;
-          if (!page) return pages;
-          const index = findIndex(pages)(page.id);
-          return index === undefined ? pages : pages.with(index, page);
+          const x = typeof arg === "function" ? arg(state) : arg;
+          if (!x) return pages;
+          const { id, idx, ...page } = x;
+          return page && pages[idx]?.id === id ? pages.with(idx, { ...pages[idx], ...page }) : pages;
         });
       return Object.assign(set, {
+        invoke: invoke(message => set({ modal: { kind: "error", message } })),
         current: {
           rotate: (deltaDeg: number) =>
             mod(rs =>

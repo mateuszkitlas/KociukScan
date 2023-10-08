@@ -1,19 +1,24 @@
-import { reactSvgComponentToMarkupString } from "./utils.mjs";
-import { IconType } from "react-icons";
 import { offset } from "./offset.mjs";
+import { IconProps, useBackgroundImage } from "./icon.js";
 
-interface Props {
+export const Dragger = ({
+  icon,
+  filterX,
+  filterY,
+  onMouseUp,
+  zoom,
+  ...css
+}: {
   left: number;
   top: number;
   width: number;
   height: number;
-  svg: IconType;
+  icon: IconProps;
   filterX: (x: number) => boolean;
   filterY: (y: number) => boolean;
   onMouseUp: (xy: { x: number; y: number }) => void;
   zoom: number;
-}
-export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Props) => {
+}) => {
   let offsetX = 0;
   let offsetY = 0;
   return (
@@ -27,7 +32,7 @@ export const Dragger = ({ svg, filterX, filterY, onMouseUp, zoom, ...css }: Prop
         top: css.top * zoom,
         width: css.width * zoom,
         height: css.height * zoom,
-        backgroundImage: reactSvgComponentToMarkupString(svg),
+        backgroundImage: useBackgroundImage({ ...icon, color: "#000" }),
         border: "1px dashed #000",
         outline: "1px dashed #fff",
       }}

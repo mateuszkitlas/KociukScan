@@ -1,31 +1,106 @@
 import { useEffect } from "react";
 import { MiniPage } from "./MiniPage.js";
 import { Buttons } from "./toolbar.js";
-import { PageElt } from "./page.js";
-import { mainPageSize, offset } from "./offset.mjs";
+import { CurrentPage } from "./page.js";
+import { useMainPageSize, offset } from "./offset.mjs";
 import { ModalWithClose, ModalYesNo } from "./modal.js";
 import { Settings } from "./Settings/Settings.js";
 import { FileDrop } from "react-file-drop";
 import { arrayBufferToBuffer } from "../native/utils.mjs";
-import { invoke, InitProps } from "./utils.mjs";
+import { InitProps } from "./utils.mjs";
 import { registerRendererEndpoints } from "./endpoints.js";
-import { useKociukState } from "./state.mjs";
+import { StatePair, useKociukState } from "./state.mjs";
 
-export const App = (props: InitProps) => {
-  const [state, set] = useKociukState(props);
+const Stx = ({ state, set }: StatePair) => {
   const statePair = { state, set };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  useEffect(() => void registerRendererEndpoints(set), []);
-
   const addFiles = async (fl: FileList) => {
-    const newPages = await Promise.all(
-      Array.from(fl).map(async f => invoke("scanFromFile", arrayBufferToBuffer(await f.arrayBuffer()))),
+    const newPages = await set.invoke(
+      "scanFromFiles",
+      (await Promise.all(Array.from(fl).map(f => f.arrayBuffer()))).map(arrayBufferToBuffer),
     );
     set.pages(pages => [...pages, ...newPages]);
   };
 
-  useEffect(() => void invoke("setBook", state.book), [state.book]);
+  switch (state.modal?.kind) {
+    case undefined:
+      return null;
+    case "deletePage": {
+      const idx = state.modal.pageIdx;
+      return (
+        <ModalYesNo
+          onYes={() => {
+            set.pages.del(idx);
+            set({ cPageIdx: undefined, modal: undefined });
+          }}
+          onClose={() => set({ modal: undefined })}
+          children="Are you sure?"
+        />
+      );
+    }
+    case "error":
+      return <ModalWithClose title="Error" onClose={() => set({ modal: undefined })} children={state.modal.message} />;
+    case "reScanPage": {
+      const index = state.modal.pageIdx;
+      return (
+        <ModalYesNo
+          onYes={async () => {
+            set({ kind: "scanning one", modal: undefined });
+            const page = await set.invoke("scanOne");
+            set.pages(pages => pages.with(index, page));
+          }}
+          onClose={() => set({ modal: undefined })}
+          children="Are you sure you want to scan this page again?"
+        />
+      );
+    }
+    case "settings": {
+      const modal = state.modal;
+      const closeModalModal = () => set({ modal: { ...modal, modal: undefined } });
+      switch (modal.modal?.kind) {
+        case "deleteProject":
+          return (
+            <ModalYesNo
+              onYes={() => set(rs => ({ book: { ...rs.book, pages: [] } }))}
+              onClose={closeModalModal}
+              children="Are you sure?"
+            />
+          );
+        case "importPages":
+          return (
+            <ModalWithClose onClose={closeModalModal} title="Import pages">
+              <FileDrop onDrop={files => files && addFiles(files)}>
+                <div
+                  style={{
+                    width: 490,
+                    height: 250,
+                    border: "5px dashed #fff",
+                    borderRadius: 15,
+                    paddingTop: 240,
+                    textAlign: "center",
+                    fontSize: 30,
+                  }}
+                >
+                  Drop images here
+                </div>
+              </FileDrop>
+            </ModalWithClose>
+          );
+        case undefined:
+          return (
+            <ModalWithClose title="Settings" onClose={() => set({ modal: undefined })}>
+              <Settings {...statePair} modal={modal} />
+            </ModalWithClose>
+          );
+      }
+    }
+  }
+};
 
+export const App = (props: InitProps) => {
+  const [state, set] = useKociukState(props);
+  const statePair = { state, set };
+  useEffect(() => registerRendererEndpoints(set), [set]);
+  useEffect(() => void set.invoke("setBook", state.book), [state.book, set]);
   useEffect(() => {
     const pressed: Record<string, boolean> = {};
     const onKeyDown = async ({ code, shiftKey, ctrlKey }: KeyboardEvent) => {
@@ -66,94 +141,15 @@ export const App = (props: InitProps) => {
   }, [set, state.cPageIdx]);
 
   return (
-    <div id="App">
-      <div id="wrapper" key="wrapper">
-        <PageElt page={state.cPageFull} {...statePair} />
-        <div id="pages" key="pages" style={{ width: offset.x, height: mainPageSize().height }}>
-          {state.fullPages.map((page, idx) => (
-            <MiniPage key={page.id + idx} page={page} {...statePair} idx={idx} />
-          ))}
-        </div>
+    <>
+      <Buttons {...statePair} />
+      <div style={{ width: offset.x, height: useMainPageSize().height, overflowY: "scroll" }}>
+        {state.fullPages.map(p => (
+          <MiniPage key={`${p.id}-${p.idx}`} page={p} {...statePair} />
+        ))}
       </div>
-      <div id="toolbar" key="toolbar" style={{ transform: "scale(1)", paddingLeft: 5 }}>
-        <Buttons {...statePair} />
-      </div>
-
-      {(() => {
-        switch (state.modal?.kind) {
-          case "deletePage": {
-            const idx = state.modal.pageIdx;
-            return (
-              <ModalYesNo
-                onYes={() => {
-                  set.pages.del(idx);
-                  set({ cPageIdx: undefined, modal: undefined });
-                }}
-                onClose={() => set({ modal: undefined })}
-                children="Are you sure?"
-              />
-            );
-          }
-          case "error":
-            return (
-              <ModalWithClose title="Error" onClose={() => set({ modal: undefined })} children={state.modal.message} />
-            );
-          case "reScanPage": {
-            const index = state.modal.pageIdx;
-            return (
-              <ModalYesNo
-                onYes={async () => {
-                  set({ kind: "scanning one", modal: undefined });
-                  const page = await invoke("scanOne");
-                  set.pages(pages => pages.with(index, page));
-                }}
-                onClose={() => set({ modal: undefined })}
-                children="Are you sure you want to scan this page again?"
-              />
-            );
-          }
-          case "settings": {
-            const modal = state.modal;
-            const closeModalModal = () => set({ modal: { ...modal, modal: undefined } });
-            switch (modal.modal?.kind) {
-              case "deleteProject":
-                return (
-                  <ModalYesNo
-                    onYes={() => set(rs => ({ book: { ...rs.book, pages: [] } }))}
-                    onClose={closeModalModal}
-                    children="Are you sure?"
-                  />
-                );
-              case "importPages":
-                return (
-                  <ModalWithClose onClose={closeModalModal} title="Import pages">
-                    <FileDrop onDrop={files => files && addFiles(files)}>
-                      <div
-                        style={{
-                          width: 490,
-                          height: 250,
-                          border: "5px dashed #fff",
-                          borderRadius: 15,
-                          paddingTop: 240,
-                          textAlign: "center",
-                          fontSize: 30,
-                        }}
-                      >
-                        Drop images here
-                      </div>
-                    </FileDrop>
-                  </ModalWithClose>
-                );
-              case undefined:
-                return (
-                  <ModalWithClose title="Settings" onClose={() => set({ modal: undefined })}>
-                    <Settings {...statePair} modal={modal} />
-                  </ModalWithClose>
-                );
-            }
-          }
-        }
-      })()}
-    </div>
+      <CurrentPage page={state.cPageFull} {...statePair} />
+      <Stx {...statePair} />
+    </>
   );
 };

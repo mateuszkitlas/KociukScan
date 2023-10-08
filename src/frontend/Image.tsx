@@ -1,5 +1,3 @@
-import { mouse } from "./react.mjs";
-
 export const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
   const radians = (angle * Math.PI) / 180;
   const sin = Math.sin(radians);
@@ -26,8 +24,8 @@ export const Image = (props: {
   width: number;
   height: number;
   scale: number;
-  x?: number;
-  y?: number;
+  x: number;
+  y: number;
 }) => {
   const p = getPixelsByAngle(
     (props.width * (1 - props.scale)) / 2,
@@ -44,60 +42,11 @@ export const Image = (props: {
         transform: `rotate(${props.rotate}deg) scale(${props.scale})`,
         filter: `contrast(${props.contrast})`,
         userSelect: "none",
-        marginLeft: -p.minX + (props.x ?? 0),
-        marginTop: -p.minY + (props.y ?? 0),
+        marginLeft: -p.minX + props.x,
+        marginTop: -p.minY + props.y,
         boxSizing: "border-box",
       }}
       draggable={false}
     />
-  );
-};
-
-export const ImageMiniature = (props: {
-  original: {
-    rotate: number;
-    contrast: number;
-    src: string;
-    width: number;
-    height: number;
-    scale: number;
-  };
-  crop: {
-    x: number;
-    y: number;
-    width: number;
-    height: number;
-  };
-  width: number;
-  height: number;
-  children: React.ReactNode;
-  onClick: () => void;
-}) => {
-  const scale = Math.min(props.width / props.crop.width, props.height / props.crop.height);
-  return (
-    <div onClick={mouse(props.onClick)}>
-      <div style={{ width: props.crop.width * scale, height: props.crop.height * scale, overflow: "hidden" }}>
-        <div style={{ transform: `scale(${scale})` }}>
-          <div
-            style={{
-              width: props.crop.width,
-              height: props.crop.height,
-              marginLeft: -(props.crop.width * (1 - scale)) / 2,
-              marginTop: (-props.crop.height * (1 - scale)) / 2,
-            }}
-            children={<Image {...props.original} x={-props.crop.x} y={-props.crop.y} />}
-          />
-        </div>
-      </div>
-      <div
-        style={{
-          marginTop: -props.crop.height * scale,
-          transform: "scale(1)",
-          width: props.width,
-          height: props.height,
-        }}
-        children={props.children}
-      />
-    </div>
   );
 };

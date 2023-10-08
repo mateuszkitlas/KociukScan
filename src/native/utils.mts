@@ -1,4 +1,5 @@
-export type AnyFun = (...args: any[]) => unknown;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyFun = (...args: any[]) => any;
 export type SRecord<T> = Record<string, T>;
 export type URecord = SRecord<unknown>;
 export type NRecord = SRecord<never>;
@@ -11,6 +12,16 @@ export const throwExp = (e: Error | string) => {
   throw typeof e === "string" ? new Error(e) : e;
 };
 
+export const safe =
+  <F extends AnyFun, T>(f: F, onError: (err: Error) => T) =>
+  (...args: Parameters<F>): ReturnType<F> | T => {
+    try {
+      return f(...args);
+    } catch (e) {
+      return onError(toError(e));
+    }
+  };
+
 export const tryOrUndefined = <T,>(f: () => T) => {
   try {
     return f();
@@ -22,11 +33,14 @@ export const tryOrUndefined = <T,>(f: () => T) => {
 export function jsonSafeParse<T>(text: string): T | undefined;
 export function jsonSafeParse<T>(text: string, defaultValue: T): T;
 export function jsonSafeParse<T>(text: string, defaultValue?: T) {
-  const v = tryOrUndefined<T>(() => JSON.parse(text));
-  return v === undefined ? defaultValue : v;
+  return safe(
+    () => JSON.parse(text) as T,
+    () => defaultValue,
+  )();
 }
 
-export const pick = <T extends Record<string, any>, K extends keyof T>(t: T, keys: K[]) =>
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const pick = <T extends SRecord<any>, K extends keyof T>(t: T, keys: K[]) =>
   Object.fromEntries(keys.filter(k => k in t).map(k => [k, t[k]])) as Pick<T, K>;
 
 export function assertNotFalsy<T>(t: T, name: string): asserts t is Exclude<T, Falsy> {
@@ -96,13 +110,14 @@ export const formatError = (e: Error) =>
     .filter(notFalsy)
     .join("\n\n");
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const bound = <T, K extends keyof T>(t: T, k: K): T[K] extends AnyFun ? T[K] : never => (t[k] as any).bind(t);
+
+export const calcScale = (window: { width: number; height: number }, original: { width: number; height: number }) =>
+  Math.min(window.width / original.width, window.height / original.height);
+
 type ChannelFun<T> = (ch: string, ...args: any[]) => T;
 
-export const genInvoked =
-  <E extends SRecord<AnyFun>>(invoke: ChannelFun<Promise<unknown>>) =>
-  <K extends string & keyof E>(channel: K, ...args: Parameters<E[K]>) =>
-  () =>
-    invoke(channel, ...args) as Promise<Awaited<ReturnType<E[K]>>>;
 export const genInvoke =
   <E extends SRecord<AnyFun>>(invoke: ChannelFun<Promise<unknown>>) =>
   <K extends string & keyof E>(channel: K, ...args: Parameters<E[K]>) =>
@@ -113,5 +128,16 @@ export const genBroadcast =
   <K extends string & keyof E>(channel: K, ...args: Parameters<E[K]>) =>
     broadcast(channel, ...args);
 
-export const registerEndpoints = (handle: (ch: string, listener: AnyFun) => void, endpoints: SRecord<AnyFun>) =>
-  Object.entries(endpoints).forEach(([k, v]) => handle(k, (_ev, ...args) => v(...args)));
+export const registerEndpoints = ({
+  add,
+  endpoints,
+  remove,
+}: {
+  add: (ch: string, listener: AnyFun) => void;
+  remove?: (ch: string, listener: AnyFun) => void;
+  endpoints: SRecord<AnyFun>;
+}) => {
+  const fs = Object.entries(endpoints).map(([k, v]) => [k, (_ev: unknown, ...args: unknown[]) => v(...args)] as const);
+  fs.forEach(x => add(...x));
+  return () => remove && fs.forEach(x => remove(...x));
+};

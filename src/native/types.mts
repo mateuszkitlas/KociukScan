@@ -25,6 +25,9 @@ export interface Page {
 export namespace Page {
   export interface Full extends Page {
     props: Page.Props;
+    touched: boolean;
+    current: boolean;
+    idx: number;
   }
   export const defaultProps: Props = {
     x: 0,

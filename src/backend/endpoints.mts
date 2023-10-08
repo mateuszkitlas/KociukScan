@@ -3,7 +3,7 @@ import { join } from "path";
 import { broadcast, pdf, scanFromBuffer } from "./scanner.mjs";
 import * as STB from "scanner-to-buffer";
 import { Book } from "../native/types.mjs";
-import { AnyFun, SRecord, arrayBufferToBuffer, jsonSafeParse, registerEndpoints } from "../native/utils.mjs";
+import { AnyFun, SRecord, jsonSafeParse, registerEndpoints } from "../native/utils.mjs";
 import { ipcMain } from "electron";
 
 type State = {
@@ -33,7 +33,7 @@ const beep = () => {
   setTimeout(() => o.stop(), 300);
 };
 
-const randomId = () => Math.floor(new Date().getTime() + Math.random()) * 10000;
+const id = () => new Date().getTime() * 100000;
 
 const endpoints = async (app: Electron.App) => {
   const rootPath = app.getAppPath();
@@ -41,18 +41,24 @@ const endpoints = async (app: Electron.App) => {
   const exists = await new Promise(resolve => fs.access(tmpPath, err => resolve(!err)));
   if (!exists) fs.promises.mkdir(tmpPath);
   const bookJsonFilePath = join(tmpPath, "book.json");
-  const sfb = (buffer: Buffer) => scanFromBuffer(tmpPath, randomId(), buffer);
+  const sfb = (buffer: Buffer) => scanFromBuffer(tmpPath, id(), buffer);
   const scan = (device?: string) => STB.scan({ dpi: state.book.dpi, format: "png", device });
 
   return {
-    init: async () => ({
-      tmpPath,
-      book: (state.book = jsonSafeParse<Book>(
+    init: async () => {
+      state.book = jsonSafeParse<Book>(
         await fs.promises.readFile(bookJsonFilePath, { encoding: "utf8" }).catch(() => ""),
         state.book,
-      )),
-    }),
-    scanFromFile: (arrayBuffer: ArrayBuffer) => scanFromBuffer(tmpPath, randomId(), arrayBufferToBuffer(arrayBuffer)),
+      );
+      return {
+        tmpPath,
+        book: state.book,
+      };
+    },
+    scanFromFiles: (files: Buffer[]) => {
+      const firstId = id();
+      return Promise.all(files.map((b, i) => scanFromBuffer(tmpPath, firstId + i * 100, b)));
+    },
     scanOne: async (device?: string) => {
       if (state.scanning) throw "already scanning";
       state.scanning = "one";
@@ -91,6 +97,6 @@ const endpoints = async (app: Electron.App) => {
 };
 
 export const registerMainEndpoints = async (app: Electron.App) =>
-  registerEndpoints(ipcMain.handle, await endpoints(app));
+  registerEndpoints({ add: ipcMain.handle, endpoints: await endpoints(app) });
 
 export type MainEndpoints = Awaited<ReturnType<typeof endpoints>>;
