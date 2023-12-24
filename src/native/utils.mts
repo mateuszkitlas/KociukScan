@@ -40,8 +40,8 @@ export function jsonSafeParse<T>(text: string, defaultValue?: T) {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const pick = <T extends SRecord<any>, K extends keyof T>(t: T, keys: K[]) =>
-  Object.fromEntries(keys.filter(k => k in t).map(k => [k, t[k]])) as Pick<T, K>;
+export const pick = <T extends SRecord<any>, K extends keyof T & string>(t: T, keys: K[]) =>
+  Object.fromEntries(keys.filter(k => k in t).map(k => [k, t[k]] as [K, T[K]])) as Pick<T, K>;
 
 export function assertNotFalsy<T>(t: T, name: string): asserts t is Exclude<T, Falsy> {
   if (!t) throwExp(`${name} is falsy ${t}`);
@@ -75,22 +75,23 @@ interface TypeByTypeof {
   boolean: boolean;
   number: number;
   undefined: undefined;
+  object: object;
 }
 
 export function has<K extends string, T extends keyof TypeByTypeof>(
   o: unknown,
   property: K,
   type: T,
-): o is Record<K, T>;
+): o is Record<K, TypeByTypeof[T]>;
 export function has<K extends string>(o: unknown, property: K): o is Record<K, unknown>;
 export function has<K extends string, T extends keyof TypeByTypeof>(
   o: unknown,
   property: K,
   type?: T,
-): o is Record<K, T> {
-  return !!(o && typeof o === "object" && property in o && type
-    ? typeof (o as Record<K, unknown>)[property] === type
-    : true);
+): o is Record<K, TypeByTypeof[T]> {
+  return (
+    !!o && typeof o === "object" && property in o && (type ? typeof (o as Record<K, unknown>)[property] === type : true)
+  );
 }
 
 export function toError(o: unknown): Error {

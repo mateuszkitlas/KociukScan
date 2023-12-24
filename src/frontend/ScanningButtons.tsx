@@ -23,11 +23,14 @@ export const ScanningButtons = (props: StatePair) => {
         onClick={state.kind === "nothing" ? () => set.invoke("scanMany") : undefined}
         title="Scan many pages"
         icon="play"
-      >
-        <Btn onClick={setDelay(-1)} title="-1 second" children="-" />
-        {state.book.delay}sec
-        <Btn onClick={setDelay(1)} title="+1 second" children="+" />
-      </Btn>
+      />
+      <Btn
+        onClick={setDelay(-1)}
+        title="-1 second"
+        icon={{ transform: "rotate(180deg)", name: "debug-brakepoint-stackframe" }}
+        children={`${state.book.delay}sec`}
+      />
+      <Btn onClick={setDelay(1)} title="+1 second" icon="debug-brakepoint-stackframe" />
     </>
   );
 };

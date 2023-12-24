@@ -1,13 +1,16 @@
 {
   "typescript.tsdk": "node_modules\\typescript\\lib",
   "cSpell.words": [
+    "brakepoint",
     "fontkit",
+    "hoverable",
     "Kitlas",
     "Kociuk",
     "kociukscan",
     "linebreak",
     "Mateusz",
-    "Parens"
+    "Parens",
+    "stackframe"
   ],
   "files.eol": "\n",
   "editor.tabSize": 2,
@@ -21,4 +24,10 @@
     "editor.defaultFormatter": "vscode.json-language-features"
   },
   "editor.wordWrap": "on",
+  "[jsonc]": {
+    "editor.defaultFormatter": "vscode.json-language-features"
+  },
+  "[css]": {
+    "editor.defaultFormatter": "vscode.css-language-features"
+  },
 }

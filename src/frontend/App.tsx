@@ -3,7 +3,7 @@ import { MiniPage } from "./MiniPage.js";
 import { Buttons } from "./toolbar.js";
 import { CurrentPage } from "./page.js";
 import { useMainPageSize, offset } from "./offset.mjs";
-import { ModalWithClose, ModalYesNo } from "./modal.js";
+import { Modal, ModalYesNo } from "./modal.js";
 import { Settings } from "./Settings/Settings.js";
 import { FileDrop } from "react-file-drop";
 import { arrayBufferToBuffer } from "../native/utils.mjs";
@@ -38,7 +38,7 @@ const Stx = ({ state, set }: StatePair) => {
       );
     }
     case "error":
-      return <ModalWithClose title="Error" onClose={() => set({ modal: undefined })} children={state.modal.message} />;
+      return <Modal title="Error" onClose={() => set({ modal: undefined })} children={state.modal.message} />;
     case "reScanPage": {
       const index = state.modal.pageIdx;
       return (
@@ -67,7 +67,7 @@ const Stx = ({ state, set }: StatePair) => {
           );
         case "importPages":
           return (
-            <ModalWithClose onClose={closeModalModal} title="Import pages">
+            <Modal onClose={closeModalModal} title="Import pages">
               <FileDrop onDrop={files => files && addFiles(files)}>
                 <div
                   style={{
@@ -83,13 +83,13 @@ const Stx = ({ state, set }: StatePair) => {
                   Drop images here
                 </div>
               </FileDrop>
-            </ModalWithClose>
+            </Modal>
           );
         case undefined:
           return (
-            <ModalWithClose title="Settings" onClose={() => set({ modal: undefined })}>
+            <Modal title="Settings" onClose={() => set({ modal: undefined })}>
               <Settings {...statePair} modal={modal} />
-            </ModalWithClose>
+            </Modal>
           );
       }
     }

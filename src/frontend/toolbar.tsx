@@ -1,9 +1,31 @@
-import { ReactNode } from "react";
 import { ScanningButtons } from "./ScanningButtons.js";
-import { satisfies } from "../native/utils.mjs";
 import { StatePair } from "./state.mjs";
 import { Btn } from "./btn.js";
 import { Icon } from "./icon.js";
+import { mouse } from "./react.mjs";
+import { satisfies } from "../native/utils.mjs";
+
+const RotateBtn = (props: { set: StatePair["set"]; deg: number; txt: string; transform: string }) => (
+  <div
+    title={`Rotate ${180 === props.deg ? "" : props.deg < 0 ? "left " : "right "}by ${props.txt}º`}
+    onClick={mouse(() => props.set.current.rotate(props.deg))}
+    className="hoverable button"
+  >
+    <Icon name="rotate" transform={props.transform} />
+    <div
+      style={{
+        display: "inline-block",
+        marginLeft: -12,
+        fontSize: 7,
+        position: "relative",
+        top: -5,
+        userSelect: "none",
+      }}
+    >
+      {props.txt}
+    </div>
+  </div>
+);
 
 const PageButtons = ({ state, set }: StatePair) => {
   const pageIdx = state.cPageIdx;
@@ -14,46 +36,14 @@ const PageButtons = ({ state, set }: StatePair) => {
       <Btn onClick={() => set.pages.duplicate(page.id)} title="Duplicate" icon="file-symlink-file" />
       <Btn onClick={() => set({ modal: { kind: "deletePage", pageIdx } })} title="Delete" icon="trash" />
       <Btn onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })} title="Scan this page again" icon="edit" />
-      {satisfies<[number, ReactNode, string][]>([
-        // eslint-disable-next-line react/jsx-key
-        [-0.5, <Icon name="refresh" transform="scaleX(-1) rotate(90deg)" />, "left "],
-        // eslint-disable-next-line react/jsx-key
-        [0.5, <Icon name="refresh" transform="rotate(90deg)" />, "right "],
-        [90, "90º", "right "],
-        [180, "180º", ""],
-      ]).map(([deg, ch, desc]) => (
-        <Btn
-          onClick={() => set.current.rotate(deg)}
-          key={deg}
-          title={`Rotate ${desc}by ${deg < 0 ? -deg : deg}º`}
-          children={ch}
-        />
+      {satisfies<[number, string, string][]>([
+        [-0.5, ".5", "scaleX(-1) rotate(260deg)"],
+        [0.5, ".5", "rotate(260deg)"],
+        [90, "90", ""],
+        [180, "180", "rotate(90deg)"],
+      ]).map(([deg, txt, transform]) => (
+        <RotateBtn {...{ set, txt, deg, transform }} key={deg} />
       ))}
-      <input
-        onChange={e => set.book.color({ contrast: parseFloat(e.target.value) })}
-        title="Contrast"
-        type="range"
-        min="1"
-        max="2"
-        step="0.05"
-        value={state.book.color.contrast}
-        style={{
-          position: "relative",
-          WebkitAppearance: "none",
-          padding: 5,
-          borderRadius: 5,
-          margin: "0 5px 0 5px",
-        }}
-      />
-      <label>
-        <input
-          className="button"
-          type="checkbox"
-          checked={state.allowPageResize}
-          onChange={e => set({ allowPageResize: e.target.checked })}
-        />
-        resize
-      </label>
     </>
   );
 };

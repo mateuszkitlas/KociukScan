@@ -1,29 +1,32 @@
 {
-	"version": "2.0.0",
-	"tasks": [
+  "version": "2.0.0",
+  "tasks": [
     {
+      "label": "watch",
       "type": "npm",
       "script": "watch",
-      "group": "build",
-      "problemMatcher": [],
-      "label": "npm: watch",
-      "detail": "webpack --watch",
-    },
-    {
-      "type": "npm",
-      "script": "start",
-      "problemMatcher": [],
-      "label": "npm: start",
-      "detail": "electron dist",
       "isBackground": true,
-      "presentation": {
-        "echo": true,
-        "reveal": "never",
-        "focus": false,
-        "panel": "shared",
-        "showReuseMessage": false,
-        "clear": true
+      "problemMatcher": {
+        "owner": "typescript",
+        "source": "typescript",
+        "applyTo": "allDocuments",
+        "fileLocation": "absolute",
+        "severity": "error",
+        "pattern": [
+          {
+            "regexp": "\\[tsl\\] (ERROR|WARNING) in (.*)?\\((\\d+),(\\d+)\\)",
+            "severity": 1,
+            "file": 2,
+            "line": 3,
+            "column": 4
+          },
+          {
+            "regexp": "\\s*TS(\\d+):\\s*(.*)$",
+            "code": 1,
+            "message": 2
+          }
+        ]
       }
-    }
+    },
   ]
 }

@@ -36,7 +36,11 @@ export const MiniPage = (props: StatePair & { page: Page.Full }) => {
           />
         </div>
       </div>
-      <div {...className("circle", { touched: page.touched })} children={page.idx + 1} />
+      <div className="anchor">
+        <div {...className("circle", { touched: page.touched })}>
+          <div className="number" children={page.idx + 1} />
+        </div>
+      </div>
     </div>
   );
 };

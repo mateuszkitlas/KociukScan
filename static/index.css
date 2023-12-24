@@ -1,4 +1,5 @@
-.dark, body {
+.dark,
+body {
   --background: #1f1f1f;
   --toolbar: #181818;
   --toolbarHover: #1f1f1f;
@@ -23,19 +24,36 @@ body {
   font-size: 12px;
   padding: 0;
 }
-svg:hover, div.button>div.button:hover {
+
+svg {
+  width: 16px;
+  height: 16px;
+  fill: var(--text);
+}
+
+svg:hover,
+div.button>div.button:hover {
   color: var(--textHover);
   fill: var(--textHover);
 }
+
+.hoverable:hover * {
+  color: var(--textHover);
+  fill: var(--textHover);
+}
+
 .button {
   display: inline-block;
   user-select: none;
   cursor: pointer;
   padding: 5px;
 }
-.button.inactive { color: var(--textInactive);  }
 
-.button > .button {
+.button.inactive {
+  color: var(--textInactive);
+}
+
+.button>.button {
   margin: 0 5px 0 5px;
 }
 
@@ -44,10 +62,19 @@ code {
     monospace;
 }
 
-body, html, #root {height: 100%; width: 100%}
+body,
+html,
+#root {
+  height: 100%;
+  width: 100%
+}
+
 /*----------*/
 
-#toolbar { background-color: var(--toolbar); }
+#toolbar {
+  background-color: var(--toolbar);
+}
+
 /*----------*/
 
 .page .button {
@@ -56,6 +83,7 @@ body, html, #root {height: 100%; width: 100%}
   font-size: 14px;
   border-radius: 5px;
 }
+
 /*----------*/
 
 select {
@@ -68,6 +96,18 @@ select {
   border: 0;
 }
 
+select option {
+  font-weight: normal;
+  display: block;
+  white-space-collapse: collapse;
+  text-wrap: nowrap;
+  min-height: 1.2em;
+  padding: 0px 2px 1px;
+  font: inherit;
+  height: 26px;
+  padding: 2px 6px;
+}
+
 label {
   /* background-color: #445; */
   display: inline-block;
@@ -77,49 +117,80 @@ label {
   /* font-size: 12px; */
   user-select: none;
 }
-label:hover { background-color: #556; }
 
-.page:hover, .page.current { margin-left: 10px }
-.page > div.button {
+label:hover {
+  background-color: #556;
+}
+
+.page:hover,
+.page.current {
+  margin-left: 10px
+}
+
+.page>div.button {
   margin: 2px 5px 0px 0px;
   display: block;
   width: 15px;
   padding: 3px;
-}
-input::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  appearance: none;
-  width: 16px;
-  height: 16px;
-  cursor: pointer;
-  background: url("data:image/svg+xml,%3Csvg%20width%3D%2216%22%20height%3D%2216%22%20viewBox%3D%220%200%2016%2016%22%20fill%3D%22%23fff%22%20color%3D%22%23fff%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M8%201C6.61553%201%205.26216%201.41054%204.11101%202.17971C2.95987%202.94888%202.06266%204.04213%201.53285%205.32122C1.00303%206.6003%200.86441%208.00777%201.13451%209.36563C1.4046%2010.7235%202.07129%2011.9708%203.05026%2012.9497C4.02922%2013.9287%205.2765%2014.5954%206.63437%2014.8655C7.99224%2015.1356%209.3997%2014.997%2010.6788%2014.4672C11.9579%2013.9373%2013.0511%2013.0401%2013.8203%2011.889C14.5895%2010.7378%2015%209.38447%2015%208C15%206.14348%2014.2625%204.36301%2012.9497%203.05025C11.637%201.7375%209.85652%201%208%201V1ZM8%2014V2C9.5913%202%2011.1174%202.63214%2012.2426%203.75736C13.3679%204.88258%2014%206.4087%2014%208C14%209.5913%2013.3679%2011.1174%2012.2426%2012.2426C11.1174%2013.3679%209.5913%2014%208%2014V14Z%22%3E%3C%2Fpath%3E%3C%2Fsvg%3E")
 }
 
 ::-webkit-scrollbar {
   height: 12px;
   width: 12px;
 }
+
 ::-webkit-scrollbar-thumb {
   -webkit-border-radius: 1ex;
 }
 
-.page .circle {
-  border-radius: 20px;
-  text-align: center;
-  margin-top: calc(-100%+20px);
-  margin-left: calc(100%-20px);
-  background-color: var(--danger);
-  font-size: 9px;
-  font-weight: 600;
-  min-width: 8px;
-  height: 16px;
-  line-height: 16px;
-  padding: 0 4px;
+.page .anchor {
+  height: 0;
+  width: 0;
+  position: relative;
+  top: -21px;
+  left: 74px;
 }
-.page .circle.touched{
+
+.page .anchor .circle {
+  background-color: var(--danger);
+  width: 30px;
+  height: 30px;
+  display: block;
+  border-radius: 50%;
+}
+
+.page .anchor .circle.touched {
   background-color: var(--background);
+}
+
+.page .anchor .circle .number {
+  position: absolute;
+  text-align: center;
+  top: 3px;
+  left: 8px;
 }
 
 .current-page {
   position: absolute;
+}
+
+.dialog {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+  background-color: #202020;
+  box-shadow: 0 0px 8px rgba(0, 0, 0, 0.36);
+  min-width: 450px;
+}
+
+.dialog .title {
+  display: flex;
+  justify-content: space-between;
+}
+
+.dialog .title .left {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 5px 0px 0px 7px;
 }
