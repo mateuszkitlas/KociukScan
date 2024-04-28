@@ -38,7 +38,7 @@
       "warn",
       {
         "arrowParens": "avoid",
-        "printWidth": 120
+        "printWidth": 100
       }
     ],
     "max-len": "off",

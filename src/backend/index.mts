@@ -8,6 +8,7 @@ const createWindow = () => {
     webPreferences: {
       preload: join(__dirname, "renderer.cjs"),
     },
+    frame: false,
   });
   win.webContents.openDevTools();
   win.setMenuBarVisibility(false);

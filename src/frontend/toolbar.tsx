@@ -5,7 +5,12 @@ import { Icon } from "./icon.js";
 import { mouse } from "./react.mjs";
 import { satisfies } from "../native/utils.mjs";
 
-const RotateBtn = (props: { set: StatePair["set"]; deg: number; txt: string; transform: string }) => (
+const RotateBtn = (props: {
+  set: StatePair["set"];
+  deg: number;
+  txt: string;
+  transform: string;
+}) => (
   <div
     title={`Rotate ${180 === props.deg ? "" : props.deg < 0 ? "left " : "right "}by ${props.txt}º`}
     onClick={mouse(() => props.set.current.rotate(props.deg))}
@@ -33,9 +38,21 @@ const PageButtons = ({ state, set }: StatePair) => {
   if (!page || pageIdx === undefined) return null;
   return (
     <>
-      <Btn onClick={() => set.pages.duplicate(page.id)} title="Duplicate" icon="file-symlink-file" />
-      <Btn onClick={() => set({ modal: { kind: "deletePage", pageIdx } })} title="Delete" icon="trash" />
-      <Btn onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })} title="Scan this page again" icon="edit" />
+      <Btn
+        onClick={() => set.pages.duplicate(page.id)}
+        title="Duplicate"
+        icon="file-symlink-file"
+      />
+      <Btn
+        onClick={() => set({ modal: { kind: "deletePage", pageIdx } })}
+        title="Delete"
+        icon="trash"
+      />
+      <Btn
+        onClick={() => set({ modal: { kind: "reScanPage", pageIdx } })}
+        title="Scan this page again"
+        icon="edit"
+      />
       {satisfies<[number, string, string][]>([
         [-0.5, ".5", "scaleX(-1) rotate(260deg)"],
         [0.5, ".5", "rotate(260deg)"],
@@ -63,17 +80,32 @@ const Download = ({ state, set }: StatePair) => {
     }
   };
   return (
-    <Btn onClick={state.kind === "nothing" ? () => set.invoke("pdf") : undefined} title="Generate PDF" icon="file-pdf">
-      {state.kind === "generating pdf" ? f(state.processedPages, state.book.pages.length, state.startedAt) : undefined}
+    <Btn
+      onClick={state.kind === "nothing" ? () => set.invoke("pdf") : undefined}
+      title="Generate PDF"
+      icon="file-pdf"
+    >
+      {state.kind === "generating pdf"
+        ? f(state.processedPages, state.book.pages.length, state.startedAt)
+        : undefined}
     </Btn>
   );
 };
 
 export const Buttons = (props: StatePair) => (
   <div id="toolbar">
-    <ScanningButtons {...props} />
-    <Download {...props} />
-    <PageButtons {...props} />
-    <Btn onClick={() => props.set({ modal: { kind: "settings" } })} title="Settings" icon="gear" />
+    <div>
+      <ScanningButtons {...props} />
+      <Download {...props} />
+      <PageButtons {...props} />
+      <Btn
+        onClick={() => props.set({ modal: { kind: "settings" } })}
+        title="Settings"
+        icon="gear"
+      />
+    </div>
+    <div>
+      <Btn onClick={() => props.set.invoke("closeApp")} icon="chrome-close" />
+    </div>
   </div>
 );

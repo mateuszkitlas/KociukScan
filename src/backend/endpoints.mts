@@ -93,6 +93,7 @@ const endpoints = async (app: Electron.App) => {
       state.book = book;
       fs.promises.writeFile(bookJsonFilePath, JSON.stringify(book), { encoding: "utf8" });
     },
+    closeApp: () => app.exit(),
   } satisfies SRecord<AnyFun>;
 };
 
