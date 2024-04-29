@@ -5,7 +5,10 @@ import { has } from "../native/utils.mjs";
 type X = { children: JSX.Element; size: number };
 function s<K extends string>(t: Record<K, JSX.Element | X>) {
   return Object.fromEntries(
-    Object.entries(t).map(([k, v]) => [k, has(v, "size", "number") ? v : { children: v, size: 16 }]),
+    Object.entries(t).map(([k, v]) => [
+      k,
+      has(v, "size", "number") ? v : { children: v, size: 16 },
+    ]),
   );
 }
 
@@ -133,6 +136,7 @@ export const Icon = ({ name, ...style }: IconProps) => {
 export const useBackgroundImage = (props: IconProps) =>
   useMemo(
     () =>
-      "url(data:image/svg+xml," + encodeURIComponent(renderToStaticMarkup(createElement(() => <Icon {...props} />))),
+      "url(data:image/svg+xml," +
+      encodeURIComponent(renderToStaticMarkup(createElement(() => <Icon {...props} />))),
     [props],
   );

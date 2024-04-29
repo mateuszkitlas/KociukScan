@@ -2,6 +2,7 @@ import { SettingsModal } from "../../native/state.mjs";
 import { exportBook, importBook } from "../exportBook.mjs";
 import { SetState, StatePair } from "../state.mjs";
 import { Btn } from "../btn.js";
+import { Select } from "../Select.js";
 
 const Devices = (props: { devices: string[]; current?: string; set: SetState }) => (
   <>
@@ -10,7 +11,11 @@ const Devices = (props: { devices: string[]; current?: string; set: SetState }) 
       {props.devices.map(device => (
         <li key={device}>
           {device}
-          {device === props.current ? "(current)" : <Btn onClick={() => props.set({ device })} children="use" />}
+          {device === props.current ? (
+            "(current)"
+          ) : (
+            <Btn onClick={() => props.set({ device })} children="use" />
+          )}
         </li>
       ))}
     </ul>
@@ -39,16 +44,13 @@ export const Settings = ({ set, state, modal }: StatePair & { modal: SettingsMod
         )}
       </li>
       <li>
-        DPI
-        <select
-          className="sm"
-          onChange={e => set(rs => ({ book: { ...rs.book, dpi: parseFloat(e.target.value) } }))}
+        <Select
+          options={[150, 200, 300]}
+          onChange={dpi => set(rs => ({ book: { ...rs.book, dpi } }))}
           value={state.book.dpi}
-        >
-          {[150, 200, 300].map(v => (
-            <option value={v} key={v} children={v} />
-          ))}
-        </select>
+          onKey={v => v}
+          onRender={v => <>{v} DPI</>}
+        />
         <br />
         The higher DPI, the better quality of picture, but it is also more time consuming.
       </li>

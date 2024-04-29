@@ -38,7 +38,13 @@ const Stx = ({ state, set }: StatePair) => {
       );
     }
     case "error":
-      return <Modal title="Error" onClose={() => set({ modal: undefined })} children={state.modal.message} />;
+      return (
+        <Modal
+          title="Error"
+          onClose={() => set({ modal: undefined })}
+          children={state.modal.message}
+        />
+      );
     case "reScanPage": {
       const index = state.modal.pageIdx;
       return (
@@ -126,7 +132,11 @@ export const App = (props: InitProps) => {
         case "KeyD-":
           return state.cPageIdx !== undefined && set.pages.duplicate(state.cPageIdx);
         case "Delete-":
-          return set(rs => (rs.cPageIdx === undefined ? {} : { modal: { kind: "deletePage", pageIdx: rs.cPageIdx } }));
+          return set(rs =>
+            rs.cPageIdx === undefined
+              ? {}
+              : { modal: { kind: "deletePage", pageIdx: rs.cPageIdx } },
+          );
       }
     };
     const onKeyUp = ({ code }: KeyboardEvent) => {
