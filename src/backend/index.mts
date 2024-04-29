@@ -15,15 +15,9 @@ const createWindow = () => {
   win.loadFile(join(__dirname, "index.html"));
 };
 
-app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") app.quit();
-});
+app.on("window-all-closed", () => process.platform !== "darwin" && app.quit());
 
-(async () => {
-  await app.whenReady();
-  await registerMainEndpoints(app);
-  createWindow();
-  app.on("activate", async () => {
-    if (BrowserWindow.getAllWindows().length === 0) createWindow();
-  });
-})();
+await app.whenReady();
+await registerMainEndpoints(app);
+createWindow();
+app.on("activate", () => BrowserWindow.getAllWindows().length === 0 && createWindow());
