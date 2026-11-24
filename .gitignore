@@ -11,3 +11,5 @@ static/**/*.js
 out/*.zip
 dist/
 !build/icons
+# scans and exported books
+*.pdf
