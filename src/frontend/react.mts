@@ -28,7 +28,10 @@ export function usePartialState<C extends URecord, U extends URecord, M extends 
   const [state, setState] = useState({ ...common, ...union });
   const m = (state: C & U) => ({ ...state, ...more(state) });
   const set: SetPartialState<C, U> = arg =>
-    setState(prevState => ({ ...prevState, ...(typeof arg === "function" ? arg(m(prevState)) : arg) }));
+    setState(prevState => ({
+      ...prevState,
+      ...(typeof arg === "function" ? arg(m(prevState)) : arg),
+    }));
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   return [useMemo(() => m(state), [state]), set] as const;

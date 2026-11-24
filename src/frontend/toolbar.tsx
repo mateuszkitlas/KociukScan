@@ -81,7 +81,18 @@ const Download = ({ state, set }: StatePair) => {
   };
   return (
     <Btn
-      onClick={state.kind === "nothing" ? () => set.invoke("pdf") : undefined}
+      onClick={
+        state.kind === "nothing"
+          ? async () => {
+              set({ kind: "generating pdf", processedPages: 0, startedAt: Date.now() });
+              try {
+                await set.invoke("pdf");
+              } finally {
+                set({ kind: "nothing" });
+              }
+            }
+          : undefined
+      }
       title="Generate PDF"
       icon="file-pdf"
     >

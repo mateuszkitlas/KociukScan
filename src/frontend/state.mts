@@ -29,7 +29,9 @@ export const useKociukState = (props: InitProps) => {
     state,
     useMemo(() => {
       const book = (arg: Partial<Book> | ((book: Book, state: SState) => Partial<Book>)) =>
-        set(rs => ({ book: { ...rs.book, ...(typeof arg === "function" ? arg(rs.book, rs) : arg) } }));
+        set(rs => ({
+          book: { ...rs.book, ...(typeof arg === "function" ? arg(rs.book, rs) : arg) },
+        }));
       const setPages = (f: (pages: Page[], state: SState) => Page[]) =>
         book((_, rs) => ({ pages: f(rs.book.pages, rs) }));
       type PageMod = (Partial<Page.Full> & { idx: number; id: number }) | undefined;
@@ -38,7 +40,9 @@ export const useKociukState = (props: InitProps) => {
           const x = typeof arg === "function" ? arg(state) : arg;
           if (!x) return pages;
           const { id, idx, ...page } = x;
-          return page && pages[idx]?.id === id ? pages.with(idx, { ...pages[idx], ...page }) : pages;
+          return page && pages[idx]?.id === id
+            ? pages.with(idx, { ...pages[idx], ...page })
+            : pages;
         });
       return Object.assign(set, {
         invoke: invoke(message => set({ modal: { kind: "error", message } })),
@@ -57,7 +61,10 @@ export const useKociukState = (props: InitProps) => {
             ),
           nextPrevPage: (deltaIndex: number) =>
             set(rs => ({
-              cPageIdx: rs.cPageIdx === undefined ? undefined : validIndex(rs.book.pages, rs.cPageIdx + deltaIndex),
+              cPageIdx:
+                rs.cPageIdx === undefined
+                  ? undefined
+                  : validIndex(rs.book.pages, rs.cPageIdx + deltaIndex),
             })),
           move: (deltaX: number, deltaY: number) =>
             mod(rs =>
@@ -74,10 +81,11 @@ export const useKociukState = (props: InitProps) => {
             ),
         },
         book: Object.assign(book, {
-          color: (c: Partial<Color>) => book(prevBook => ({ ...prevBook, color: { ...prevBook.color, ...c } })),
+          color: (c: Partial<Color>) =>
+            book(prevBook => ({ ...prevBook, color: { ...prevBook.color, ...c } })),
         }),
         pages: Object.assign(setPages, {
-          del: (idx: number) => setPages(pages => pages.splice(idx, 1)),
+          del: (idx: number) => setPages(pages => pages.filter((_, i) => i !== idx)),
           mod,
           duplicate: (id: number) =>
             setPages(pages => {

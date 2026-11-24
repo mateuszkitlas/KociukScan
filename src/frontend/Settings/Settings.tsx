@@ -1,5 +1,4 @@
 import { SettingsModal } from "../../native/state.mjs";
-import { exportBook, importBook } from "../exportBook.mjs";
 import { SetState, StatePair } from "../state.mjs";
 import { Btn } from "../btn.js";
 import { Select } from "../Select.js";
@@ -62,8 +61,6 @@ export const Settings = ({ set, state, modal }: StatePair & { modal: SettingsMod
           children="Delete"
           onClick={() => set({ modal: { ...modal, modal: { kind: "deleteProject" } } })}
         />
-        <Btn sm icon="save" children="Save" onClick={() => exportBook()} />
-        <Btn sm icon="folder-opened" onClick={() => importBook()} key="import" children="Load" />
       </li>
       <li>
         Raw images{" "}

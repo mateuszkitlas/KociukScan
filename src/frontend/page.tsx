@@ -9,7 +9,13 @@ import { className } from "./react.mjs";
 
 const MoveResize = ({ page, set, state }: StatePair & { page: Page.Full }) => {
   const sbp = scaleByPage(page);
-  const boundaries = getPixelsByAngle(0, 0, page.original.width * sbp, page.original.height * sbp, page.props.rotate);
+  const boundaries = getPixelsByAngle(
+    0,
+    0,
+    page.original.width * sbp,
+    page.original.height * sbp,
+    page.props.rotate,
+  );
   const zoom = calcScale(useMainPageSize(), {
     width: boundaries.maxX - boundaries.minX,
     height: boundaries.maxY - boundaries.minY,

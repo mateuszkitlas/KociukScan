@@ -47,14 +47,16 @@ export function assertNotFalsy<T>(t: T, name: string): asserts t is Exclude<T, F
   if (!t) throwExp(`${name} is falsy ${t}`);
 }
 
-export const arrayGet = <T,>(arr: T[], index?: number) => (index === undefined ? undefined : arr[index]);
+export const arrayGet = <T,>(arr: T[], index?: number) =>
+  index === undefined ? undefined : arr[index];
 
 export const validIndex = (arr: unknown[], index: number) =>
   index < 0 ? 0 : arr.length <= index ? arr.length - 1 : index;
 
 export const idToPng = (tmpPath: string, id: number) => `${tmpPath}/${id}.png`;
 
-export const sleep = (seconds: number) => new Promise(resolve => setTimeout(resolve, 1000 * seconds));
+export const sleep = (seconds: number) =>
+  new Promise(resolve => setTimeout(resolve, 1000 * seconds));
 
 export function arrayBufferToBuffer(ab: ArrayBuffer) {
   const buf = Buffer.alloc(ab.byteLength);
@@ -90,7 +92,10 @@ export function has<K extends string, T extends keyof TypeByTypeof>(
   type?: T,
 ): o is Record<K, TypeByTypeof[T]> {
   return (
-    !!o && typeof o === "object" && property in o && (type ? typeof (o as Record<K, unknown>)[property] === type : true)
+    !!o &&
+    typeof o === "object" &&
+    property in o &&
+    (type ? typeof (o as Record<K, unknown>)[property] === type : true)
   );
 }
 
@@ -111,11 +116,14 @@ export const formatError = (e: Error) =>
     .filter(notFalsy)
     .join("\n\n");
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const bound = <T, K extends keyof T>(t: T, k: K): T[K] extends AnyFun ? T[K] : never => (t[k] as any).bind(t);
+export const bound = <T, K extends keyof T>(t: T, k: K): T[K] extends AnyFun ? T[K] : never =>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (t[k] as any).bind(t);
 
-export const calcScale = (window: { width: number; height: number }, original: { width: number; height: number }) =>
-  Math.min(window.width / original.width, window.height / original.height);
+export const calcScale = (
+  window: { width: number; height: number },
+  original: { width: number; height: number },
+) => Math.min(window.width / original.width, window.height / original.height);
 
 type ChannelFun<T> = (ch: string, ...args: any[]) => T;
 
@@ -138,7 +146,9 @@ export const registerEndpoints = ({
   remove?: (ch: string, listener: AnyFun) => void;
   endpoints: SRecord<AnyFun>;
 }) => {
-  const fs = Object.entries(endpoints).map(([k, v]) => [k, (_ev: unknown, ...args: unknown[]) => v(...args)] as const);
+  const fs = Object.entries(endpoints).map(
+    ([k, v]) => [k, (_ev: unknown, ...args: unknown[]) => v(...args)] as const,
+  );
   fs.forEach(x => add(...x));
   return () => remove && fs.forEach(x => remove(...x));
 };

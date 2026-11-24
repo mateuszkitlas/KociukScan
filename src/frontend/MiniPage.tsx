@@ -11,7 +11,10 @@ export const MiniPage = (props: StatePair & { page: Page.Full }) => {
 
   const scale = calcScale({ width: 100, height: 100 }, book);
   return (
-    <div onClick={mouse(() => props.set({ cPageIdx: page.idx }))} {...className("page", { current: page.current })}>
+    <div
+      onClick={mouse(() => props.set({ cPageIdx: page.idx }))}
+      {...className("page", { current: page.current })}
+    >
       <div style={{ width: book.width * scale, height: book.height * scale, overflow: "hidden" }}>
         <div style={{ transform: `scale(${scale})` }}>
           <div

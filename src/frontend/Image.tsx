@@ -1,4 +1,10 @@
-export const getPixelsByAngle = (x: number, y: number, width: number, height: number, angle: number) => {
+export const getPixelsByAngle = (
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  angle: number,
+) => {
   const radians = (angle * Math.PI) / 180;
   const sin = Math.sin(radians);
   const cos = Math.cos(radians);

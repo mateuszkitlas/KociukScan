@@ -10,7 +10,10 @@ export namespace State {
     miniatures?: Map<string, string>;
     allowPageResize: boolean;
     device?: string;
-    modal?: SettingsModal | { kind: "deletePage" | "reScanPage"; pageIdx: number } | { kind: "error"; message: string };
+    modal?:
+      | SettingsModal
+      | { kind: "deletePage" | "reScanPage"; pageIdx: number }
+      | { kind: "error"; message: string };
   };
 
   export type Union =

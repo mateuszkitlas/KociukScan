@@ -10,8 +10,13 @@ export const ScanningButtons = (props: StatePair) => {
       {state.kind === "nothing" ? (
         <Btn
           onClick={async () => {
-            const page = await set.invoke("scanOne");
-            set.pages(pages => [...pages, page]);
+            set({ kind: "scanning one" });
+            try {
+              const page = await set.invoke("scanOne", state.device);
+              set.pages(pages => [...pages, page]);
+            } finally {
+              set({ kind: "nothing" });
+            }
           }}
           title="Scan"
           icon="camera"
@@ -20,7 +25,18 @@ export const ScanningButtons = (props: StatePair) => {
         <Btn onClick={() => set.invoke("scanAbort")} title="Stop" icon="stop" />
       )}
       <Btn
-        onClick={state.kind === "nothing" ? () => set.invoke("scanMany") : undefined}
+        onClick={
+          state.kind === "nothing"
+            ? async () => {
+                set({ kind: "scanning many" });
+                try {
+                  await set.invoke("scanMany", state.device);
+                } finally {
+                  set({ kind: "nothing" });
+                }
+              }
+            : undefined
+        }
         title="Scan many pages"
         icon="play"
       />

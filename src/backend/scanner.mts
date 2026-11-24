@@ -15,7 +15,9 @@ export const broadcast = genBroadcast<RendererEndpoints>((...args) =>
 );
 
 const toBuffer = (s: Sharp) =>
-  new Promise<Buffer>((resolve, reject) => s.toBuffer((err, buffer) => (err ? reject(err) : resolve(buffer))));
+  new Promise<Buffer>((resolve, reject) =>
+    s.toBuffer((err, buffer) => (err ? reject(err) : resolve(buffer))),
+  );
 const toInfo = (buf: Buffer) =>
   new Promise<OutputInfo>((resolve, reject) =>
     sharp(buf).toBuffer((err, _buf, info) => (err ? reject(err) : resolve(info))),
@@ -23,7 +25,9 @@ const toInfo = (buf: Buffer) =>
 const background = { alpha: 0, r: 255, g: 255, b: 255 };
 
 const processPage = async (tmpPath: string, opts: ProcessPage): Promise<Buffer> => {
-  const rotatedBuffer = await toBuffer(sharp(idToPng(tmpPath, opts.id)).rotate(opts.props.rotate, { background }));
+  const rotatedBuffer = await toBuffer(
+    sharp(idToPng(tmpPath, opts.id)).rotate(opts.props.rotate, { background }),
+  );
   const brightness = 1;
   const contrast = opts.props.color.contrast;
   const img3 = sharp(rotatedBuffer)

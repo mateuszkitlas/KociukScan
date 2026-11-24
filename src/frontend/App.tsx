@@ -51,8 +51,12 @@ const Stx = ({ state, set }: StatePair) => {
         <ModalYesNo
           onYes={async () => {
             set({ kind: "scanning one", modal: undefined });
-            const page = await set.invoke("scanOne");
-            set.pages(pages => pages.with(index, page));
+            try {
+              const page = await set.invoke("scanOne", state.device);
+              set.pages(pages => pages.with(index, page));
+            } finally {
+              set({ kind: "nothing" });
+            }
           }}
           onClose={() => set({ modal: undefined })}
           children="Are you sure you want to scan this page again?"
@@ -130,7 +134,7 @@ export const App = (props: InitProps) => {
         case "ArrowRight+":
           return set.current.move(ctrlKey ? 5 : 1, 0);
         case "KeyD-":
-          return state.cPageIdx !== undefined && set.pages.duplicate(state.cPageIdx);
+          return state.cPageFull && set.pages.duplicate(state.cPageFull.id);
         case "Delete-":
           return set(rs =>
             rs.cPageIdx === undefined
@@ -148,7 +152,7 @@ export const App = (props: InitProps) => {
       window.removeEventListener("keydown", onKeyDown);
       window.removeEventListener("keyup", onKeyUp);
     };
-  }, [set, state.cPageIdx]);
+  }, [set, state.cPageIdx, state.cPageFull]);
 
   return (
     <>

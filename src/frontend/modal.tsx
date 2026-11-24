@@ -10,14 +10,23 @@ export const Modal = (props: {
   <div className="dialog">
     <div className="title">
       <div className="left" children={props.title}></div>
-      <div className="right">{props.onClose && <Btn icon="chrome-close" onClick={props.onClose} />}</div>
+      <div className="right">
+        {props.onClose && <Btn icon="chrome-close" onClick={props.onClose} />}
+      </div>
     </div>
     <div className="children" children={props.children} />
-    <div className="buttons">{props.buttons?.map(b => <div key={b.name} onClick={b.onClick} children={b.name} />)}</div>
+    <div className="buttons">
+      {props.buttons?.map(b => <div key={b.name} onClick={b.onClick} children={b.name} />)}
+    </div>
   </div>
 );
 
-export const ModalYesNo = (props: { children: ReactNode; title?: string; onClose: () => void; onYes: () => void }) => (
+export const ModalYesNo = (props: {
+  children: ReactNode;
+  title?: string;
+  onClose: () => void;
+  onYes: () => void;
+}) => (
   <Modal
     children={props.children}
     buttons={[

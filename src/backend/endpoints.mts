@@ -3,7 +3,7 @@ import { join } from "path";
 import { broadcast, pdf, scanFromBuffer } from "./scanner.mjs";
 import * as STB from "scanner-to-buffer";
 import { Book } from "../native/types.mjs";
-import { AnyFun, SRecord, jsonSafeParse, registerEndpoints } from "../native/utils.mjs";
+import { AnyFun, SRecord, jsonSafeParse, registerEndpoints, sleep } from "../native/utils.mjs";
 import { ipcMain } from "electron";
 
 type State = {
@@ -22,15 +22,6 @@ const state: State = {
     dpi: 200,
     color: { contrast: 1 },
   },
-};
-
-const beep = () => {
-  const context = new AudioContext();
-  const o = context.createOscillator();
-  o.type = "sine";
-  o.connect(context.destination);
-  o.start();
-  setTimeout(() => o.stop(), 300);
 };
 
 const id = () => new Date().getTime() * 100000;
@@ -62,17 +53,24 @@ const endpoints = async (app: Electron.App) => {
     scanOne: async (device?: string) => {
       if (state.scanning) throw "already scanning";
       state.scanning = "one";
-      const x = await sfb(await scan(device));
-      state.scanning = undefined;
-      return x;
+      try {
+        return await sfb(await scan(device));
+      } finally {
+        state.scanning = undefined;
+      }
     },
     scanMany: async (device?: string) => {
       if (state.scanning) throw "already scanning";
       state.scanning = "many";
-      while (state.scanning === "many") {
-        const b = await scan(device);
-        beep();
-        broadcast("newPage", await sfb(b));
+      try {
+        while (state.scanning === "many") {
+          const b = await scan(device);
+          if (state.scanning !== "many") break;
+          broadcast("newPage", await sfb(b));
+          await sleep(state.book.delay);
+        }
+      } finally {
+        state.scanning = undefined;
       }
     },
     scanAbort: () => (state.scanning = undefined),
