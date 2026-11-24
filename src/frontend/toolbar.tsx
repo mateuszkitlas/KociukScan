@@ -61,6 +61,25 @@ const PageButtons = ({ state, set }: StatePair) => {
       ]).map(([deg, txt, transform]) => (
         <RotateBtn {...{ set, txt, deg, transform }} key={deg} />
       ))}
+      <input
+        title="Contrast"
+        type="range"
+        min="1"
+        max="2"
+        step="0.05"
+        value={state.book.color.contrast}
+        onChange={e => set.book.color({ contrast: parseFloat(e.target.value) })}
+        style={{ verticalAlign: "middle", margin: "0 5px" }}
+      />
+      <label title="Allow resizing the crop frame" style={{ userSelect: "none" }}>
+        <input
+          type="checkbox"
+          checked={state.allowPageResize}
+          onChange={e => set({ allowPageResize: e.target.checked })}
+          style={{ verticalAlign: "middle" }}
+        />
+        resize
+      </label>
     </>
   );
 };
