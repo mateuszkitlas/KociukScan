@@ -10,7 +10,9 @@ processing through [sharp](https://sharp.pixelplumbing.com/) and PDF output thro
 
 - **Scan** one page, or **scan many** in a loop with a beep and a configurable pause
   between pages, so you can turn the page while it waits.
-- **Import** existing page images (PNG, JPEG, …) by dropping them into the app.
+- **Import** existing page images (PNG, JPEG, …) or a **PDF** (Settings → Import): drop
+  the files or pick them. PDF pages are rendered with [pdf.js](https://mozilla.github.io/pdf.js/)
+  at the DPI from the settings, so you can re-crop and straighten an existing scan.
 - **Straighten** each page by rotating it in 0.25º/0.5º steps, or by 90º/180º.
 - **Crop** with one frame size for the whole book. You move the frame on each page,
   and a page without its own position inherits it from the page two before, so left

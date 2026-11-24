@@ -5,22 +5,13 @@ import { CurrentPage } from "./page.js";
 import { useMainPageSize, offset } from "./offset.mjs";
 import { Modal, ModalYesNo } from "./modal.js";
 import { Settings } from "./Settings/Settings.js";
-import { FileDrop } from "react-file-drop";
-import { arrayBufferToBuffer } from "../native/utils.mjs";
+import { ImportPages } from "./ImportPages.js";
 import { InitProps } from "./utils.mjs";
 import { registerRendererEndpoints } from "./endpoints.js";
 import { StatePair, useKociukState } from "./state.mjs";
 
 const Stx = ({ state, set }: StatePair) => {
   const statePair = { state, set };
-  const addFiles = async (fl: FileList) => {
-    const newPages = await set.invoke(
-      "scanFromFiles",
-      (await Promise.all(Array.from(fl).map(f => f.arrayBuffer()))).map(arrayBufferToBuffer),
-    );
-    set.pages(pages => [...pages, ...newPages]);
-  };
-
   switch (state.modal?.kind) {
     case undefined:
       return null;
@@ -78,21 +69,7 @@ const Stx = ({ state, set }: StatePair) => {
         case "importPages":
           return (
             <Modal onClose={closeModalModal} title="Import pages">
-              <FileDrop onDrop={files => files && addFiles(files)}>
-                <div
-                  style={{
-                    width: 490,
-                    height: 250,
-                    border: "5px dashed #fff",
-                    borderRadius: 15,
-                    paddingTop: 240,
-                    textAlign: "center",
-                    fontSize: 30,
-                  }}
-                >
-                  Drop images here
-                </div>
-              </FileDrop>
+              <ImportPages {...statePair} />
             </Modal>
           );
         case undefined:
